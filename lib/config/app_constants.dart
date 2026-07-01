@@ -15,8 +15,10 @@ class AppConstants {
       return 'http://localhost:3000/api';
     }
   }
-  static const int connectionTimeout = 30000;
-  static const int receiveTimeout = 30000;
+
+  static const int connectionTimeout = 10000;
+  static const int receiveTimeout = 10000;
+  static const int authRequestTimeout = 6000;
 
   // Auth
   static const String tokenKey = 'auth_token';

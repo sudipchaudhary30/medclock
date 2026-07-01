@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../config/app_theme.dart';
 import '../../config/routes.dart';
-import '../../models/user_model.dart';
 import '../../providers/auth_provider.dart';
 import '../../widgets/layout/mc_scaffold.dart';
 import '../../widgets/buttons/mc_primary_button.dart';
@@ -19,19 +18,10 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
 
   void _onTabTap(int index) {
     if (index == 3) return;
-    final user = ref.read(authProvider);
     if (index == 0) {
-      if (user?.role == UserRole.caregiver) {
-        Navigator.of(context).pushReplacementNamed(AppRoutes.caregiverDashboard);
-      } else {
-        Navigator.of(context).pushReplacementNamed(AppRoutes.home);
-      }
+      Navigator.of(context).pushReplacementNamed(AppRoutes.home);
     } else if (index == 1) {
-      if (user?.role == UserRole.caregiver) {
-        Navigator.of(context).pushReplacementNamed(AppRoutes.familyDashboard);
-      } else {
-        Navigator.of(context).pushReplacementNamed(AppRoutes.medicationList);
-      }
+      Navigator.of(context).pushReplacementNamed(AppRoutes.medicationList);
     } else if (index == 2) {
       Navigator.of(context).pushReplacementNamed(AppRoutes.doseHistory);
     }
@@ -45,7 +35,6 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       title: 'Settings',
       selectedIndex: _selectedIndex,
       onTabTap: _onTabTap,
-      isCaregiver: user?.role == UserRole.caregiver,
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -63,10 +52,16 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 children: [
                   CircleAvatar(
                     radius: 30,
-                    backgroundColor: AppTheme.primaryColor.withValues(alpha: 0.1),
+                    backgroundColor: AppTheme.primaryColor.withValues(
+                      alpha: 0.1,
+                    ),
                     child: Text(
                       (user?.name ?? 'Animesh').substring(0, 1).toUpperCase(),
-                      style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: AppTheme.primaryColor),
+                      style: TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                        color: AppTheme.primaryColor,
+                      ),
                     ),
                   ),
                   const SizedBox(width: 16),
@@ -76,19 +71,22 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                       children: [
                         Text(
                           user?.name ?? 'Animesh Prasad',
-                          style: AppTheme.bodyLarge.copyWith(fontWeight: FontWeight.bold),
+                          style: AppTheme.bodyLarge.copyWith(
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                         const SizedBox(height: 2),
-                        Text(
-                          'Patient ID: MC-8829-NP',
-                          style: AppTheme.caption,
-                        ),
+                        Text('Patient ID: MC-8829-NP', style: AppTheme.caption),
                       ],
                     ),
                   ),
                   IconButton(
-                    icon: Icon(Icons.edit_outlined, color: AppTheme.primaryColor),
-                    onPressed: () => Navigator.of(context).pushNamed(AppRoutes.profile),
+                    icon: Icon(
+                      Icons.edit_outlined,
+                      color: AppTheme.primaryColor,
+                    ),
+                    onPressed: () =>
+                        Navigator.of(context).pushNamed(AppRoutes.profile),
                   ),
                 ],
               ),
@@ -98,7 +96,10 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
             // Notifications Card Section
             Text(
               'NOTIFICATIONS',
-              style: AppTheme.caption.copyWith(fontWeight: FontWeight.bold, letterSpacing: 1.1),
+              style: AppTheme.caption.copyWith(
+                fontWeight: FontWeight.bold,
+                letterSpacing: 1.1,
+              ),
             ),
             const SizedBox(height: 8),
             Container(
@@ -132,7 +133,10 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
             // Care Circle Card Section
             Text(
               'CARE CIRCLE',
-              style: AppTheme.caption.copyWith(fontWeight: FontWeight.bold, letterSpacing: 1.1),
+              style: AppTheme.caption.copyWith(
+                fontWeight: FontWeight.bold,
+                letterSpacing: 1.1,
+              ),
             ),
             const SizedBox(height: 8),
             Container(
@@ -150,7 +154,10 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                       CircleAvatar(
                         radius: 20,
                         backgroundColor: Colors.teal.shade100,
-                        child: const Icon(Icons.health_and_safety_rounded, color: Colors.teal),
+                        child: const Icon(
+                          Icons.health_and_safety_rounded,
+                          color: Colors.teal,
+                        ),
                       ),
                       const SizedBox(width: 12),
                       Expanded(
@@ -163,15 +170,15 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                             ),
                             Text(
                               'Primary Caregiver',
-                              style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: Colors.grey.shade600,
+                              ),
                             ),
                           ],
                         ),
                       ),
-                      TextButton(
-                        onPressed: () {},
-                        child: const Text('Manage'),
-                      ),
+                      TextButton(onPressed: () {}, child: const Text('Manage')),
                     ],
                   ),
                   const SizedBox(height: 16),
@@ -183,7 +190,11 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                     ),
                     child: Row(
                       children: [
-                        Icon(Icons.qr_code_2_rounded, color: AppTheme.primaryColor, size: 28),
+                        Icon(
+                          Icons.qr_code_2_rounded,
+                          color: AppTheme.primaryColor,
+                          size: 28,
+                        ),
                         const SizedBox(width: 12),
                         Expanded(
                           child: Column(
@@ -191,16 +202,25 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                             children: [
                               Text(
                                 'Link Caregiver',
-                                style: TextStyle(fontWeight: FontWeight.bold, color: AppTheme.primaryDark),
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  color: AppTheme.primaryDark,
+                                ),
                               ),
                               Text(
                                 'Generate sync code for family',
-                                style: TextStyle(fontSize: 12, color: AppTheme.primaryColor),
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  color: AppTheme.primaryColor,
+                                ),
                               ),
                             ],
                           ),
                         ),
-                        Icon(Icons.chevron_right_rounded, color: AppTheme.primaryColor),
+                        Icon(
+                          Icons.chevron_right_rounded,
+                          color: AppTheme.primaryColor,
+                        ),
                       ],
                     ),
                   ),
@@ -210,7 +230,9 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                     icon: const Icon(Icons.add_rounded),
                     label: const Text('Add Family Member'),
                     style: OutlinedButton.styleFrom(
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
                       side: BorderSide(color: AppTheme.dividerColor),
                     ),
                   ),
@@ -222,7 +244,10 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
             // Preference list items
             Text(
               'APP PREFERENCES',
-              style: AppTheme.caption.copyWith(fontWeight: FontWeight.bold, letterSpacing: 1.1),
+              style: AppTheme.caption.copyWith(
+                fontWeight: FontWeight.bold,
+                letterSpacing: 1.1,
+              ),
             ),
             const SizedBox(height: 8),
             Container(
@@ -234,7 +259,10 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
               child: Column(
                 children: [
                   ListTile(
-                    leading: Icon(Icons.sync_rounded, color: AppTheme.primaryColor),
+                    leading: Icon(
+                      Icons.sync_rounded,
+                      color: AppTheme.primaryColor,
+                    ),
                     title: const Text('Sync Devices'),
                     subtitle: const Text('Last synced 2m ago'),
                     trailing: const Icon(Icons.chevron_right_rounded),
@@ -242,17 +270,25 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   ),
                   const Divider(indent: 16, endIndent: 16),
                   ListTile(
-                    leading: Icon(Icons.wifi_off_rounded, color: AppTheme.primaryColor),
+                    leading: Icon(
+                      Icons.wifi_off_rounded,
+                      color: AppTheme.primaryColor,
+                    ),
                     title: const Text('Offline Mode'),
                     trailing: const Icon(Icons.chevron_right_rounded),
                     onTap: () {},
                   ),
                   const Divider(indent: 16, endIndent: 16),
                   ListTile(
-                    leading: Icon(Icons.accessibility_new_rounded, color: AppTheme.primaryColor),
+                    leading: Icon(
+                      Icons.accessibility_new_rounded,
+                      color: AppTheme.primaryColor,
+                    ),
                     title: const Text('Accessibility'),
                     trailing: const Icon(Icons.chevron_right_rounded),
-                    onTap: () => Navigator.of(context).pushNamed(AppRoutes.accessibilitySettings),
+                    onTap: () => Navigator.of(
+                      context,
+                    ).pushNamed(AppRoutes.accessibilitySettings),
                   ),
                 ],
               ),
@@ -267,7 +303,9 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
               onTap: () async {
                 await ref.read(authProvider.notifier).logout();
                 if (context.mounted) {
-                  Navigator.of(context).pushNamedAndRemoveUntil(AppRoutes.login, (route) => false);
+                  Navigator.of(
+                    context,
+                  ).pushNamedAndRemoveUntil(AppRoutes.login, (route) => false);
                 }
               },
             ),

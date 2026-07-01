@@ -31,15 +31,11 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
       vsync: this,
       duration: const Duration(milliseconds: 600),
     );
-    _fadeAnim =
-        CurvedAnimation(parent: _animController, curve: Curves.easeIn);
+    _fadeAnim = CurvedAnimation(parent: _animController, curve: Curves.easeIn);
     _slideAnim = Tween<Offset>(
       begin: const Offset(0, 0.12),
       end: Offset.zero,
-    ).animate(CurvedAnimation(
-      parent: _animController,
-      curve: Curves.easeOut,
-    ));
+    ).animate(CurvedAnimation(parent: _animController, curve: Curves.easeOut));
     _animController.forward();
   }
 
@@ -54,16 +50,17 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
   void _submit() async {
     if (!_formKey.currentState!.validate()) return;
     setState(() => _isLoading = true);
-    final success = await ref.read(authProvider.notifier).login(
-          _emailController.text.trim(),
-          _passwordController.text.trim(),
-        );
+    final success = await ref
+        .read(authProvider.notifier)
+        .login(_emailController.text.trim(), _passwordController.text.trim());
     setState(() => _isLoading = false);
 
     if (success && mounted) {
       final user = ref.read(authProvider);
       if (user?.role == UserRole.caregiver) {
-        Navigator.of(context).pushReplacementNamed(AppRoutes.caregiverDashboard);
+        Navigator.of(
+          context,
+        ).pushReplacementNamed(AppRoutes.caregiverDashboard);
       } else {
         Navigator.of(context).pushReplacementNamed(AppRoutes.home);
       }
@@ -78,19 +75,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
       body: Container(
         width: double.infinity,
         height: double.infinity,
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [
-              Color(0xFF0D2D3E),
-              Color(0xFF1B6A8A),
-              Color(0xFFCDE8F0),
-              Color(0xFFF0F8FC),
-            ],
-            stops: [0.0, 0.18, 0.55, 1.0],
-          ),
-        ),
+        decoration: const BoxDecoration(color: Color(0xFFFFFFFF)),
         child: SafeArea(
           child: SingleChildScrollView(
             child: Padding(
@@ -105,13 +90,13 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                     // Logo
                     Center(
                       child: Image.asset(
-                        'assets/medclock  logo.png',
-                        height: 90,
+                        'assets/medclocklogo.png',
+                        height: 160,
                         fit: BoxFit.contain,
                       ),
                     ),
 
-                    const SizedBox(height: 14),
+                    const SizedBox(height: 2),
 
                     // Tagline
                     const Text(
@@ -124,7 +109,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                       textAlign: TextAlign.center,
                     ),
 
-                    const SizedBox(height: 32),
+                    const SizedBox(height: 15),
 
                     // Form Card
                     FadeTransition(
@@ -219,8 +204,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                                     ),
                                   ),
                                   GestureDetector(
-                                    onTap: () => Navigator.of(context)
-                                        .pushNamed(AppRoutes.forgotPassword),
+                                    onTap: () => Navigator.of(
+                                      context,
+                                    ).pushNamed(AppRoutes.forgotPassword),
                                     child: const Text(
                                       'Forgot?',
                                       style: TextStyle(
@@ -246,7 +232,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                                   ),
                                   Padding(
                                     padding: const EdgeInsets.symmetric(
-                                        horizontal: 12),
+                                      horizontal: 12,
+                                    ),
                                     child: Text(
                                       'BIOMETRIC SECURE',
                                       style: TextStyle(
@@ -326,8 +313,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                           ),
                         ),
                         GestureDetector(
-                          onTap: () => Navigator.of(context)
-                              .pushNamed(AppRoutes.register),
+                          onTap: () => Navigator.of(
+                            context,
+                          ).pushNamed(AppRoutes.register),
                           child: const Text(
                             'Account',
                             style: TextStyle(
@@ -419,8 +407,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
         prefixIcon: Icon(icon, color: AppTheme.textHint, size: 20),
         filled: true,
         fillColor: const Color(0xFFF5F7FA),
-        contentPadding:
-            const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 14,
+          vertical: 14,
+        ),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
           borderSide: const BorderSide(color: AppTheme.dividerColor),
@@ -431,8 +421,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide:
-              const BorderSide(color: AppTheme.primaryColor, width: 1.8),
+          borderSide: const BorderSide(
+            color: AppTheme.primaryColor,
+            width: 1.8,
+          ),
         ),
         errorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
@@ -450,14 +442,16 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
     return TextFormField(
       controller: _passwordController,
       obscureText: _obscurePassword,
-      validator: (v) =>
-          v == null || v.length < 6 ? 'Password too short' : null,
+      validator: (v) => v == null || v.length < 6 ? 'Password too short' : null,
       style: const TextStyle(fontSize: 15, color: AppTheme.textPrimary),
       decoration: InputDecoration(
         hintText: '••••••••',
         hintStyle: const TextStyle(color: AppTheme.textHint, fontSize: 14),
-        prefixIcon: const Icon(Icons.lock_outline_rounded,
-            color: AppTheme.textHint, size: 20),
+        prefixIcon: const Icon(
+          Icons.lock_outline_rounded,
+          color: AppTheme.textHint,
+          size: 20,
+        ),
         suffixIcon: GestureDetector(
           onTap: () => setState(() => _obscurePassword = !_obscurePassword),
           child: Icon(
@@ -470,8 +464,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
         ),
         filled: true,
         fillColor: const Color(0xFFF5F7FA),
-        contentPadding:
-            const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 14,
+          vertical: 14,
+        ),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
           borderSide: const BorderSide(color: AppTheme.dividerColor),
@@ -482,8 +478,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide:
-              const BorderSide(color: AppTheme.primaryColor, width: 1.8),
+          borderSide: const BorderSide(
+            color: AppTheme.primaryColor,
+            width: 1.8,
+          ),
         ),
         errorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),

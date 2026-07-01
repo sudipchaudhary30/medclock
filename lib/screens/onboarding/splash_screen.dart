@@ -10,6 +10,9 @@ class SplashScreen extends StatefulWidget {
 
 class _SplashScreenState extends State<SplashScreen>
     with SingleTickerProviderStateMixin {
+  static const Color _backgroundColor = Color(0xFFF8F9FF);
+  static const Color _primaryColor = Color(0xFF0E5F97);
+  static const Color _badgeTextColor = Color(0xFF4B5F7A);
   late AnimationController _animController;
   late Animation<double> _fadeAnim;
   late Animation<double> _slideAnim;
@@ -22,9 +25,10 @@ class _SplashScreenState extends State<SplashScreen>
       duration: const Duration(milliseconds: 1200),
     );
     _fadeAnim = CurvedAnimation(parent: _animController, curve: Curves.easeIn);
-    _slideAnim = Tween<double>(begin: 30, end: 0).animate(
-      CurvedAnimation(parent: _animController, curve: Curves.easeOut),
-    );
+    _slideAnim = Tween<double>(
+      begin: 30,
+      end: 0,
+    ).animate(CurvedAnimation(parent: _animController, curve: Curves.easeOut));
     _animController.forward();
 
     // Auto-navigate to onboarding after 2.5 seconds
@@ -44,20 +48,16 @@ class _SplashScreenState extends State<SplashScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: _backgroundColor,
       body: Container(
         width: double.infinity,
         height: double.infinity,
         decoration: const BoxDecoration(
           gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [
-              Color(0xFF0D2D3E), // Dark navy top
-              Color(0xFF1A6B8A), // Mid teal
-              Color(0xFFB8DDE8), // Light blue
-              Color(0xFFE8F4F8), // Very light blue bottom
-            ],
-            stops: [0.0, 0.25, 0.65, 1.0],
+            begin: Alignment.centerLeft,
+            end: Alignment.centerRight,
+            colors: [Color(0xFFE7F5FF), Color(0xFFF8F9FF), Color(0xFFEAF6FF)],
+            stops: [0.0, 0.52, 1.0],
           ),
         ),
         child: SafeArea(
@@ -65,7 +65,7 @@ class _SplashScreenState extends State<SplashScreen>
             opacity: _fadeAnim,
             child: Column(
               children: [
-                const Spacer(flex: 2),
+                const Spacer(flex: 1),
 
                 // Logo
                 AnimatedBuilder(
@@ -74,54 +74,56 @@ class _SplashScreenState extends State<SplashScreen>
                     offset: Offset(0, _slideAnim.value),
                     child: child,
                   ),
-                  child: Column(
-                    children: [
-                      Container(
-                        width: 120,
-                        height: 120,
-                        decoration: BoxDecoration(
-                          color: Colors.white.withValues(alpha: 0.15),
-                          borderRadius: BorderRadius.circular(30),
+                  child: SizedBox(
+                    width: 320,
+                    height: 280,
+                    child: Stack(
+                      alignment: Alignment.center,
+                      children: [
+                        Container(
+                          width: 180,
+                          height: 180,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            boxShadow: [
+                              BoxShadow(
+                                color: _primaryColor.withValues(alpha: 0.18),
+                                blurRadius: 35,
+                                spreadRadius: 6,
+                              ),
+                            ],
+                          ),
                         ),
-                        padding: const EdgeInsets.all(12),
-                        child: Image.asset(
-                          'assets/medclock  logo.png',
+                        Image.asset(
+                          'assets/medclocklogo.png',
+                          width: 320,
+                          height: 280,
                           fit: BoxFit.contain,
                         ),
-                      ),
-                      const SizedBox(height: 16),
-                      const Text(
-                        'MedClock',
-                        style: TextStyle(
-                          fontSize: 32,
-                          fontWeight: FontWeight.w800,
-                          color: Colors.white,
-                          letterSpacing: 0.5,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-
-                const Spacer(flex: 2),
-
-                // Tagline
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 40),
-                  child: Text(
-                    '"Precision monitoring for your\nmedical journey."',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontStyle: FontStyle.italic,
-                      color: Colors.white.withValues(alpha: 0.9),
-                      height: 1.5,
-                      fontWeight: FontWeight.w300,
+                      ],
                     ),
                   ),
                 ),
 
-                const Spacer(flex: 3),
+                const SizedBox(height: 16),
+
+                // Tagline
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 24),
+                  child: Text(
+                    '"Precision monitoring for your\nmedical journey."',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 17,
+                      fontStyle: FontStyle.italic,
+                      color: Color(0xFF5F6772),
+                      height: 1.7,
+                      fontWeight: FontWeight.w400,
+                    ),
+                  ),
+                ),
+
+                const Spacer(flex: 2),
 
                 // Page Dots
                 Row(
@@ -130,32 +132,41 @@ class _SplashScreenState extends State<SplashScreen>
                     return AnimatedContainer(
                       duration: const Duration(milliseconds: 300),
                       margin: const EdgeInsets.symmetric(horizontal: 4),
-                      width: index == 0 ? 24 : 8,
-                      height: 8,
+                      width: index == 0 ? 18 : 6,
+                      height: 6,
                       decoration: BoxDecoration(
                         color: index == 0
-                            ? Colors.white
-                            : Colors.white.withValues(alpha: 0.35),
-                        borderRadius: BorderRadius.circular(4),
+                            ? _primaryColor
+                            : _primaryColor.withValues(alpha: 0.28),
+                        borderRadius: BorderRadius.circular(3),
                       ),
                     );
                   }),
                 ),
 
-                const SizedBox(height: 40),
+                const SizedBox(height: 38),
 
                 // Trusted Badge
                 Container(
-                  margin: const EdgeInsets.symmetric(horizontal: 32),
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+                  margin: const EdgeInsets.symmetric(horizontal: 20),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 18,
+                    vertical: 12,
+                  ),
                   decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha: 0.18),
-                    borderRadius: BorderRadius.circular(16),
+                    color: Colors.white.withValues(alpha: 0.78),
+                    borderRadius: BorderRadius.circular(24),
                     border: Border.all(
-                      color: Colors.white.withValues(alpha: 0.25),
+                      color: const Color(0xFFE2EAF6),
                       width: 1,
                     ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: _primaryColor.withValues(alpha: 0.06),
+                        blurRadius: 14,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
                   ),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
@@ -163,25 +174,36 @@ class _SplashScreenState extends State<SplashScreen>
                     children: [
                       Icon(
                         Icons.verified_user_rounded,
-                        color: Colors.white.withValues(alpha: 0.9),
-                        size: 18,
+                        color: _primaryColor,
+                        size: 16,
                       ),
                       const SizedBox(width: 10),
                       Text(
                         'TRUSTED BY CLINICAL\nPROFESSIONALS',
                         style: TextStyle(
-                          color: Colors.white.withValues(alpha: 0.9),
-                          fontSize: 11,
+                          color: _badgeTextColor,
+                          fontSize: 13,
                           fontWeight: FontWeight.w600,
-                          letterSpacing: 0.8,
-                          height: 1.4,
+                          letterSpacing: 2.2,
+                          height: 1.35,
                         ),
                       ),
                     ],
                   ),
                 ),
 
-                const SizedBox(height: 48),
+                const SizedBox(height: 12),
+
+                Container(
+                  width: 42,
+                  height: 1.5,
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFD8E2EF),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                ),
+
+                const SizedBox(height: 24),
               ],
             ),
           ),

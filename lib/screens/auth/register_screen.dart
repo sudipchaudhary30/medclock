@@ -5,6 +5,7 @@ import '../../config/routes.dart';
 import '../../models/user_model.dart';
 import '../../providers/auth_provider.dart';
 import '../../widgets/common/mc_toast.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 class RegisterScreen extends ConsumerStatefulWidget {
   const RegisterScreen({super.key});
@@ -33,15 +34,11 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen>
       vsync: this,
       duration: const Duration(milliseconds: 600),
     );
-    _fadeAnim =
-        CurvedAnimation(parent: _animController, curve: Curves.easeIn);
+    _fadeAnim = CurvedAnimation(parent: _animController, curve: Curves.easeIn);
     _slideAnim = Tween<Offset>(
       begin: const Offset(0, 0.12),
       end: Offset.zero,
-    ).animate(CurvedAnimation(
-      parent: _animController,
-      curve: Curves.easeOut,
-    ));
+    ).animate(CurvedAnimation(parent: _animController, curve: Curves.easeOut));
     _animController.forward();
   }
 
@@ -57,7 +54,9 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen>
   void _submit() async {
     if (!_formKey.currentState!.validate()) return;
     setState(() => _isLoading = true);
-    final success = await ref.read(authProvider.notifier).register(
+    final success = await ref
+        .read(authProvider.notifier)
+        .register(
           email: _emailController.text.trim(),
           password: _passwordController.text.trim(),
           name: _nameController.text.trim(),
@@ -66,7 +65,13 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen>
     setState(() => _isLoading = false);
 
     if (success && mounted) {
-      Navigator.of(context).pushReplacementNamed(AppRoutes.roleSelection);
+      if (_selectedRole == UserRole.caregiver) {
+        Navigator.of(
+          context,
+        ).pushReplacementNamed(AppRoutes.caregiverDashboard);
+      } else {
+        Navigator.of(context).pushReplacementNamed(AppRoutes.medicationSetup);
+      }
     } else if (mounted) {
       McToast.showError(context, 'Registration failed. Please try again.');
     }
@@ -78,40 +83,28 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen>
       body: Container(
         width: double.infinity,
         height: double.infinity,
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [
-              Color(0xFF0D2D3E),
-              Color(0xFF1B6A8A),
-              Color(0xFFCDE8F0),
-              Color(0xFFF0F8FC),
-            ],
-            stops: [0.0, 0.18, 0.55, 1.0],
-          ),
-        ),
+        decoration: const BoxDecoration(color: Color(0xFFFFFFFF)),
         child: SafeArea(
           child: SingleChildScrollView(
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24),
+              padding: const EdgeInsets.symmetric(horizontal: 16),
               child: Form(
                 key: _formKey,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    const SizedBox(height: 24),
+                    const SizedBox(height: 8),
 
                     // Logo
                     Center(
                       child: Image.asset(
-                        'assets/medclock  logo.png',
-                        height: 80,
+                        'assets/medclocklogo.png',
+                        height: 130,
                         fit: BoxFit.contain,
                       ),
                     ),
 
-                    const SizedBox(height: 14),
+                    const SizedBox(height: 4),
 
                     // Headline
                     const Text(
@@ -125,7 +118,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen>
                       textAlign: TextAlign.center,
                     ),
 
-                    const SizedBox(height: 28),
+                    const SizedBox(height: 10),
 
                     // Form Card
                     FadeTransition(
@@ -133,7 +126,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen>
                       child: SlideTransition(
                         position: _slideAnim,
                         child: Container(
-                          padding: const EdgeInsets.all(22),
+                          padding: const EdgeInsets.all(16),
                           decoration: BoxDecoration(
                             color: Colors.white,
                             borderRadius: BorderRadius.circular(24),
@@ -155,8 +148,9 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen>
                                 controller: _nameController,
                                 hint: 'Sudip Chaudhary',
                                 icon: Icons.person_outline_rounded,
-                                validator: (v) =>
-                                    v == null || v.isEmpty ? 'Name is required' : null,
+                                validator: (v) => v == null || v.isEmpty
+                                    ? 'Name is required'
+                                    : null,
                               ),
 
                               const SizedBox(height: 16),
@@ -206,7 +200,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen>
                                 child: ElevatedButton(
                                   onPressed: _isLoading ? null : _submit,
                                   style: ElevatedButton.styleFrom(
-                                    backgroundColor: const Color(0xFF0D2D3E),
+                                    backgroundColor: AppTheme.primaryColor,
                                     foregroundColor: Colors.white,
                                     shape: RoundedRectangleBorder(
                                       borderRadius: BorderRadius.circular(14),
@@ -244,8 +238,9 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen>
                                     ),
                                   ),
                                   Padding(
-                                    padding:
-                                        const EdgeInsets.symmetric(horizontal: 12),
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 12,
+                                    ),
                                     child: Text(
                                       'OR SIGN UP WITH',
                                       style: TextStyle(
@@ -279,17 +274,17 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen>
                                       borderRadius: BorderRadius.circular(14),
                                     ),
                                     side: const BorderSide(
-                                        color: AppTheme.dividerColor, width: 1.5),
+                                      color: AppTheme.dividerColor,
+                                      width: 1.5,
+                                    ),
                                   ),
                                   child: Row(
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     children: [
-                                      SizedBox(
-                                        width: 20,
-                                        height: 20,
-                                        child: CustomPaint(
-                                          painter: _GooglePainter(),
-                                        ),
+                                      SvgPicture.asset(
+                                        'assets/google-icon-logo.svg',
+                                        width: 22,
+                                        height: 22,
                                       ),
                                       const SizedBox(width: 10),
                                       const Text(
@@ -323,8 +318,9 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen>
                           ),
                         ),
                         GestureDetector(
-                          onTap: () => Navigator.of(context)
-                              .pushReplacementNamed(AppRoutes.login),
+                          onTap: () => Navigator.of(
+                            context,
+                          ).pushReplacementNamed(AppRoutes.login),
                           child: const Text(
                             'Log In',
                             style: TextStyle(
@@ -397,18 +393,17 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen>
       controller: controller,
       keyboardType: keyboardType,
       validator: validator,
-      style: const TextStyle(
-        fontSize: 15,
-        color: AppTheme.textPrimary,
-      ),
+      style: const TextStyle(fontSize: 15, color: AppTheme.textPrimary),
       decoration: InputDecoration(
         hintText: hint,
         hintStyle: const TextStyle(color: AppTheme.textHint, fontSize: 14),
         prefixIcon: Icon(icon, color: AppTheme.textHint, size: 20),
         filled: true,
         fillColor: const Color(0xFFF5F7FA),
-        contentPadding:
-            const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 14,
+          vertical: 14,
+        ),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
           borderSide: const BorderSide(color: AppTheme.dividerColor),
@@ -419,8 +414,10 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen>
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide:
-              const BorderSide(color: AppTheme.primaryColor, width: 1.8),
+          borderSide: const BorderSide(
+            color: AppTheme.primaryColor,
+            width: 1.8,
+          ),
         ),
         errorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
@@ -437,16 +434,20 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen>
   Widget _buildRoleDropdown() {
     return DropdownButtonFormField<UserRole>(
       initialValue: _selectedRole,
-      icon: const Icon(Icons.keyboard_arrow_down_rounded,
-          color: AppTheme.textHint),
+      icon: const Icon(
+        Icons.keyboard_arrow_down_rounded,
+        color: AppTheme.textHint,
+      ),
       style: const TextStyle(fontSize: 15, color: AppTheme.textPrimary),
       decoration: InputDecoration(
         hintText: 'Select Role',
         hintStyle: const TextStyle(color: AppTheme.textHint, fontSize: 14),
         filled: true,
         fillColor: const Color(0xFFF5F7FA),
-        contentPadding:
-            const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 14,
+          vertical: 14,
+        ),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
           borderSide: const BorderSide(color: AppTheme.dividerColor),
@@ -457,8 +458,10 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen>
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide:
-              const BorderSide(color: AppTheme.primaryColor, width: 1.8),
+          borderSide: const BorderSide(
+            color: AppTheme.primaryColor,
+            width: 1.8,
+          ),
         ),
       ),
       items: const [
@@ -481,8 +484,11 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen>
       decoration: InputDecoration(
         hintText: '••••••••',
         hintStyle: const TextStyle(color: AppTheme.textHint, fontSize: 14),
-        prefixIcon:
-            const Icon(Icons.lock_outline_rounded, color: AppTheme.textHint, size: 20),
+        prefixIcon: const Icon(
+          Icons.lock_outline_rounded,
+          color: AppTheme.textHint,
+          size: 20,
+        ),
         suffixIcon: GestureDetector(
           onTap: () => setState(() => _obscurePassword = !_obscurePassword),
           child: Icon(
@@ -495,8 +501,10 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen>
         ),
         filled: true,
         fillColor: const Color(0xFFF5F7FA),
-        contentPadding:
-            const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 14,
+          vertical: 14,
+        ),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
           borderSide: const BorderSide(color: AppTheme.dividerColor),
@@ -507,8 +515,10 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen>
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide:
-              const BorderSide(color: AppTheme.primaryColor, width: 1.8),
+          borderSide: const BorderSide(
+            color: AppTheme.primaryColor,
+            width: 1.8,
+          ),
         ),
         errorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
@@ -521,38 +531,4 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen>
       ),
     );
   }
-}
-
-class _GooglePainter extends CustomPainter {
-  @override
-  void paint(Canvas canvas, Size size) {
-    final cx = size.width / 2;
-    final cy = size.height / 2;
-    final r = size.width / 2;
-
-    void arc(Color color, double start, double sweep) {
-      final paint = Paint()
-        ..color = color
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = size.width * 0.2
-        ..strokeCap = StrokeCap.round;
-      final rect = Rect.fromCircle(center: Offset(cx, cy), radius: r * 0.72);
-      canvas.drawArc(rect, start, sweep, false, paint);
-    }
-
-    arc(const Color(0xFF4285F4), -2.3, 1.5);
-    arc(const Color(0xFFEA4335), -0.8, 1.6);
-    arc(const Color(0xFFFBBC05), 0.8, 1.2);
-    arc(const Color(0xFF34A853), 2.0, 1.6);
-
-    final barPaint = Paint()
-      ..color = const Color(0xFF4285F4)
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = size.width * 0.2
-      ..strokeCap = StrokeCap.round;
-    canvas.drawLine(Offset(cx, cy), Offset(cx + r * 0.72, cy), barPaint);
-  }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }

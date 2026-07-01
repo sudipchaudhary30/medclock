@@ -5,7 +5,6 @@ import '../screens/auth/forgot_password_screen.dart';
 import '../screens/onboarding/splash_screen.dart';
 import '../screens/onboarding/onboarding_screen.dart';
 import '../screens/onboarding/welcome_screen.dart';
-import '../screens/onboarding/role_selection_screen.dart';
 import '../screens/onboarding/medication_setup_screen.dart';
 import '../screens/home/home_screen.dart';
 import '../screens/reminders/reminder_screen.dart';
@@ -48,7 +47,6 @@ class AppRoutes {
 
   // Onboarding
   static const String onboarding = '/onboarding';
-  static const String roleSelection = '/role-selection';
   static const String medicationSetup = '/medication-setup';
 
   // Home
@@ -99,14 +97,16 @@ class AppRoutes {
 
   static Map<String, WidgetBuilder> get routes {
     return {
+      // Shared entry flow
       splash: (_) => const SplashScreen(),
       welcome: (_) => const WelcomeScreen(),
       login: (_) => const LoginScreen(),
       register: (_) => const RegisterScreen(),
       forgotPassword: (_) => const ForgotPasswordScreen(),
       onboarding: (_) => const OnboardingScreen(),
-      roleSelection: (_) => const RoleSelectionScreen(),
       medicationSetup: (_) => const MedicationSetupScreen(),
+
+      // Shared screens for both patients and caregivers
       home: (_) => const HomeScreen(),
       reminder: (_) => const ReminderScreen(),
       reminderList: (_) => const ReminderListScreen(),
@@ -117,12 +117,16 @@ class AppRoutes {
       doseConfirm: (_) => const DoseConfirmScreen(),
       doseHistory: (_) => const DoseHistoryScreen(),
       missedDose: (_) => const MissedDoseScreen(),
+
+      // Caregiver-only screens
       caregiverDashboard: (_) => const CaregiverDashboard(),
       caregiverSettings: (_) => const CaregiverSettingsScreen(),
       dailySummary: (_) => const DailySummaryScreen(),
       familyDashboard: (_) => const FamilyDashboardScreen(),
       addMember: (_) => const AddMemberScreen(),
       memberDetail: (_) => const MemberDetailScreen(),
+
+      // Utility and settings screens shared across roles
       refill: (_) => const RefillScreen(),
       refillSettings: (_) => const RefillSettingsScreen(),
       deliveryTracking: (_) => const DeliveryTrackingScreen(),

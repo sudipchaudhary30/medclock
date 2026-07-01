@@ -22,13 +22,11 @@ class _WelcomeScreenState extends State<WelcomeScreen>
       vsync: this,
       duration: const Duration(milliseconds: 700),
     );
-    _fadeAnim =
-        CurvedAnimation(parent: _animController, curve: Curves.easeIn);
+    _fadeAnim = CurvedAnimation(parent: _animController, curve: Curves.easeIn);
     _slideAnim = Tween<Offset>(
       begin: const Offset(0, 0.15),
       end: Offset.zero,
-    ).animate(
-        CurvedAnimation(parent: _animController, curve: Curves.easeOut));
+    ).animate(CurvedAnimation(parent: _animController, curve: Curves.easeOut));
     _animController.forward();
   }
 
@@ -44,19 +42,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
       body: Container(
         width: double.infinity,
         height: double.infinity,
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [
-              Color(0xFF0D2D3E),
-              Color(0xFF1B6A8A),
-              Color(0xFFCDE8F0),
-              Color(0xFFF0F8FC),
-            ],
-            stops: [0.0, 0.18, 0.55, 1.0],
-          ),
-        ),
+        color: const Color(0xFFF8F9FF),
         child: SafeArea(
           child: Column(
             children: [
@@ -64,8 +50,8 @@ class _WelcomeScreenState extends State<WelcomeScreen>
 
               // Logo
               Image.asset(
-                'assets/medclock  logo.png',
-                height: 50,
+                'assets/medclocklogo.png',
+                height: 130,
                 fit: BoxFit.contain,
               ),
 
@@ -73,7 +59,9 @@ class _WelcomeScreenState extends State<WelcomeScreen>
               Expanded(
                 child: Padding(
                   padding: const EdgeInsets.symmetric(
-                      horizontal: 28, vertical: 20),
+                    horizontal: 28,
+                    vertical: 30,
+                  ),
                   child: Container(
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(28),
@@ -106,8 +94,9 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                     width: double.infinity,
                     decoration: const BoxDecoration(
                       color: Colors.white,
-                      borderRadius:
-                          BorderRadius.vertical(top: Radius.circular(32)),
+                      borderRadius: BorderRadius.vertical(
+                        top: Radius.circular(32),
+                      ),
                     ),
                     padding: const EdgeInsets.fromLTRB(24, 12, 24, 32),
                     child: Column(
@@ -129,12 +118,13 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                           width: double.infinity,
                           height: 56,
                           child: ElevatedButton.icon(
-                            onPressed: () => Navigator.of(context)
-                                .pushNamed(AppRoutes.register),
+                            onPressed: () => Navigator.of(
+                              context,
+                            ).pushNamed(AppRoutes.register),
                             icon: const Icon(Icons.email_outlined, size: 20),
                             label: const Text('Sign up with email'),
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: const Color(0xFF0D2D3E),
+                              backgroundColor: AppTheme.primaryColor,
                               foregroundColor: Colors.white,
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(16),
@@ -164,7 +154,9 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                                 borderRadius: BorderRadius.circular(16),
                               ),
                               side: const BorderSide(
-                                  color: AppTheme.dividerColor, width: 1.5),
+                                color: AppTheme.dividerColor,
+                                width: 1.5,
+                              ),
                             ),
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.center,
@@ -205,8 +197,9 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                               ),
                             ),
                             GestureDetector(
-                              onTap: () => Navigator.of(context)
-                                  .pushNamed(AppRoutes.login),
+                              onTap: () => Navigator.of(
+                                context,
+                              ).pushNamed(AppRoutes.login),
                               child: const Text(
                                 'Log in',
                                 style: TextStyle(
@@ -232,8 +225,9 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                             ),
                             children: [
                               const TextSpan(
-                                  text:
-                                      "By continuing, you agree to MedClock's\n"),
+                                text:
+                                    "By continuing, you agree to MedClock's\n",
+                              ),
                               WidgetSpan(
                                 child: GestureDetector(
                                   onTap: () {},
@@ -270,10 +264,7 @@ class _GoogleLogo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return CustomPaint(
-      painter: _GooglePainter(),
-      size: const Size(20, 20),
-    );
+    return CustomPaint(painter: _GooglePainter(), size: const Size(20, 20));
   }
 }
 
@@ -326,11 +317,7 @@ class _GooglePainter extends CustomPainter {
       ..strokeWidth = size.width * 0.2
       ..strokeCap = StrokeCap.round;
 
-    canvas.drawLine(
-      Offset(cx, cy),
-      Offset(cx + r * 0.72, cy),
-      barPaint,
-    );
+    canvas.drawLine(Offset(cx, cy), Offset(cx + r * 0.72, cy), barPaint);
   }
 
   @override

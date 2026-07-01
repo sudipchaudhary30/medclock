@@ -11,7 +11,8 @@ class MedicationListScreen extends ConsumerStatefulWidget {
   const MedicationListScreen({super.key});
 
   @override
-  ConsumerState<MedicationListScreen> createState() => _MedicationListScreenState();
+  ConsumerState<MedicationListScreen> createState() =>
+      _MedicationListScreenState();
 }
 
 class _MedicationListScreenState extends ConsumerState<MedicationListScreen> {
@@ -53,10 +54,9 @@ class _MedicationListScreenState extends ConsumerState<MedicationListScreen> {
                 final med = medications[index];
                 return McMedicationCard(
                   medication: med,
-                  onTap: () => Navigator.of(context).pushNamed(
-                    AppRoutes.medicationDetail,
-                    arguments: med,
-                  ),
+                  onTap: () => Navigator.of(
+                    context,
+                  ).pushNamed(AppRoutes.medicationDetail, arguments: med),
                 );
               },
             ),

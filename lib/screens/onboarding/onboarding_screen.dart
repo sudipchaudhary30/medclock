@@ -11,8 +11,8 @@ class OnboardingScreen extends StatefulWidget {
 
 class _OnboardingScreenState extends State<OnboardingScreen>
     with TickerProviderStateMixin {
+  static const Color _backgroundColor = Color(0xFFF8F9FF);
   int _currentStep = 0;
-  final PageController _pageController = PageController();
   late AnimationController _contentAnimController;
   late Animation<double> _fadeAnim;
   late Animation<Offset> _slideAnim;
@@ -58,19 +58,18 @@ class _OnboardingScreenState extends State<OnboardingScreen>
       parent: _contentAnimController,
       curve: Curves.easeIn,
     );
-    _slideAnim = Tween<Offset>(
-      begin: const Offset(0, 0.08),
-      end: Offset.zero,
-    ).animate(CurvedAnimation(
-      parent: _contentAnimController,
-      curve: Curves.easeOut,
-    ));
+    _slideAnim = Tween<Offset>(begin: const Offset(0, 0.08), end: Offset.zero)
+        .animate(
+          CurvedAnimation(
+            parent: _contentAnimController,
+            curve: Curves.easeOut,
+          ),
+        );
     _contentAnimController.forward();
   }
 
   @override
   void dispose() {
-    _pageController.dispose();
     _contentAnimController.dispose();
     super.dispose();
   }
@@ -78,10 +77,6 @@ class _OnboardingScreenState extends State<OnboardingScreen>
   void _next() {
     if (_currentStep < _slides.length - 1) {
       _contentAnimController.reset();
-      _pageController.nextPage(
-        duration: const Duration(milliseconds: 350),
-        curve: Curves.easeInOut,
-      );
       setState(() => _currentStep++);
       _contentAnimController.forward();
     } else {
@@ -99,20 +94,9 @@ class _OnboardingScreenState extends State<OnboardingScreen>
     final isLast = _currentStep == _slides.length - 1;
 
     return Scaffold(
+      backgroundColor: _backgroundColor,
       body: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [
-              Color(0xFF0D2D3E),
-              Color(0xFF1B6A8A),
-              Color(0xFFCDE8F0),
-              Color(0xFFF0F8FC),
-            ],
-            stops: [0.0, 0.18, 0.55, 1.0],
-          ),
-        ),
+        color: _backgroundColor,
         child: SafeArea(
           child: Column(
             children: [
@@ -120,8 +104,8 @@ class _OnboardingScreenState extends State<OnboardingScreen>
 
               // Logo at top
               Image.asset(
-                'assets/medclock  logo.png',
-                height: 50,
+                'assets/medclocklogo.png',
+                height: 125,
                 fit: BoxFit.contain,
               ),
 
@@ -129,7 +113,7 @@ class _OnboardingScreenState extends State<OnboardingScreen>
 
               // Image Card
               Expanded(
-                flex: 5,
+                flex: 4,
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 24),
                   child: Stack(
@@ -139,11 +123,14 @@ class _OnboardingScreenState extends State<OnboardingScreen>
                         width: double.infinity,
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(28),
+                          color: Colors.white,
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.black.withValues(alpha: 0.18),
-                              blurRadius: 24,
-                              offset: const Offset(0, 8),
+                              color: AppTheme.primaryColor.withValues(
+                                alpha: 0.12,
+                              ),
+                              blurRadius: 26,
+                              offset: const Offset(0, 10),
                             ),
                           ],
                         ),
@@ -151,8 +138,9 @@ class _OnboardingScreenState extends State<OnboardingScreen>
                           borderRadius: BorderRadius.circular(28),
                           child: Image.asset(
                             slide.imagePath,
-                            fit: BoxFit.cover,
                             width: double.infinity,
+                            height: double.infinity,
+                            fit: BoxFit.cover,
                           ),
                         ),
                       ),
@@ -165,15 +153,19 @@ class _OnboardingScreenState extends State<OnboardingScreen>
                           right: 16,
                           child: Container(
                             padding: const EdgeInsets.symmetric(
-                                horizontal: 16, vertical: 10),
+                              horizontal: 16,
+                              vertical: 10,
+                            ),
                             decoration: BoxDecoration(
-                              color: Colors.white.withValues(alpha: 0.95),
+                              color: Colors.white,
                               borderRadius: BorderRadius.circular(14),
                               boxShadow: [
                                 BoxShadow(
-                                  color: Colors.black.withValues(alpha: 0.08),
-                                  blurRadius: 8,
-                                  offset: const Offset(0, 2),
+                                  color: AppTheme.primaryColor.withValues(
+                                    alpha: 0.08,
+                                  ),
+                                  blurRadius: 12,
+                                  offset: const Offset(0, 4),
                                 ),
                               ],
                             ),
@@ -210,7 +202,9 @@ class _OnboardingScreenState extends State<OnboardingScreen>
                                           const SizedBox(width: 8),
                                           Container(
                                             padding: const EdgeInsets.symmetric(
-                                                horizontal: 6, vertical: 2),
+                                              horizontal: 6,
+                                              vertical: 2,
+                                            ),
                                             decoration: BoxDecoration(
                                               color: AppTheme.errorColor
                                                   .withValues(alpha: 0.12),
@@ -249,14 +243,19 @@ class _OnboardingScreenState extends State<OnboardingScreen>
                         right: 14,
                         child: Container(
                           padding: const EdgeInsets.symmetric(
-                              horizontal: 12, vertical: 6),
+                            horizontal: 12,
+                            vertical: 6,
+                          ),
                           decoration: BoxDecoration(
-                            color: AppTheme.primaryColor,
+                            color: AppTheme.primaryColor.withValues(
+                              alpha: 0.95,
+                            ),
                             borderRadius: BorderRadius.circular(20),
                             boxShadow: [
                               BoxShadow(
-                                color: AppTheme.primaryColor
-                                    .withValues(alpha: 0.35),
+                                color: AppTheme.primaryColor.withValues(
+                                  alpha: 0.35,
+                                ),
                                 blurRadius: 8,
                                 offset: const Offset(0, 2),
                               ),
@@ -265,8 +264,11 @@ class _OnboardingScreenState extends State<OnboardingScreen>
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              Icon(slide.badgeIcon,
-                                  color: Colors.white, size: 12),
+                              Icon(
+                                slide.badgeIcon,
+                                color: Colors.white,
+                                size: 12,
+                              ),
                               const SizedBox(width: 5),
                               Text(
                                 slide.badge,
@@ -347,12 +349,13 @@ class _OnboardingScreenState extends State<OnboardingScreen>
                   child: ElevatedButton(
                     onPressed: _next,
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF0D2D3E),
+                      backgroundColor: AppTheme.primaryColor,
                       foregroundColor: Colors.white,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(16),
                       ),
                       elevation: 0,
+                      shadowColor: Colors.transparent,
                     ),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -422,8 +425,8 @@ class _OnboardingScreenState extends State<OnboardingScreen>
         ),
         children: [
           const TextSpan(
-              text:
-                  'Precision medication tracking for complete peace of mind. '),
+            text: 'Precision medication tracking for complete peace of mind. ',
+          ),
           TextSpan(
             text: 'Your health, synchronized.',
             style: const TextStyle(

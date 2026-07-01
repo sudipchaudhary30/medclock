@@ -42,7 +42,8 @@ class _DoseHistoryScreenState extends ConsumerState<DoseHistoryScreen> {
           ? McEmptyState(
               icon: Icons.history_rounded,
               title: 'No logs recorded',
-              description: 'History of taken or missed doses will show up here.',
+              description:
+                  'History of taken or missed doses will show up here.',
             )
           : ListView.builder(
               itemCount: logs.length,

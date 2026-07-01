@@ -14,33 +14,49 @@ class McBottomNav extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BottomNavigationBar(
-      currentIndex: selectedIndex,
-      onTap: onTap,
-      items: [
-        const BottomNavigationBarItem(
-          icon: Icon(Icons.home_rounded),
-          label: 'Home',
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        border: Border(
+          top: BorderSide(color: Colors.black.withValues(alpha: 0.06)),
         ),
-        if (isCaregiver)
+      ),
+      child: BottomNavigationBar(
+        currentIndex: selectedIndex,
+        onTap: onTap,
+        type: BottomNavigationBarType.fixed,
+        backgroundColor: Colors.white,
+        elevation: 0,
+        selectedItemColor: const Color(0xFF0F6D95),
+        unselectedItemColor: const Color(0xFF9AA7B3),
+        selectedFontSize: 12,
+        unselectedFontSize: 12,
+        showUnselectedLabels: true,
+        items: [
           const BottomNavigationBarItem(
-            icon: Icon(Icons.people_rounded),
-            label: 'Family',
-          )
-        else
-          const BottomNavigationBarItem(
-            icon: Icon(Icons.medication_rounded),
-            label: 'Meds',
+            icon: Icon(Icons.home_rounded),
+            label: 'Home',
           ),
-        const BottomNavigationBarItem(
-          icon: Icon(Icons.history_rounded),
-          label: 'Logs',
-        ),
-        const BottomNavigationBarItem(
-          icon: Icon(Icons.settings_rounded),
-          label: 'Settings',
-        ),
-      ],
+          if (isCaregiver)
+            const BottomNavigationBarItem(
+              icon: Icon(Icons.people_rounded),
+              label: 'Family',
+            )
+          else
+            const BottomNavigationBarItem(
+              icon: Icon(Icons.history_rounded),
+              label: 'History',
+            ),
+          const BottomNavigationBarItem(
+            icon: Icon(Icons.local_hospital_rounded),
+            label: 'Refill',
+          ),
+          const BottomNavigationBarItem(
+            icon: Icon(Icons.settings_rounded),
+            label: 'Settings',
+          ),
+        ],
+      ),
     );
   }
 }

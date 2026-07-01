@@ -25,7 +25,7 @@ class _CaregiverDashboardState extends ConsumerState<CaregiverDashboard> {
     } else if (index == 2) {
       Navigator.of(context).pushReplacementNamed(AppRoutes.doseHistory);
     } else if (index == 3) {
-      Navigator.of(context).pushReplacementNamed(AppRoutes.settings);
+      Navigator.of(context).pushReplacementNamed(AppRoutes.caregiverSettings);
     }
   }
 
@@ -47,7 +47,8 @@ class _CaregiverDashboardState extends ConsumerState<CaregiverDashboard> {
           ? McEmptyState(
               icon: Icons.people_outline_rounded,
               title: 'No linked family members',
-              description: 'Link patients to monitor their medication regimens remotely.',
+              description:
+                  'Link patients to monitor their medication regimens remotely.',
             )
           : Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -55,7 +56,9 @@ class _CaregiverDashboardState extends ConsumerState<CaregiverDashboard> {
                 McSectionHeader(
                   title: 'Monitored Patients',
                   actionLabel: 'Settings',
-                  onAction: () => Navigator.of(context).pushNamed(AppRoutes.caregiverSettings),
+                  onAction: () => Navigator.of(
+                    context,
+                  ).pushNamed(AppRoutes.caregiverSettings),
                 ),
                 Expanded(
                   child: ListView.builder(
@@ -66,10 +69,9 @@ class _CaregiverDashboardState extends ConsumerState<CaregiverDashboard> {
                         member: member,
                         medicationCount: 3, // Mock medication count
                         lastDoseStatus: 'taken',
-                        onTap: () => Navigator.of(context).pushNamed(
-                          AppRoutes.memberDetail,
-                          arguments: member,
-                        ),
+                        onTap: () => Navigator.of(
+                          context,
+                        ).pushNamed(AppRoutes.memberDetail, arguments: member),
                       );
                     },
                   ),
