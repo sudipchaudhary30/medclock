@@ -19,6 +19,8 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
   late AnimationController _animController;
   late Animation<double> _fadeAnim;
   late Animation<double> _slideAnim;
+  bool _canNavigate = false;
+  bool _hasNavigated = false;
 
   @override
   void initState() {
@@ -34,25 +36,33 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
     ).animate(CurvedAnimation(parent: _animController, curve: Curves.easeOut));
     _animController.forward();
 
-    // Navigate after auth check completes
     Future.delayed(const Duration(milliseconds: 2500), () {
-      if (mounted) {
-        _navigateToNextScreen();
-      }
+      if (!mounted) return;
+      _canNavigate = true;
+      _tryNavigate();
     });
   }
 
   void _navigateToNextScreen() {
-    final user = ref.read(authProvider);
     final isInitialized = ref.read(authInitializedProvider);
+    if (!isInitialized) return;
 
-    String nextRoute = AppRoutes.onboarding;
-    if (isInitialized && user != null) {
-      nextRoute = user.role == UserRole.caregiver ? AppRoutes.caregiverDashboard : AppRoutes.home;
-    }
+    final user = ref.read(authProvider);
+    final nextRoute = user != null
+        ? (user.role == UserRole.caregiver
+              ? AppRoutes.caregiverDashboard
+              : AppRoutes.home)
+        : AppRoutes.onboarding;
 
-    if (mounted) {
+    if (mounted && !_hasNavigated) {
+      _hasNavigated = true;
       Navigator.of(context).pushReplacementNamed(nextRoute);
+    }
+  }
+
+  void _tryNavigate() {
+    if (_canNavigate) {
+      _navigateToNextScreen();
     }
   }
 
@@ -64,6 +74,13 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
 
   @override
   Widget build(BuildContext context) {
+    final isInitialized = ref.watch(authInitializedProvider);
+    if (isInitialized && _canNavigate && !_hasNavigated) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _navigateToNextScreen();
+      });
+    }
+
     return Scaffold(
       backgroundColor: _backgroundColor,
       body: Container(
@@ -104,7 +121,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
                             shape: BoxShape.circle,
                             boxShadow: [
                               BoxShadow(
-                                color: _primaryColor.withValues(alpha: 0.18),
+                                color: _primaryColor.withOpacity(0.18),
                                 blurRadius: 35,
                                 spreadRadius: 6,
                               ),
@@ -130,7 +147,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
                   child: Text(
                     '"Precision monitoring for your\nmedical journey."',
                     textAlign: TextAlign.center,
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontSize: 17,
                       fontStyle: FontStyle.italic,
                       color: Color(0xFF5F6772),
@@ -154,7 +171,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
                       decoration: BoxDecoration(
                         color: index == 0
                             ? _primaryColor
-                            : _primaryColor.withValues(alpha: 0.28),
+                            : _primaryColor.withOpacity(0.28),
                         borderRadius: BorderRadius.circular(3),
                       ),
                     );
@@ -171,7 +188,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
                     vertical: 12,
                   ),
                   decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha: 0.78),
+                    color: Colors.white.withOpacity(0.78),
                     borderRadius: BorderRadius.circular(24),
                     border: Border.all(
                       color: const Color(0xFFE2EAF6),
@@ -179,7 +196,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
                     ),
                     boxShadow: [
                       BoxShadow(
-                        color: _primaryColor.withValues(alpha: 0.06),
+                        color: _primaryColor.withOpacity(0.06),
                         blurRadius: 14,
                         offset: const Offset(0, 4),
                       ),
@@ -197,7 +214,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
                       const SizedBox(width: 10),
                       Text(
                         'TRUSTED BY CLINICAL\nPROFESSIONALS',
-                        style: TextStyle(
+                        style: const TextStyle(
                           color: _badgeTextColor,
                           fontSize: 13,
                           fontWeight: FontWeight.w600,

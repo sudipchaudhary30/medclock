@@ -16,27 +16,12 @@ class CaregiverDashboard extends ConsumerStatefulWidget {
 }
 
 class _CaregiverDashboardState extends ConsumerState<CaregiverDashboard> {
-  final int _selectedIndex = 0;
-
-  void _onTabTap(int index) {
-    if (index == 0) return;
-    if (index == 1) {
-      Navigator.of(context).pushReplacementNamed(AppRoutes.familyDashboard);
-    } else if (index == 2) {
-      Navigator.of(context).pushReplacementNamed(AppRoutes.doseHistory);
-    } else if (index == 3) {
-      Navigator.of(context).pushReplacementNamed(AppRoutes.caregiverSettings);
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     final familyGroup = ref.watch(familyProvider);
 
     return McScaffold(
       title: 'Caregiver Dashboard',
-      selectedIndex: _selectedIndex,
-      onTabTap: _onTabTap,
       isCaregiver: true,
       fab: McFab(
         icon: Icons.person_add_rounded,

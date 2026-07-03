@@ -31,18 +31,23 @@ class MedicationSetupScreen extends StatelessWidget {
             const SizedBox(height: 16),
             Text(
               'Configure doses, scheduled times, pill photographs, and thresholds to get started.',
-              style: AppTheme.bodyMedium.copyWith(color: AppTheme.textSecondary),
+              style: AppTheme.bodyMedium.copyWith(
+                color: AppTheme.textSecondary,
+              ),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 48),
             McPrimaryButton(
               label: 'Add Medication',
-              onTap: () => Navigator.of(context).pushNamed(AppRoutes.addMedication),
+              onTap: () =>
+                  Navigator.of(context).pushNamed(AppRoutes.addMedication),
             ),
             const SizedBox(height: 16),
             McTextButton(
               label: 'Configure Later',
-              onTap: () => Navigator.of(context).pushReplacementNamed(AppRoutes.home),
+              onTap: () => Navigator.of(
+                context,
+              ).pushNamedAndRemoveUntil(AppRoutes.home, (route) => false),
             ),
           ],
         ),

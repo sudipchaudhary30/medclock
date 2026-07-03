@@ -16,19 +16,6 @@ class DoseHistoryScreen extends ConsumerStatefulWidget {
 }
 
 class _DoseHistoryScreenState extends ConsumerState<DoseHistoryScreen> {
-  final int _selectedIndex = 2;
-
-  void _onTabTap(int index) {
-    if (index == 2) return;
-    if (index == 0) {
-      Navigator.of(context).pushReplacementNamed(AppRoutes.home);
-    } else if (index == 1) {
-      Navigator.of(context).pushReplacementNamed(AppRoutes.medicationList);
-    } else if (index == 3) {
-      Navigator.of(context).pushReplacementNamed(AppRoutes.settings);
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     final logs = ref.watch(doseLogProvider);
@@ -36,8 +23,6 @@ class _DoseHistoryScreenState extends ConsumerState<DoseHistoryScreen> {
 
     return McScaffold(
       title: 'Dose History',
-      selectedIndex: _selectedIndex,
-      onTabTap: _onTabTap,
       body: logs.isEmpty
           ? McEmptyState(
               icon: Icons.history_rounded,

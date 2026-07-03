@@ -6,7 +6,7 @@ import '../screens/onboarding/splash_screen.dart';
 import '../screens/onboarding/onboarding_screen.dart';
 import '../screens/onboarding/welcome_screen.dart';
 import '../screens/onboarding/medication_setup_screen.dart';
-import '../screens/home/home_screen.dart';
+import '../screens/main/app_shell.dart';
 import '../screens/reminders/reminder_screen.dart';
 import '../screens/reminders/reminder_list_screen.dart';
 import '../screens/medications/medication_list_screen.dart';
@@ -32,6 +32,7 @@ import '../screens/settings/settings_screen.dart';
 import '../screens/settings/notification_settings_screen.dart';
 import '../screens/settings/accessibility_settings_screen.dart';
 import '../screens/settings/profile_screen.dart';
+import '../screens/settings/edit_profile_screen.dart';
 
 class AppRoutes {
   AppRoutes._();
@@ -94,6 +95,7 @@ class AppRoutes {
   static const String notificationSettings = '/notification-settings';
   static const String accessibilitySettings = '/accessibility-settings';
   static const String profile = '/profile';
+  static const String editProfile = '/edit-profile';
 
   static Map<String, WidgetBuilder> get routes {
     return {
@@ -107,7 +109,7 @@ class AppRoutes {
       medicationSetup: (_) => const MedicationSetupScreen(),
 
       // Shared screens for both patients and caregivers
-      home: (_) => const HomeScreen(),
+      home: (_) => const AppShell(),
       reminder: (_) => const ReminderScreen(),
       reminderList: (_) => const ReminderListScreen(),
       medicationList: (_) => const MedicationListScreen(),
@@ -134,6 +136,7 @@ class AppRoutes {
       reports: (_) => const ReportsScreen(),
       export: (_) => const ExportScreen(),
       settings: (_) => const SettingsScreen(),
+      editProfile: (_) => const EditProfileScreen(),
       notificationSettings: (_) => const NotificationSettingsScreen(),
       accessibilitySettings: (_) => const AccessibilitySettingsScreen(),
       profile: (_) => const ProfileScreen(),

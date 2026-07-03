@@ -146,4 +146,27 @@ class AuthService {
     }
     return null;
   }
+
+  Future<UserModel?> updateProfile(Map<String, dynamic> data) async {
+    try {
+      final response = await _apiService.client.put(
+        '/auth/profile',
+        data: data,
+      );
+      if (response.statusCode == 200) {
+        final userData = response.data['user'];
+        // keep existing token
+        final token =
+            await _secureStorage.read(key: AppConstants.tokenKey) ?? '';
+        await _persistSession(
+          token: token,
+          userData: Map<String, dynamic>.from(userData),
+        );
+        return UserModel.fromJson(Map<String, dynamic>.from(userData));
+      }
+    } catch (_) {
+      // ignore and fallback to local update
+    }
+    return null;
+  }
 }

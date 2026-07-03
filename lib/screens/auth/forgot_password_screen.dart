@@ -32,14 +32,13 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Text(
-              'Forgot your password?',
-              style: AppTheme.heading2,
-            ),
+            Text('Forgot your password?', style: AppTheme.heading2),
             const SizedBox(height: 8),
             Text(
               'Enter your email address and we will send you instructions to reset it.',
-              style: AppTheme.bodyMedium.copyWith(color: AppTheme.textSecondary),
+              style: AppTheme.bodyMedium.copyWith(
+                color: AppTheme.textSecondary,
+              ),
             ),
             const SizedBox(height: 32),
             McTextField(
@@ -49,10 +48,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
               keyboardType: TextInputType.emailAddress,
             ),
             const SizedBox(height: 24),
-            McPrimaryButton(
-              label: 'Send Reset Link',
-              onTap: _submit,
-            ),
+            McPrimaryButton(label: 'Send Reset Link', onTap: _submit),
           ],
         ),
       ),

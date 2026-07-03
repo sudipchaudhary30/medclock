@@ -44,12 +44,12 @@ class McBottomNav extends StatelessWidget {
             )
           else
             const BottomNavigationBarItem(
-              icon: Icon(Icons.history_rounded),
-              label: 'History',
+              icon: Icon(Icons.medication_rounded),
+              label: 'Medications',
             ),
           const BottomNavigationBarItem(
-            icon: Icon(Icons.local_hospital_rounded),
-            label: 'Refill',
+            icon: Icon(Icons.history_rounded),
+            label: 'History',
           ),
           const BottomNavigationBarItem(
             icon: Icon(Icons.settings_rounded),

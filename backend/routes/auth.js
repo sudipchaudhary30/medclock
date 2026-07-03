@@ -6,6 +6,25 @@ const auth = require('../middleware/auth');
 
 const router = express.Router();
 
+// Update profile for current user
+router.put('/profile', auth, async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id);
+    if (!user) return res.status(404).json({ msg: 'User not found' });
+
+    const { name, email, phone } = req.body;
+    if (name) user.name = name;
+    if (email) user.email = email;
+    if (phone) user.phone = phone;
+
+    await user.save();
+
+    res.json({ user: { id: user.id, name: user.name, email: user.email, role: user.role, phone: user.phone, settings: user.settings } });
+  } catch (err) {
+    res.status(500).send('Server error');
+  }
+});
+
 // Register
 router.post('/register', async (req, res) => {
   const { name, email, password, role, phone } = req.body;

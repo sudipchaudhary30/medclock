@@ -16,31 +16,16 @@ class MedicationListScreen extends ConsumerStatefulWidget {
 }
 
 class _MedicationListScreenState extends ConsumerState<MedicationListScreen> {
-  final int _selectedIndex = 1;
-
-  void _onTabTap(int index) {
-    if (index == 1) return;
-    if (index == 0) {
-      Navigator.of(context).pushReplacementNamed(AppRoutes.home);
-    } else if (index == 2) {
-      Navigator.of(context).pushReplacementNamed(AppRoutes.doseHistory);
-    } else if (index == 3) {
-      Navigator.of(context).pushReplacementNamed(AppRoutes.settings);
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     final medications = ref.watch(medicationProvider);
 
     return McScaffold(
       title: 'Medications',
-      selectedIndex: _selectedIndex,
-      onTabTap: _onTabTap,
       fab: McFab(
         icon: Icons.add_rounded,
         label: 'Add Medication',
-        onTap: () => Navigator.of(context).pushNamed(AppRoutes.addMedication),
+        onTap: () => Navigator.of(context, rootNavigator: true).pushNamed(AppRoutes.addMedication),
       ),
       body: medications.isEmpty
           ? McEmptyState(

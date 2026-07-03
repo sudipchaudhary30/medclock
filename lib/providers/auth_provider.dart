@@ -6,19 +6,23 @@ import '../services/local_storage_service.dart';
 
 // Services
 final apiServiceProvider = Provider<ApiService>((ref) => ApiService());
-final authServiceProvider = Provider<AuthService>((ref) => AuthService(ref.watch(apiServiceProvider)));
-final localStorageServiceProvider = Provider<LocalStorageService>((ref) => LocalStorageService());
+final authServiceProvider = Provider<AuthService>(
+  (ref) => AuthService(ref.watch(apiServiceProvider)),
+);
+final localStorageServiceProvider = Provider<LocalStorageService>(
+  (ref) => LocalStorageService(),
+);
 
 // Auth State Notifier
+final authInitializedProvider = StateProvider<bool>((ref) => false);
+
 class AuthNotifier extends StateNotifier<UserModel?> {
   final AuthService _authService;
-  bool _isInitialized = false;
+  final Ref _ref;
 
-  AuthNotifier(this._authService) : super(null) {
+  AuthNotifier(this._authService, this._ref) : super(null) {
     _init();
   }
-
-  bool get isInitialized => _isInitialized;
 
   Future<void> _init() async {
     try {
@@ -26,7 +30,7 @@ class AuthNotifier extends StateNotifier<UserModel?> {
     } catch (e) {
       state = null;
     } finally {
-      _isInitialized = true;
+      _ref.read(authInitializedProvider.notifier).state = true;
     }
   }
 
@@ -77,11 +81,5 @@ class AuthNotifier extends StateNotifier<UserModel?> {
 }
 
 final authProvider = StateNotifierProvider<AuthNotifier, UserModel?>((ref) {
-  return AuthNotifier(ref.watch(authServiceProvider));
-});
-
-// Provider to check if auth is initialized
-final authInitializedProvider = Provider<bool>((ref) {
-  final authNotifier = ref.watch(authProvider.notifier);
-  return authNotifier.isInitialized;
+  return AuthNotifier(ref.watch(authServiceProvider), ref);
 });

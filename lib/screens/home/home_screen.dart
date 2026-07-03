@@ -6,7 +6,6 @@ import '../../providers/auth_provider.dart';
 import '../../providers/dose_log_provider.dart';
 import '../../providers/medication_provider.dart';
 import '../../providers/reminder_provider.dart';
-import '../../widgets/layout/mc_bottom_nav.dart';
 import '../../widgets/media/mc_pill_image.dart';
 import '../../config/app_theme.dart';
 
@@ -23,19 +22,6 @@ class HomeScreen extends ConsumerStatefulWidget {
 }
 
 class _HomeScreenState extends ConsumerState<HomeScreen> {
-  final int _selectedIndex = 0;
-
-  void _onTabTap(int index) {
-    if (index == 0) return;
-    if (index == 1) {
-      Navigator.of(context).pushReplacementNamed(AppRoutes.doseHistory);
-    } else if (index == 2) {
-      Navigator.of(context).pushReplacementNamed(AppRoutes.refill);
-    } else if (index == 3) {
-      Navigator.of(context).pushReplacementNamed(AppRoutes.settings);
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     final user = ref.watch(authProvider);
@@ -49,31 +35,44 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
     return Scaffold(
       backgroundColor: _homePageBg,
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+        elevation: 0,
+        centerTitle: false,
+        automaticallyImplyLeading: false,
+        title: Image.asset(
+          'assets/medclocklogo.png',
+          height: 60,
+          fit: BoxFit.contain,
+        ),
+        actions: [
+          IconButton(
+            onPressed: () => Navigator.of(context, rootNavigator: true).pushNamed(AppRoutes.profile),
+            icon: const Icon(
+              Icons.person_outline_rounded,
+              color: Color(0xFF6A7D90),
+            ),
+          ),
+        ],
+        shape: Border(
+          bottom: BorderSide(color: Colors.black.withOpacity(0.05), width: 0.8),
+        ),
+      ),
       floatingActionButton: FloatingActionButton(
         onPressed: () =>
-            Navigator.of(context).pushNamed(AppRoutes.addMedication),
+            Navigator.of(context, rootNavigator: true).pushNamed(AppRoutes.addMedication),
         backgroundColor: const Color(0xFF0E6B94),
         elevation: 2,
         child: const Icon(Icons.add_rounded, color: Colors.white, size: 30),
       ),
-      bottomNavigationBar: McBottomNav(
-        selectedIndex: _selectedIndex,
-        onTap: _onTabTap,
-      ),
+      // Bottom navigation handled by AppShell
       body: SafeArea(
         top: false,
         child: SingleChildScrollView(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              const SizedBox(height: 6),
-              _TopLogoCard(
-                logo: Image.asset(
-                  'assets/medclocklogo.png',
-                  height: 42,
-                  fit: BoxFit.contain,
-                ),
-              ),
+              const SizedBox(height: 8),
               const SizedBox(height: 16),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -99,6 +98,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                     TextButton(
                       onPressed: () => Navigator.of(
                         context,
+                        rootNavigator: true,
                       ).pushNamed(AppRoutes.reminderList),
                       style: TextButton.styleFrom(
                         padding: EdgeInsets.zero,
@@ -155,7 +155,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                             trailingIcon: isTaken
                                 ? Icons.check_rounded
                                 : Icons.add_rounded,
-                            onTap: () => Navigator.of(context).pushNamed(
+                            onTap: () => Navigator.of(context, rootNavigator: true).pushNamed(
                               AppRoutes.doseConfirm,
                               arguments: {
                                 'reminder': reminder,
@@ -227,14 +227,18 @@ class _TopLogoCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16),
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+      margin: const EdgeInsets.fromLTRB(16, 12, 16, 8),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(0),
-        border: Border(
-          bottom: BorderSide(color: Colors.black.withValues(alpha: 0.06)),
-        ),
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.06),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
+          ),
+        ],
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
