@@ -49,21 +49,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
     return Scaffold(
       backgroundColor: _homePageBg,
-      appBar: AppBar(
-        backgroundColor: _homeAppBarBlue,
-        elevation: 0,
-        centerTitle: false,
-        toolbarHeight: 32,
-        titleSpacing: 16,
-        title: const Text(
-          'Patient Home',
-          style: TextStyle(
-            color: Colors.white,
-            fontSize: 13,
-            fontWeight: FontWeight.w500,
-          ),
-        ),
-      ),
       floatingActionButton: FloatingActionButton(
         onPressed: () =>
             Navigator.of(context).pushNamed(AppRoutes.addMedication),
@@ -167,8 +152,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                                 : const Color(0xFFE7F3FB),
                             statusTextColor: const Color(0xFF0D6A95),
                             pillPhotoUrl: med.pillPhotoUrl,
-                            trailingIcon:
-                                isTaken ? Icons.check_rounded : Icons.add_rounded,
+                            trailingIcon: isTaken
+                                ? Icons.check_rounded
+                                : Icons.add_rounded,
                             onTap: () => Navigator.of(context).pushNamed(
                               AppRoutes.doseConfirm,
                               arguments: {
@@ -179,7 +165,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                           );
                         }).toList(),
                       ),
-                ),
+              ),
               const SizedBox(height: 8),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -703,7 +689,11 @@ int _calculateStreak(List<dynamic> doseLogs) {
   final takenDates = <DateTime>{};
   for (final log in doseLogs) {
     if (log.isTaken) {
-      final date = DateTime(log.scheduledAt.year, log.scheduledAt.month, log.scheduledAt.day);
+      final date = DateTime(
+        log.scheduledAt.year,
+        log.scheduledAt.month,
+        log.scheduledAt.day,
+      );
       takenDates.add(date);
     }
   }

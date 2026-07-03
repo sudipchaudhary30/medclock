@@ -1,14 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../config/routes.dart';
+import '../../models/user_model.dart';
+import '../../providers/auth_provider.dart';
 
-class SplashScreen extends StatefulWidget {
+class SplashScreen extends ConsumerStatefulWidget {
   const SplashScreen({super.key});
 
   @override
-  State<SplashScreen> createState() => _SplashScreenState();
+  ConsumerState<SplashScreen> createState() => _SplashScreenState();
 }
 
-class _SplashScreenState extends State<SplashScreen>
+class _SplashScreenState extends ConsumerState<SplashScreen>
     with SingleTickerProviderStateMixin {
   static const Color _backgroundColor = Color(0xFFF8F9FF);
   static const Color _primaryColor = Color(0xFF0E5F97);
@@ -31,12 +34,26 @@ class _SplashScreenState extends State<SplashScreen>
     ).animate(CurvedAnimation(parent: _animController, curve: Curves.easeOut));
     _animController.forward();
 
-    // Auto-navigate to onboarding after 2.5 seconds
+    // Navigate after auth check completes
     Future.delayed(const Duration(milliseconds: 2500), () {
       if (mounted) {
-        Navigator.of(context).pushReplacementNamed(AppRoutes.onboarding);
+        _navigateToNextScreen();
       }
     });
+  }
+
+  void _navigateToNextScreen() {
+    final user = ref.read(authProvider);
+    final isInitialized = ref.read(authInitializedProvider);
+
+    String nextRoute = AppRoutes.onboarding;
+    if (isInitialized && user != null) {
+      nextRoute = user.role == UserRole.caregiver ? AppRoutes.caregiverDashboard : AppRoutes.home;
+    }
+
+    if (mounted) {
+      Navigator.of(context).pushReplacementNamed(nextRoute);
+    }
   }
 
   @override

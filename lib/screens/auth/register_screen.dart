@@ -146,7 +146,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen>
                               const SizedBox(height: 6),
                               _buildTextField(
                                 controller: _nameController,
-                                hint: 'Sudip Chaudhary',
+                                hint: 'Full Name',
                                 icon: Icons.person_outline_rounded,
                                 validator: (v) => v == null || v.isEmpty
                                     ? 'Name is required'

@@ -11,6 +11,7 @@ class MedClockApp extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final user = ref.watch(authProvider);
+    final isInitialized = ref.watch(authInitializedProvider);
 
     return MaterialApp(
       title: 'MedClock',
@@ -18,9 +19,11 @@ class MedClockApp extends ConsumerWidget {
       theme: AppTheme.lightTheme,
       darkTheme: AppTheme.darkTheme,
       themeMode: ThemeMode.system,
-      initialRoute: user != null
-          ? (user.role == UserRole.caregiver ? AppRoutes.caregiverDashboard : AppRoutes.home)
-          : AppRoutes.splash,
+      initialRoute: !isInitialized
+          ? AppRoutes.splash
+          : (user != null
+              ? (user.role == UserRole.caregiver ? AppRoutes.caregiverDashboard : AppRoutes.home)
+              : AppRoutes.splash),
       routes: AppRoutes.routes,
     );
   }

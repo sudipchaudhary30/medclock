@@ -12,13 +12,22 @@ final localStorageServiceProvider = Provider<LocalStorageService>((ref) => Local
 // Auth State Notifier
 class AuthNotifier extends StateNotifier<UserModel?> {
   final AuthService _authService;
+  bool _isInitialized = false;
 
   AuthNotifier(this._authService) : super(null) {
     _init();
   }
 
+  bool get isInitialized => _isInitialized;
+
   Future<void> _init() async {
-    state = await _authService.getCurrentUser();
+    try {
+      state = await _authService.getCurrentUser();
+    } catch (e) {
+      state = null;
+    } finally {
+      _isInitialized = true;
+    }
   }
 
   Future<bool> login(String email, String password) async {
@@ -69,4 +78,10 @@ class AuthNotifier extends StateNotifier<UserModel?> {
 
 final authProvider = StateNotifierProvider<AuthNotifier, UserModel?>((ref) {
   return AuthNotifier(ref.watch(authServiceProvider));
+});
+
+// Provider to check if auth is initialized
+final authInitializedProvider = Provider<bool>((ref) {
+  final authNotifier = ref.watch(authProvider.notifier);
+  return authNotifier.isInitialized;
 });
