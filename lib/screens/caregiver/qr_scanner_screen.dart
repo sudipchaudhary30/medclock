@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../providers/family_provider.dart';
 import '../../providers/sync_code_provider.dart';
 import '../../widgets/common/mc_toast.dart';
+import 'package:mobile_scanner/mobile_scanner.dart';
 
 class QrScannerScreen extends ConsumerStatefulWidget {
   const QrScannerScreen({super.key});
@@ -83,20 +84,39 @@ class _QrScannerScreenState extends ConsumerState<QrScannerScreen>
       backgroundColor: const Color(0xFF0F1E24),
       body: Stack(
         children: [
-          // Camera simulated background with grayscale pattern
+          // Real Camera Scanner
           Positioned.fill(
-            child: Opacity(
-              opacity: 0.35,
-              child: Container(
-                decoration: const BoxDecoration(
-                  image: DecorationImage(
-                    image: NetworkImage(
-                      'https://images.unsplash.com/photo-1576091160550-2173dba999ef?auto=format&fit=crop&w=800&q=80',
-                    ),
-                    fit: BoxFit.cover,
-                  ),
-                ),
+            child: MobileScanner(
+              controller: MobileScannerController(
+                detectionSpeed: DetectionSpeed.normal,
+                facing: CameraFacing.back,
+                torchEnabled: false,
               ),
+              onDetect: (capture) {
+                if (_isScanned) return;
+                
+                final List<Barcode> barcodes = capture.barcodes;
+                if (barcodes.isNotEmpty) {
+                  final String? rawValue = barcodes.first.rawValue;
+                  if (rawValue != null && rawValue.startsWith('medclock://invite/caregiver?')) {
+                    // Extract data from the URL
+                    try {
+                      final uri = Uri.parse(rawValue);
+                      final patientId = uri.queryParameters['patientId'];
+                      
+                      if (patientId != null) {
+                        setState(() {
+                          _linkedPatientName = "Patient ($patientId)"; 
+                          _isScanned = true;
+                        });
+                        _scannerController.stop();
+                      }
+                    } catch (e) {
+                      // ignore parse errors
+                    }
+                  }
+                }
+              },
             ),
           ),
 
