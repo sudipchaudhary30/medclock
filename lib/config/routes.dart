@@ -33,6 +33,7 @@ import '../screens/settings/notification_settings_screen.dart';
 import '../screens/settings/accessibility_settings_screen.dart';
 import '../screens/settings/profile_screen.dart';
 import '../screens/settings/edit_profile_screen.dart';
+import '../screens/settings/qr_link_screen.dart';
 
 class AppRoutes {
   AppRoutes._();
@@ -96,6 +97,7 @@ class AppRoutes {
   static const String accessibilitySettings = '/accessibility-settings';
   static const String profile = '/profile';
   static const String editProfile = '/edit-profile';
+  static const String qrLink = '/qr-link';
 
   static Map<String, WidgetBuilder> get routes {
     return {
@@ -140,6 +142,7 @@ class AppRoutes {
       notificationSettings: (_) => const NotificationSettingsScreen(),
       accessibilitySettings: (_) => const AccessibilitySettingsScreen(),
       profile: (_) => const ProfileScreen(),
+      qrLink: (_) => const QrLinkScreen(),
     };
   }
 }

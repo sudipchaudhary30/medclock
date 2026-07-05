@@ -278,46 +278,50 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                       ],
                     ),
                     const SizedBox(height: 16),
-                    Container(
-                      padding: const EdgeInsets.all(14),
-                      decoration: BoxDecoration(
-                        color: AppTheme.primaryColor.withValues(alpha: 0.08),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Row(
-                        children: [
-                          Icon(
-                            Icons.qr_code_2_rounded,
-                            color: AppTheme.primaryColor,
-                            size: 28,
-                          ),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  'Link Caregiver',
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    color: AppTheme.primaryDark,
-                                  ),
-                                ),
-                                Text(
-                                  'Generate sync code for family',
-                                  style: TextStyle(
-                                    fontSize: 12,
-                                    color: AppTheme.primaryColor,
-                                  ),
-                                ),
-                              ],
+                    GestureDetector(
+                      onTap: () => Navigator.of(context, rootNavigator: true)
+                          .pushNamed(AppRoutes.qrLink),
+                      child: Container(
+                        padding: const EdgeInsets.all(14),
+                        decoration: BoxDecoration(
+                          color: AppTheme.primaryColor.withValues(alpha: 0.08),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Row(
+                          children: [
+                            Icon(
+                              Icons.qr_code_2_rounded,
+                              color: AppTheme.primaryColor,
+                              size: 28,
                             ),
-                          ),
-                          Icon(
-                            Icons.chevron_right_rounded,
-                            color: AppTheme.primaryColor,
-                          ),
-                        ],
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    'Link Caregiver',
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      color: AppTheme.primaryDark,
+                                    ),
+                                  ),
+                                  Text(
+                                    'Generate sync code for family',
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      color: AppTheme.primaryColor,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            Icon(
+                              Icons.chevron_right_rounded,
+                              color: AppTheme.primaryColor,
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                     const SizedBox(height: 12),
