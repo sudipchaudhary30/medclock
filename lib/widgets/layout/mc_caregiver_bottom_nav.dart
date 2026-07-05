@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 
-class McBottomNav extends StatelessWidget {
+class McCaregiverBottomNav extends StatelessWidget {
   final int selectedIndex;
   final void Function(int) onTap;
 
-  const McBottomNav({
+  const McCaregiverBottomNav({
     super.key,
     required this.selectedIndex,
     required this.onTap,

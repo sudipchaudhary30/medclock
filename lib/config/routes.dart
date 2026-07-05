@@ -7,6 +7,7 @@ import '../screens/onboarding/onboarding_screen.dart';
 import '../screens/onboarding/welcome_screen.dart';
 import '../screens/onboarding/medication_setup_screen.dart';
 import '../screens/main/app_shell.dart';
+import '../screens/main/caregiver_app_shell.dart';
 import '../screens/reminders/reminder_screen.dart';
 import '../screens/reminders/reminder_list_screen.dart';
 import '../screens/medications/medication_list_screen.dart';
@@ -16,9 +17,10 @@ import '../screens/medications/pill_photo_screen.dart';
 import '../screens/dose_logging/dose_confirm_screen.dart';
 import '../screens/dose_logging/dose_history_screen.dart';
 import '../screens/dose_logging/missed_dose_screen.dart';
-import '../screens/caregiver/caregiver_dashboard.dart';
 import '../screens/caregiver/caregiver_settings_screen.dart';
 import '../screens/caregiver/daily_summary_screen.dart';
+import '../screens/caregiver/qr_scanner_screen.dart';
+import '../screens/caregiver/adaptive_reminder_screen.dart';
 import '../screens/family/family_dashboard_screen.dart';
 import '../screens/family/add_member_screen.dart';
 import '../screens/family/member_detail_screen.dart';
@@ -73,6 +75,8 @@ class AppRoutes {
   static const String caregiverDashboard = '/caregiver-dashboard';
   static const String caregiverSettings = '/caregiver-settings';
   static const String dailySummary = '/daily-summary';
+  static const String qrScanner = '/qr-scanner';
+  static const String adaptiveReminder = '/adaptive-reminder';
 
   // Family
   static const String familyDashboard = '/family-dashboard';
@@ -123,9 +127,11 @@ class AppRoutes {
       missedDose: (_) => const MissedDoseScreen(),
 
       // Caregiver-only screens
-      caregiverDashboard: (_) => const CaregiverDashboard(),
+      caregiverDashboard: (_) => const CaregiverAppShell(),
       caregiverSettings: (_) => const CaregiverSettingsScreen(),
       dailySummary: (_) => const DailySummaryScreen(),
+      qrScanner: (_) => const QrScannerScreen(),
+      adaptiveReminder: (_) => const AdaptiveReminderScreen(),
       familyDashboard: (_) => const FamilyDashboardScreen(),
       addMember: (_) => const AddMemberScreen(),
       memberDetail: (_) => const MemberDetailScreen(),

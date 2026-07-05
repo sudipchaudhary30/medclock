@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'mc_app_bar.dart';
 import 'mc_bottom_nav.dart';
+import 'mc_caregiver_bottom_nav.dart';
 
 class McScaffold extends StatelessWidget {
   final String title;
@@ -26,6 +27,19 @@ class McScaffold extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    Widget? bottomNav;
+    if (selectedIndex != null && onTabTap != null) {
+      bottomNav = isCaregiver
+          ? McCaregiverBottomNav(
+              selectedIndex: selectedIndex!,
+              onTap: onTabTap!,
+            )
+          : McBottomNav(
+              selectedIndex: selectedIndex!,
+              onTap: onTabTap!,
+            );
+    }
+
     return Scaffold(
       appBar: McAppBar(
         title: title,
@@ -34,13 +48,7 @@ class McScaffold extends StatelessWidget {
       ),
       body: SafeArea(child: body),
       floatingActionButton: fab,
-      bottomNavigationBar: selectedIndex != null && onTabTap != null
-          ? McBottomNav(
-              selectedIndex: selectedIndex!,
-              onTap: onTabTap!,
-              isCaregiver: isCaregiver,
-            )
-          : null,
+      bottomNavigationBar: bottomNav,
     );
   }
 }
