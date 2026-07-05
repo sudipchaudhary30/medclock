@@ -5,7 +5,7 @@ import '../../config/app_theme.dart';
 import '../../config/routes.dart';
 import '../../config/app_constants.dart';
 import '../../providers/auth_provider.dart';
-import '../../providers/family_provider.dart';
+
 import '../../widgets/layout/mc_scaffold.dart';
 import '../../widgets/buttons/mc_primary_button.dart';
 import '../../services/sync_service.dart';
@@ -379,7 +379,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                     title: const Text('Offline Mode'),
                     trailing: Switch(
                       value: _offlineMode,
-                      activeColor: AppTheme.primaryColor,
+                      activeThumbColor: AppTheme.primaryColor,
                       onChanged: (val) async {
                         setState(() => _offlineMode = val);
                         await _saveSetting('offlineMode', val);

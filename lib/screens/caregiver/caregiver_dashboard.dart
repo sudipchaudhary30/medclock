@@ -54,67 +54,57 @@ class _CaregiverDashboardState extends ConsumerState<CaregiverDashboard> {
 
     return Scaffold(
       backgroundColor: const Color(0xFFF4F7FC),
-      body: SafeArea(
-        child: CustomScrollView(
-          slivers: [
-            // Top transparent header with MedClock logo and profile icon
-            SliverToBoxAdapter(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Image.asset(
-                      'assets/medclocklogo.png',
-                      height: 40,
-                      errorBuilder: (context, error, stackTrace) => Row(
-                        children: [
-                          Container(
-                            width: 32,
-                            height: 32,
-                            decoration: const BoxDecoration(
-                              color: Color(0xFF0F6D95),
-                              shape: BoxShape.circle,
-                            ),
-                            child: const Icon(Icons.access_time_rounded,
-                                color: Colors.white, size: 18),
-                          ),
-                          const SizedBox(width: 8),
-                          const Text(
-                            'MedClock',
-                            style: TextStyle(
-                              color: Color(0xFF0F6D95),
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                              fontFamily: 'serif',
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    // Profile avatar on right
-                    GestureDetector(
-                      onTap: () => Navigator.of(context, rootNavigator: true)
-                          .pushNamed(AppRoutes.profile),
-                      child: Container(
-                        width: 36,
-                        height: 36,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          border: Border.all(color: const Color(0xFFCBDCDD), width: 1.5),
-                          image: const DecorationImage(
-                            image: NetworkImage(
-                              'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?auto=format&fit=crop&w=120&q=80',
-                            ),
-                            fit: BoxFit.cover,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+        elevation: 0,
+        centerTitle: false,
+        automaticallyImplyLeading: false,
+        title: Image.asset(
+          'assets/medclocklogo.png',
+          height: 60,
+          fit: BoxFit.contain,
+          errorBuilder: (context, error, stackTrace) => Row(
+            children: [
+              Container(
+                width: 32,
+                height: 32,
+                decoration: const BoxDecoration(
+                  color: Color(0xFF0F6D95),
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(Icons.access_time_rounded,
+                    color: Colors.white, size: 18),
+              ),
+              const SizedBox(width: 8),
+              const Text(
+                'MedClock',
+                style: TextStyle(
+                  color: Color(0xFF0F6D95),
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  fontFamily: 'serif',
                 ),
               ),
+            ],
+          ),
+        ),
+        actions: [
+          IconButton(
+            onPressed: () => Navigator.of(context, rootNavigator: true).pushNamed(AppRoutes.profile),
+            icon: const Icon(
+              Icons.person_outline_rounded,
+              color: Color(0xFF6A7D90),
             ),
+          ),
+        ],
+        shape: Border(
+          bottom: BorderSide(color: Colors.black.withValues(alpha: 0.05), width: 0.8),
+        ),
+      ),
+      body: SafeArea(
+        top: false,
+        child: CustomScrollView(
+          slivers: [
 
             if (!isConnected)
               // Empty state when no patients are linked yet

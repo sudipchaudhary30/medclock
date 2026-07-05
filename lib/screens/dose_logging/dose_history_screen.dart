@@ -265,25 +265,11 @@ class _DoseHistoryScreenState extends ConsumerState<DoseHistoryScreen> {
           fit: BoxFit.contain,
         ),
         actions: [
-          Padding(
-            padding: const EdgeInsets.only(right: 16),
-            child: GestureDetector(
-              onTap: () => Navigator.of(context, rootNavigator: true)
-                  .pushNamed(AppRoutes.profile),
-              child: Container(
-                width: 38,
-                height: 38,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  border: Border.all(color: const Color(0xFFCBDCDD), width: 1.5),
-                  color: Colors.white,
-                ),
-                child: const Icon(
-                  Icons.person_rounded,
-                  color: Color(0xFF536A73),
-                  size: 22,
-                ),
-              ),
+          IconButton(
+            onPressed: () => Navigator.of(context, rootNavigator: true).pushNamed(AppRoutes.profile),
+            icon: const Icon(
+              Icons.person_outline_rounded,
+              color: Color(0xFF6A7D90),
             ),
           ),
         ],

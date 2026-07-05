@@ -110,23 +110,11 @@ class _CaregiverSettingsScreenState extends ConsumerState<CaregiverSettingsScree
               ),
             ),
             actions: [
-              Padding(
-                padding: const EdgeInsets.only(right: 16),
-                child: Center(
-                  child: Container(
-                    width: 36,
-                    height: 36,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      border: Border.all(color: const Color(0xFFCBDCDD), width: 1.5),
-                      image: const DecorationImage(
-                        image: NetworkImage(
-                          'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?auto=format&fit=crop&w=120&q=80',
-                        ),
-                        fit: BoxFit.cover,
-                      ),
-                    ),
-                  ),
+              IconButton(
+                onPressed: () => Navigator.of(context, rootNavigator: true).pushNamed(AppRoutes.profile),
+                icon: const Icon(
+                  Icons.person_outline_rounded,
+                  color: Color(0xFF6A7D90),
                 ),
               ),
             ],
