@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import '../../widgets/layout/mc_bottom_nav.dart';
 import '../home/home_screen.dart';
-import '../medications/medication_list_screen.dart';
 import '../dose_logging/dose_history_screen.dart';
+import '../refill/refill_screen.dart';
 import '../settings/settings_screen.dart';
 
 class AppShell extends StatefulWidget {
@@ -44,8 +44,8 @@ class _AppShellState extends State<AppShell> {
         index: _currentIndex,
         children: [
           _buildNavigator(0, const HomeScreen()),
-          _buildNavigator(1, const MedicationListScreen()),
-          _buildNavigator(2, const DoseHistoryScreen()),
+          _buildNavigator(1, const DoseHistoryScreen()),
+          _buildNavigator(2, const RefillScreen()),
           _buildNavigator(3, const SettingsScreen()),
         ],
       ),

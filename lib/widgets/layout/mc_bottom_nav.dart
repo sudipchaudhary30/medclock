@@ -14,6 +14,47 @@ class McBottomNav extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    const activeColor = Color(0xFF0F6D95);
+    const inactiveColor = Color(0xFF9AA7B3);
+
+    final List<Map<String, dynamic>> items = isCaregiver
+        ? [
+            {
+              'icon': Icons.home_outlined,
+              'label': 'Home',
+            },
+            {
+              'icon': Icons.people_outline_rounded,
+              'label': 'Family',
+            },
+            {
+              'icon': Icons.history_rounded,
+              'label': 'History',
+            },
+            {
+              'icon': Icons.settings_outlined,
+              'label': 'Settings',
+            },
+          ]
+        : [
+            {
+              'icon': Icons.home_outlined,
+              'label': 'Home',
+            },
+            {
+              'icon': Icons.history_rounded,
+              'label': 'History',
+            },
+            {
+              'icon': Icons.medical_services_outlined,
+              'label': 'Refill',
+            },
+            {
+              'icon': Icons.settings_outlined,
+              'label': 'Settings',
+            },
+          ];
+
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
@@ -21,41 +62,53 @@ class McBottomNav extends StatelessWidget {
           top: BorderSide(color: Colors.black.withValues(alpha: 0.06)),
         ),
       ),
-      child: BottomNavigationBar(
-        currentIndex: selectedIndex,
-        onTap: onTap,
-        type: BottomNavigationBarType.fixed,
-        backgroundColor: Colors.white,
-        elevation: 0,
-        selectedItemColor: const Color(0xFF0F6D95),
-        unselectedItemColor: const Color(0xFF9AA7B3),
-        selectedFontSize: 12,
-        unselectedFontSize: 12,
-        showUnselectedLabels: true,
-        items: [
-          const BottomNavigationBarItem(
-            icon: Icon(Icons.home_rounded),
-            label: 'Home',
-          ),
-          if (isCaregiver)
-            const BottomNavigationBarItem(
-              icon: Icon(Icons.people_rounded),
-              label: 'Family',
-            )
-          else
-            const BottomNavigationBarItem(
-              icon: Icon(Icons.medication_rounded),
-              label: 'Medications',
-            ),
-          const BottomNavigationBarItem(
-            icon: Icon(Icons.history_rounded),
-            label: 'History',
-          ),
-          const BottomNavigationBarItem(
-            icon: Icon(Icons.settings_rounded),
-            label: 'Settings',
-          ),
-        ],
+      padding: const EdgeInsets.only(top: 8, bottom: 6),
+      child: SafeArea(
+        top: false,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          children: List.generate(items.length, (index) {
+            final item = items[index];
+            final isSelected = selectedIndex == index;
+            final color = isSelected ? activeColor : inactiveColor;
+
+            return Expanded(
+              child: GestureDetector(
+                behavior: HitTestBehavior.opaque,
+                onTap: () => onTap(index),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      item['icon'] as IconData,
+                      color: color,
+                      size: 24,
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      item['label'] as String,
+                      style: TextStyle(
+                        color: color,
+                        fontSize: 12,
+                        fontFamily: 'serif',
+                        fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Container(
+                      width: 4,
+                      height: 4,
+                      decoration: BoxDecoration(
+                        color: isSelected ? color : Colors.transparent,
+                        shape: BoxShape.circle,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          }),
+        ),
       ),
     );
   }
