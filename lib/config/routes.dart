@@ -36,6 +36,7 @@ import '../screens/settings/accessibility_settings_screen.dart';
 import '../screens/settings/profile_screen.dart';
 import '../screens/settings/edit_profile_screen.dart';
 import '../screens/settings/qr_link_screen.dart';
+import '../screens/alarm/alarm_screen.dart';
 
 class AppRoutes {
   AppRoutes._();
@@ -55,6 +56,7 @@ class AppRoutes {
 
   // Home
   static const String home = '/home';
+  static const String alarm = '/alarm';
 
   // Reminders
   static const String reminder = '/reminder';
@@ -149,6 +151,19 @@ class AppRoutes {
       accessibilitySettings: (_) => const AccessibilitySettingsScreen(),
       profile: (_) => const ProfileScreen(),
       qrLink: (_) => const QrLinkScreen(),
+      alarm: (_) {
+        final args =
+            ModalRoute.of(_)?.settings.arguments as Map<String, dynamic>?;
+        return AlarmScreen(
+          medicationName: args?['medicationName'] as String?,
+          dosage: args?['dosage'] as String?,
+          form: args?['form'] as String?,
+          pillPhotoUrl: args?['pillPhotoUrl'] as String?,
+          scheduledTime: args?['scheduledTime'] as String?,
+          instruction: args?['instruction'] as String?,
+          isDaily: args?['isDaily'] as bool? ?? true,
+        );
+      },
     };
   }
 }

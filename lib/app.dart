@@ -5,6 +5,7 @@ import 'config/routes.dart';
 import 'config/scroll_behavior.dart';
 import 'models/user_model.dart';
 import 'providers/auth_provider.dart';
+import 'services/navigation_service.dart';
 
 class MedClockApp extends ConsumerWidget {
   const MedClockApp({super.key});
@@ -15,6 +16,7 @@ class MedClockApp extends ConsumerWidget {
     final isInitialized = ref.watch(authInitializedProvider);
 
     return MaterialApp(
+      navigatorKey: appNavigatorKey,
       title: 'MedClock',
       scrollBehavior: const NoOverscrollBehavior(),
       debugShowCheckedModeBanner: false,

@@ -33,6 +33,8 @@ class _AddMedicationScreenState extends ConsumerState<AddMedicationScreen> {
   Set<int> _selectedDays = {}; // 0=Sunday, 1=Monday, ..., 6=Saturday
 
   final CameraService _cameraService = CameraService();
+  MedicationModel? _editingMedication;
+  bool _isEditing = false;
 
   @override
   void dispose() {
@@ -91,29 +93,71 @@ class _AddMedicationScreenState extends ConsumerState<AddMedicationScreen> {
     setState(() => _isLoading = true);
     final user = ref.read(authProvider);
 
-    final medication = MedicationModel(
-      id: const Uuid().v4(),
-      userId: user?.id ?? '',
-      name: _nameController.text.trim(),
-      dosage: _selectedTime.format(context),
-      form: _selectedForm,
-      instructions: _selectedDays.toString(),
-      totalSupply: int.tryParse(_supplyController.text) ?? 30,
-      currentSupply: int.tryParse(_supplyController.text) ?? 30,
-      refillThreshold: 7,
-      pillPhotoUrl: _pillPhotoPath,
-    );
+    MedicationModel medication;
+    if (_isEditing && _editingMedication != null) {
+      medication = _editingMedication!.copyWith(
+        name: _nameController.text.trim(),
+        dosage: _selectedTime.format(context),
+        form: _selectedForm,
+        instructions: _selectedDays.toString(),
+        totalSupply: int.tryParse(_supplyController.text) ?? 30,
+        currentSupply: int.tryParse(_supplyController.text) ?? 30,
+        pillPhotoUrl: _pillPhotoPath,
+      );
+    } else {
+      medication = MedicationModel(
+        id: const Uuid().v4(),
+        userId: user?.id ?? '',
+        name: _nameController.text.trim(),
+        dosage: _selectedTime.format(context),
+        form: _selectedForm,
+        instructions: _selectedDays.toString(),
+        totalSupply: int.tryParse(_supplyController.text) ?? 30,
+        currentSupply: int.tryParse(_supplyController.text) ?? 30,
+        refillThreshold: 7,
+        pillPhotoUrl: _pillPhotoPath,
+      );
+    }
 
-    final success = await ref
-        .read(medicationProvider.notifier)
-        .addMedication(medication);
+    final success = _isEditing
+        ? await ref
+              .read(medicationProvider.notifier)
+              .updateMedication(medication)
+        : await ref.read(medicationProvider.notifier).addMedication(medication);
     setState(() => _isLoading = false);
 
     if (success && mounted) {
-      McToast.showSuccess(context, 'Medication added successfully');
+      McToast.showSuccess(
+        context,
+        _isEditing ? 'Medication updated' : 'Medication added successfully',
+      );
       Navigator.of(context).pop();
     } else if (mounted) {
       McToast.showError(context, 'Failed to add medication');
+    }
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (!_isEditing) {
+      final args = ModalRoute.of(context)?.settings.arguments;
+      if (args is MedicationModel) {
+        _editingMedication = args;
+        _isEditing = true;
+        _nameController.text = _editingMedication!.name;
+        _supplyController.text = _editingMedication!.totalSupply.toString();
+        _selectedForm = _editingMedication!.form;
+        _pillPhotoPath = _editingMedication!.pillPhotoUrl;
+        // dosage stored as string time in model; attempt to parse
+        try {
+          final parts = _editingMedication!.dosage.split(':');
+          final hour = int.tryParse(parts[0]) ?? 8;
+          final minutePart = parts.length > 1 ? parts[1] : '00';
+          final minute = int.tryParse(minutePart.split(' ').first) ?? 0;
+          _selectedTime = TimeOfDay(hour: hour, minute: minute);
+        } catch (_) {}
+      }
     }
   }
 
@@ -185,17 +229,29 @@ class _AddMedicationScreenState extends ConsumerState<AddMedicationScreen> {
                           child: _pillPhotoPath != null
                               ? ClipRRect(
                                   borderRadius: BorderRadius.circular(18),
-                                  child: Image.file(
-                                    File(_pillPhotoPath!),
-                                    fit: BoxFit.cover,
-                                    errorBuilder:
-                                        (context, error, stackTrace) =>
-                                            const Icon(
-                                              Icons.add_a_photo_rounded,
-                                              size: 50,
-                                              color: Color(0xFF0E6B94),
-                                            ),
-                                  ),
+                                  child: _pillPhotoPath!.startsWith('http')
+                                      ? Image.network(
+                                          _pillPhotoPath!,
+                                          fit: BoxFit.cover,
+                                          errorBuilder:
+                                              (context, error, stackTrace) =>
+                                                  const Icon(
+                                                    Icons.add_a_photo_rounded,
+                                                    size: 50,
+                                                    color: Color(0xFF0E6B94),
+                                                  ),
+                                        )
+                                      : Image.file(
+                                          File(_pillPhotoPath!),
+                                          fit: BoxFit.cover,
+                                          errorBuilder:
+                                              (context, error, stackTrace) =>
+                                                  const Icon(
+                                                    Icons.add_a_photo_rounded,
+                                                    size: 50,
+                                                    color: Color(0xFF0E6B94),
+                                                  ),
+                                        ),
                                 )
                               : Column(
                                   mainAxisAlignment: MainAxisAlignment.center,

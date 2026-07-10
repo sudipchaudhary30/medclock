@@ -21,6 +21,7 @@ app.use('/api/medications', require('./routes/medications'));
 app.use('/api/reminders', require('./routes/reminders'));
 app.use('/api/dose-logs', require('./routes/doseLogs'));
 app.use('/api/family', require('./routes/family'));
+app.use('/api/uploads', require('./routes/uploads'));
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`MedClock server running on port ${PORT}`));

@@ -6,16 +6,21 @@ class McPillImage extends StatelessWidget {
   final String? imageUrl;
   final double size;
 
+  /// When true the image will expand to fill the parent's width while
+  /// keeping the provided `size` as height. Default false.
+  final bool fitToParentWidth;
+
   const McPillImage({
     super.key,
     required this.imageUrl,
     this.size = 60,
+    this.fitToParentWidth = false,
   });
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: size,
+      width: fitToParentWidth ? double.infinity : size,
       height: size,
       decoration: BoxDecoration(
         color: AppTheme.dividerColor,
@@ -38,20 +43,16 @@ class McPillImage extends StatelessWidget {
       return Image.network(
         imageUrl!,
         fit: BoxFit.cover,
-        errorBuilder: (context, error, stackTrace) => const Icon(
-          Icons.medication_rounded,
-          color: AppTheme.textHint,
-        ),
+        errorBuilder: (context, error, stackTrace) =>
+            const Icon(Icons.medication_rounded, color: AppTheme.textHint),
       );
     }
     // Assume local file path for captured pill photos
     return Image.file(
       File(imageUrl!),
       fit: BoxFit.cover,
-      errorBuilder: (context, error, stackTrace) => const Icon(
-        Icons.medication_rounded,
-        color: AppTheme.textHint,
-      ),
+      errorBuilder: (context, error, stackTrace) =>
+          const Icon(Icons.medication_rounded, color: AppTheme.textHint),
     );
   }
 }

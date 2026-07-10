@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/intl.dart';
 import '../../config/routes.dart';
 import '../../models/medication_model.dart';
 import '../../providers/auth_provider.dart';
@@ -10,7 +11,6 @@ import '../../widgets/media/mc_pill_image.dart';
 import '../../config/app_theme.dart';
 
 const Color _homePageBg = Color(0xFFF4F7FC);
-const Color _homeAppBarBlue = Color(0xFF0B3D66);
 const Color _homeHeroBlue = Color(0xFF24628C);
 const Color _homeHeroBlueDark = Color(0xFF1E567C);
 
@@ -30,8 +30,42 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     final doseLogs = ref.watch(doseLogProvider);
     final streakCount = _calculateStreak(doseLogs);
     final adherenceRate = _calculateAdherenceRate(doseLogs);
-    final visibleReminders = reminders.take(2).toList();
-    final visibleMedications = medications.take(2).toList();
+    final todayWeekday = _weekdayAbbrev(DateTime.now());
+
+    final todayScheduleItems = <Map<String, dynamic>>[];
+    for (final med in medications) {
+      final medReminders =
+          reminders
+              .where(
+                (reminder) =>
+                    reminder.medicationId == med.id &&
+                    reminder.days.contains(todayWeekday),
+              )
+              .toList()
+            ..sort((a, b) => a.scheduledTime.compareTo(b.scheduledTime));
+
+      for (final reminder in medReminders) {
+        final isTaken = doseLogs.any(
+          (log) => log.reminderId == reminder.id && log.isTaken,
+        );
+
+        todayScheduleItems.add({
+          'reminder': reminder,
+          'medication': med,
+          'time': _formatReminderTime(reminder.scheduledTime),
+          'scheduleLabel': _scheduleLabel(reminder.scheduledTime),
+          'status': isTaken ? 'TAKEN' : 'UPCOMING',
+          'statusColor': isTaken
+              ? const Color(0xFFDBF0F8)
+              : const Color(0xFFE7F3FB),
+          'statusTextColor': const Color(0xFF0D6A95),
+          'trailingIcon': isTaken ? Icons.check_rounded : Icons.add_rounded,
+        });
+      }
+    }
+
+    final visibleScheduleItems = todayScheduleItems.take(2).toList();
+    final visibleMedications = medications.toList();
 
     return Scaffold(
       backgroundColor: _homePageBg,
@@ -47,7 +81,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         ),
         actions: [
           IconButton(
-            onPressed: () => Navigator.of(context, rootNavigator: true).pushNamed(AppRoutes.profile),
+            onPressed: () => Navigator.of(
+              context,
+              rootNavigator: true,
+            ).pushNamed(AppRoutes.profile),
             icon: const Icon(
               Icons.person_outline_rounded,
               color: Color(0xFF6A7D90),
@@ -55,12 +92,17 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           ),
         ],
         shape: Border(
-          bottom: BorderSide(color: Colors.black.withOpacity(0.05), width: 0.8),
+          bottom: BorderSide(
+            color: Colors.black.withValues(alpha: 0.05),
+            width: 0.8,
+          ),
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () =>
-            Navigator.of(context, rootNavigator: true).pushNamed(AppRoutes.addMedication),
+        onPressed: () => Navigator.of(
+          context,
+          rootNavigator: true,
+        ).pushNamed(AppRoutes.addMedication),
         backgroundColor: const Color(0xFF0E6B94),
         elevation: 2,
         child: const Icon(Icons.add_rounded, color: Colors.white, size: 30),
@@ -119,7 +161,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               const SizedBox(height: 6),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: reminders.isEmpty
+                child: todayScheduleItems.isEmpty
                     ? _BackendEmptyCard(
                         title: 'No reminders scheduled',
                         subtitle:
@@ -127,41 +169,36 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                         icon: Icons.event_busy_rounded,
                       )
                     : Column(
-                        children: visibleReminders.map((reminder) {
-                          final med = medications.firstWhere(
-                            (m) => m.id == reminder.medicationId,
-                            orElse: () => MedicationModel(
-                              id: reminder.medicationId,
-                              userId: reminder.userId,
-                              name: 'Medication',
-                              dosage: 'N/A',
-                            ),
-                          );
-                          final isTaken = doseLogs.any(
-                            (log) =>
-                                log.reminderId == reminder.id && log.isTaken,
-                          );
+                        children: visibleScheduleItems.map((item) {
+                          final reminder = item['reminder'];
+                          final med = item['medication'] as MedicationModel;
+                          final status = item['status'] as String;
+                          final statusColor = item['statusColor'] as Color;
+                          final statusTextColor =
+                              item['statusTextColor'] as Color;
+                          final trailingIcon = item['trailingIcon'] as IconData;
 
                           return _ReminderCard(
                             medicationName: med.name,
-                            dosageLine: '${med.dosage} • ${med.form}',
-                            time: _formatReminderTime(reminder.scheduledTime),
-                            status: isTaken ? 'TAKEN' : 'UPCOMING',
-                            statusColor: isTaken
-                                ? const Color(0xFFDBF0F8)
-                                : const Color(0xFFE7F3FB),
-                            statusTextColor: const Color(0xFF0D6A95),
+                            dosageLine:
+                                '${med.dosage} • ${item['scheduleLabel'] as String}',
+                            time: item['time'] as String,
+                            status: status,
+                            statusColor: statusColor,
+                            statusTextColor: statusTextColor,
                             pillPhotoUrl: med.pillPhotoUrl,
-                            trailingIcon: isTaken
-                                ? Icons.check_rounded
-                                : Icons.add_rounded,
-                            onTap: () => Navigator.of(context, rootNavigator: true).pushNamed(
-                              AppRoutes.doseConfirm,
-                              arguments: {
-                                'reminder': reminder,
-                                'medication': med,
-                              },
-                            ),
+                            trailingIcon: trailingIcon,
+                            onTap: () =>
+                                Navigator.of(
+                                  context,
+                                  rootNavigator: true,
+                                ).pushNamed(
+                                  AppRoutes.doseConfirm,
+                                  arguments: {
+                                    'reminder': reminder,
+                                    'medication': med,
+                                  },
+                                ),
                           );
                         }).toList(),
                       ),
@@ -191,73 +228,23 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               else
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16),
-                  child: SizedBox(
-                    height: 210,
-                    child: ListView.separated(
-                      scrollDirection: Axis.horizontal,
-                      itemCount: visibleMedications.length,
-                      separatorBuilder: (_, __) => const SizedBox(width: 12),
-                      itemBuilder: (context, index) {
-                        final med = visibleMedications[index];
-                        final percentage = med.totalSupply > 0
-                            ? med.currentSupply / med.totalSupply
-                            : 0.0;
-                        return _SupplyCard(
-                          medication: med,
-                          percentage: percentage,
-                        );
-                      },
-                    ),
+                  child: GridView.count(
+                    crossAxisCount: 2,
+                    mainAxisSpacing: 10,
+                    crossAxisSpacing: 10,
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    // Slightly increased aspect ratio to prevent minor pixel overflow
+                    childAspectRatio: 0.80,
+                    children: visibleMedications.map((med) {
+                      return _SupplyCard(medication: med);
+                    }).toList(),
                   ),
                 ),
               const SizedBox(height: 24),
             ],
           ),
         ),
-      ),
-    );
-  }
-}
-
-class _TopLogoCard extends StatelessWidget {
-  final Widget logo;
-
-  const _TopLogoCard({required this.logo});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.fromLTRB(16, 12, 16, 8),
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.06),
-            blurRadius: 12,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          logo,
-          Container(
-            width: 36,
-            height: 36,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              border: Border.all(color: const Color(0xFFBFD6E8), width: 1.5),
-            ),
-            child: const Icon(
-              Icons.person_outline_rounded,
-              color: Color(0xFF6A7D90),
-              size: 22,
-            ),
-          ),
-        ],
       ),
     );
   }
@@ -423,37 +410,38 @@ class _ReminderCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.only(bottom: 12),
+      margin: const EdgeInsets.only(bottom: 14),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(14),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: const Color(0xFFE8EEF2), width: 1),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.04),
-            blurRadius: 10,
-            offset: const Offset(0, 2),
+            blurRadius: 12,
+            offset: const Offset(0, 3),
           ),
         ],
       ),
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(14),
+        borderRadius: BorderRadius.circular(20),
         child: Padding(
-          padding: const EdgeInsets.all(12),
+          padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
           child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Container(
-                width: 3,
-                height: 62,
-                margin: const EdgeInsets.only(right: 9, top: 2),
+                width: 4,
+                height: 92,
                 decoration: BoxDecoration(
-                  color: const Color(0xFF0F6D95),
+                  color: const Color(0xFF0E6B94),
                   borderRadius: BorderRadius.circular(999),
                 ),
               ),
-              McPillImage(imageUrl: pillPhotoUrl, size: 48),
-              const SizedBox(width: 12),
+              const SizedBox(width: 14),
+              McPillImage(imageUrl: pillPhotoUrl, size: 52),
+              const SizedBox(width: 14),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -462,37 +450,53 @@ class _ReminderCard extends StatelessWidget {
                       medicationName,
                       style: const TextStyle(
                         color: Color(0xFF0D1E30),
-                        fontSize: 13,
-                        fontWeight: FontWeight.w700,
+                        fontSize: 16,
+                        fontWeight: FontWeight.w800,
                       ),
                     ),
-                    const SizedBox(height: 2),
+                    const SizedBox(height: 6),
                     Text(
                       dosageLine,
                       style: const TextStyle(
-                        color: Color(0xFF216A97),
+                        color: Color(0xFF225F83),
                         fontSize: 13,
-                        fontWeight: FontWeight.w500,
+                        fontWeight: FontWeight.w600,
+                        height: 1.4,
                       ),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
                     ),
-                    const SizedBox(height: 2),
-                    Text(
-                      time,
-                      style: const TextStyle(
-                        color: Color(0xFF6F7D8E),
-                        fontSize: 11,
-                      ),
+                    const SizedBox(height: 10),
+                    Row(
+                      children: [
+                        const Icon(
+                          Icons.access_time_rounded,
+                          size: 14,
+                          color: Color(0xFF6F7D8E),
+                        ),
+                        const SizedBox(width: 8),
+                        Text(
+                          time,
+                          style: const TextStyle(
+                            color: Color(0xFF6F7D8E),
+                            fontSize: 12,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ],
                     ),
                   ],
                 ),
               ),
+              const SizedBox(width: 10),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.end,
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Container(
                     padding: const EdgeInsets.symmetric(
-                      horizontal: 12,
-                      vertical: 6,
+                      horizontal: 14,
+                      vertical: 8,
                     ),
                     decoration: BoxDecoration(
                       color: statusColor,
@@ -503,17 +507,16 @@ class _ReminderCard extends StatelessWidget {
                       style: TextStyle(
                         color: statusTextColor,
                         fontSize: 12,
-                        fontWeight: FontWeight.w500,
-                        letterSpacing: 0.5,
+                        fontWeight: FontWeight.w800,
                       ),
                     ),
                   ),
-                  const SizedBox(height: 10),
+                  const SizedBox(height: 12),
                   Container(
-                    width: 30,
-                    height: 30,
-                    decoration: BoxDecoration(
-                      color: const Color(0xFF0E6B94),
+                    width: 38,
+                    height: 38,
+                    decoration: const BoxDecoration(
+                      color: Color(0xFF0E6B94),
                       shape: BoxShape.circle,
                     ),
                     child: Icon(trailingIcon, color: Colors.white, size: 18),
@@ -528,95 +531,191 @@ class _ReminderCard extends StatelessWidget {
   }
 }
 
-class _SupplyCard extends StatelessWidget {
+class _SupplyCard extends ConsumerWidget {
   final MedicationModel medication;
-  final double percentage;
 
-  const _SupplyCard({required this.medication, required this.percentage});
+  const _SupplyCard({required this.medication});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final daysLeft = medication.currentSupply;
-    final isLow = percentage < 0.25;
+    final isLow = medication.currentSupply <= medication.refillThreshold;
 
-    return Container(
-      width: 152,
-      padding: const EdgeInsets.fromLTRB(12, 16, 12, 14),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.04),
-            blurRadius: 10,
-            offset: const Offset(0, 2),
+    return Stack(
+      children: [
+        Container(
+          width: double.infinity,
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(18),
+            border: Border.all(color: const Color(0xFFE8EFF5)),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.03),
+                blurRadius: 10,
+                offset: const Offset(0, 3),
+              ),
+            ],
           ),
-        ],
-      ),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          SizedBox(
-            width: 64,
-            height: 64,
-            child: Stack(
-              alignment: Alignment.center,
-              children: [
-                CircularProgressIndicator(
-                  value: percentage,
-                  backgroundColor: const Color(0xFFE7EEF5),
-                  valueColor: AlwaysStoppedAnimation<Color>(
-                    isLow ? const Color(0xFFD92D20) : const Color(0xFF0F6C95),
-                  ),
-                  strokeWidth: 5,
-                ),
-                Text(
-                  '${(percentage * 100).toInt()}%',
-                  style: const TextStyle(
-                    color: Color(0xFF2C5F7C),
-                    fontSize: 13,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          Column(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Text(
-                daysLeft.toString().padLeft(2, '0'),
-                style: const TextStyle(
-                  color: Color(0xFF6C7A89),
-                  fontSize: 20,
-                  fontWeight: FontWeight.w400,
+              ClipRRect(
+                borderRadius: const BorderRadius.vertical(
+                  top: Radius.circular(18),
+                ),
+                child: SizedBox(
+                  height: 110,
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 1),
+                    child: McPillImage(
+                      imageUrl: medication.pillPhotoUrl,
+                      size: 110,
+                      fitToParentWidth: true,
+                    ),
+                  ),
                 ),
               ),
-              const SizedBox(height: 2),
-              const Text(
-                'DAYS LEFT',
-                style: TextStyle(
-                  color: Color(0xFF6C7A89),
-                  fontSize: 10,
-                  fontWeight: FontWeight.w500,
-                  letterSpacing: 0.8,
-                ),
-              ),
-              const SizedBox(height: 12),
-              Text(
-                medication.name,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                textAlign: TextAlign.center,
-                style: const TextStyle(
-                  color: Color(0xFF2B3A4B),
-                  fontSize: 12,
-                  fontWeight: FontWeight.w500,
+              Padding(
+                padding: const EdgeInsets.fromLTRB(12, 12, 12, 12),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      medication.name,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        color: Color(0xFF152B40),
+                        fontSize: 14,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      medication.dosage,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        color: Color(0xFF5C7283),
+                        fontSize: 12,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 10,
+                            vertical: 6,
+                          ),
+                          decoration: BoxDecoration(
+                            color: isLow
+                                ? const Color(0xFFFFF1F1)
+                                : const Color(0xFFEFF6FF),
+                            borderRadius: BorderRadius.circular(14),
+                          ),
+                          child: Text(
+                            isLow ? 'Refill' : 'Active',
+                            style: TextStyle(
+                              color: isLow
+                                  ? const Color(0xFFD0363A)
+                                  : const Color(0xFF1E5D8A),
+                              fontSize: 11,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                        ),
+                        const Spacer(),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          children: [
+                            Text(
+                              '$daysLeft days left',
+                              style: const TextStyle(
+                                color: Color(0xFF1F3D5B),
+                                fontSize: 13,
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
+                            const SizedBox(height: 2),
+                            Text(
+                              medication.totalSupply > 0
+                                  ? '${medication.currentSupply}/${medication.totalSupply}'
+                                  : 'No stock info',
+                              style: const TextStyle(
+                                color: Color(0xFF667887),
+                                fontSize: 11,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ],
                 ),
               ),
             ],
           ),
-        ],
-      ),
+        ),
+        Positioned(
+          top: 8,
+          right: 8,
+          child: Material(
+            color: Colors.transparent,
+            child: PopupMenuButton<String>(
+              onSelected: (value) async {
+                if (value == 'edit') {
+                  Navigator.of(
+                    context,
+                    rootNavigator: true,
+                  ).pushNamed(AppRoutes.addMedication, arguments: medication);
+                } else if (value == 'delete') {
+                  final confirmed = await showDialog<bool>(
+                    context: context,
+                    builder: (ctx) => AlertDialog(
+                      title: const Text('Delete medication'),
+                      content: const Text(
+                        'Are you sure you want to delete this medication?',
+                      ),
+                      actions: [
+                        TextButton(
+                          onPressed: () => Navigator.of(ctx).pop(false),
+                          child: const Text('Cancel'),
+                        ),
+                        TextButton(
+                          onPressed: () => Navigator.of(ctx).pop(true),
+                          child: const Text('Delete'),
+                        ),
+                      ],
+                    ),
+                  );
+                  if (confirmed == true) {
+                    final success = await ref
+                        .read(medicationProvider.notifier)
+                        .deleteMedication(medication.id);
+                    if (success && context.mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('Medication deleted')),
+                      );
+                    }
+                  }
+                }
+              },
+              itemBuilder: (context) => [
+                const PopupMenuItem(value: 'edit', child: Text('Edit')),
+                const PopupMenuItem(value: 'delete', child: Text('Delete')),
+              ],
+              icon: const Icon(
+                Icons.more_vert,
+                size: 20,
+                color: Color(0xFF6F7D8E),
+              ),
+            ),
+          ),
+        ),
+      ],
     );
   }
 }
@@ -727,8 +826,18 @@ String _formatReminderTime(String scheduledTime) {
   final parts = scheduledTime.split(':');
   final hour = int.tryParse(parts.first) ?? 8;
   final minute = parts.length > 1 ? int.tryParse(parts[1]) ?? 0 : 0;
-  final period = hour >= 12 ? 'PM' : 'AM';
-  final displayHour = hour == 0 ? 12 : (hour > 12 ? hour - 12 : hour);
-  final minuteText = minute.toString().padLeft(2, '0');
-  return '$displayHour:$minuteText $period';
+  final dateTime = DateTime(2000, 1, 1, hour, minute);
+  return DateFormat('hh:mm a').format(dateTime);
+}
+
+String _weekdayAbbrev(DateTime date) {
+  return DateFormat('E').format(date);
+}
+
+String _scheduleLabel(String scheduledTime) {
+  final hour = int.tryParse(scheduledTime.split(':').first) ?? 8;
+  if (hour < 12) return 'Before Breakfast';
+  if (hour < 15) return 'After Breakfast';
+  if (hour < 18) return 'Before Lunch';
+  return 'After Dinner';
 }
