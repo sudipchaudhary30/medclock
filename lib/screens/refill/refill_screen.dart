@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../config/routes.dart';
+import '../delivery/delivery_tracking_screen.dart';
 import '../../models/medication_model.dart';
 import '../../providers/medication_provider.dart';
 import '../../providers/refill_provider.dart';
@@ -28,52 +29,17 @@ class RefillScreen extends ConsumerWidget {
     return 'In Stock';
   }
 
-  void _handleRefillAction(BuildContext context, WidgetRef ref, MedicationModel med) {
-    final bool isMock = med.id.startsWith('mock-');
-    final String medName = med.name;
-
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: const Text('Confirm Refill'),
-        content: Text('Would you like to request a prescription refill for $medName from ${med.pharmacyId ?? "your linked pharmacy"}?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel', style: TextStyle(color: Colors.grey)),
-          ),
-          ElevatedButton(
-            onPressed: () async {
-              Navigator.pop(context);
-              bool success = true;
-              if (!isMock) {
-                success = await ref
-                    .read(refillProvider.notifier)
-                    .triggerRefill(med.id, med.currentSupply <= 5);
-              }
-              if (context.mounted) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text(success
-                        ? 'Refill ordered successfully for $medName!'
-                        : 'Failed to request refill. Please try again.'),
-                    backgroundColor: const Color(0xFF0F6D95),
-                    behavior: SnackBarBehavior.floating,
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8)),
-                  ),
-                );
-              }
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF0E6B94),
-              foregroundColor: Colors.white,
-              shape: const StadiumBorder(),
-            ),
-            child: const Text('Confirm'),
-          ),
-        ],
+  void _handleRefillAction(
+    BuildContext context,
+    WidgetRef ref,
+    MedicationModel med,
+  ) {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => DeliveryTrackingScreen(
+          medicationName: med.name,
+          medicationId: med.id,
+        ),
       ),
     );
   }
@@ -150,7 +116,10 @@ class RefillScreen extends ConsumerWidget {
         ),
         actions: [
           IconButton(
-            onPressed: () => Navigator.of(context, rootNavigator: true).pushNamed(AppRoutes.profile),
+            onPressed: () => Navigator.of(
+              context,
+              rootNavigator: true,
+            ).pushNamed(AppRoutes.profile),
             icon: const Icon(
               Icons.person_outline_rounded,
               color: Color(0xFF6A7D90),
@@ -159,7 +128,9 @@ class RefillScreen extends ConsumerWidget {
         ],
         shape: Border(
           bottom: BorderSide(
-              color: Colors.black.withValues(alpha: 0.05), width: 0.8),
+            color: Colors.black.withValues(alpha: 0.05),
+            width: 0.8,
+          ),
         ),
       ),
       body: SafeArea(
@@ -293,20 +264,26 @@ class RefillScreen extends ConsumerWidget {
   }
 
   Widget _buildMedicationCard(
-      BuildContext context, WidgetRef ref, MedicationModel med, bool isUrgent) {
+    BuildContext context,
+    WidgetRef ref,
+    MedicationModel med,
+    bool isUrgent,
+  ) {
     final statusText = _getStatusText(med);
     final approxDays = _getApproxDaysLeft(med);
-    final accentColor = isUrgent ? const Color(0xFFFF6B6B) : const Color(0xFF45CB85);
+    final accentColor = isUrgent
+        ? const Color(0xFFFF6B6B)
+        : const Color(0xFF45CB85);
 
     final badgeBg = isUrgent
         ? (statusText == 'Low Stock'
-            ? const Color(0xFFFDECEB)
-            : const Color(0xFFFFF2E6))
+              ? const Color(0xFFFDECEB)
+              : const Color(0xFFFFF2E6))
         : const Color(0xFFEAFAF1);
     final badgeTextColor = isUrgent
         ? (statusText == 'Low Stock'
-            ? const Color(0xFFC0392B)
-            : const Color(0xFFD35400))
+              ? const Color(0xFFC0392B)
+              : const Color(0xFFD35400))
         : const Color(0xFF27AE60);
 
     return Container(
@@ -314,9 +291,7 @@ class RefillScreen extends ConsumerWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
-        border: Border(
-          left: BorderSide(color: accentColor, width: 4),
-        ),
+        border: Border(left: BorderSide(color: accentColor, width: 4)),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.04),
@@ -346,7 +321,10 @@ class RefillScreen extends ConsumerWidget {
                   ),
                 ),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 4,
+                  ),
                   decoration: BoxDecoration(
                     color: badgeBg,
                     borderRadius: BorderRadius.circular(8),
@@ -414,8 +392,12 @@ class RefillScreen extends ConsumerWidget {
                       'Approx. $approxDays days left',
                       style: TextStyle(
                         fontSize: 12,
-                        color: isUrgent ? const Color(0xFFE74C3C) : const Color(0xFF7F8C8D),
-                        fontWeight: isUrgent ? FontWeight.w600 : FontWeight.normal,
+                        color: isUrgent
+                            ? const Color(0xFFE74C3C)
+                            : const Color(0xFF7F8C8D),
+                        fontWeight: isUrgent
+                            ? FontWeight.w600
+                            : FontWeight.normal,
                       ),
                     ),
                   ],
@@ -429,7 +411,9 @@ class RefillScreen extends ConsumerWidget {
                           foregroundColor: Colors.white,
                           shape: const StadiumBorder(),
                           padding: const EdgeInsets.symmetric(
-                              horizontal: 16, vertical: 10),
+                            horizontal: 16,
+                            vertical: 10,
+                          ),
                           elevation: 0,
                         ),
                         label: const Icon(
@@ -439,7 +423,9 @@ class RefillScreen extends ConsumerWidget {
                         icon: const Text(
                           'Order Refill',
                           style: TextStyle(
-                              fontSize: 13, fontWeight: FontWeight.bold),
+                            fontSize: 13,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                       )
                     : OutlinedButton(
@@ -448,12 +434,17 @@ class RefillScreen extends ConsumerWidget {
                             // Mock navigation to details or show a snackbar
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(
-                                content: Text('Opening details for ${med.name}...'),
+                                content: Text(
+                                  'Opening details for ${med.name}...',
+                                ),
                                 duration: const Duration(seconds: 1),
                               ),
                             );
                           } else {
-                            Navigator.of(context, rootNavigator: true).pushNamed(
+                            Navigator.of(
+                              context,
+                              rootNavigator: true,
+                            ).pushNamed(
                               AppRoutes.medicationDetail,
                               arguments: med,
                             );
@@ -464,12 +455,16 @@ class RefillScreen extends ConsumerWidget {
                           side: const BorderSide(color: Color(0xFF0E6B94)),
                           shape: const StadiumBorder(),
                           padding: const EdgeInsets.symmetric(
-                              horizontal: 20, vertical: 10),
+                            horizontal: 20,
+                            vertical: 10,
+                          ),
                         ),
                         child: const Text(
                           'Details',
                           style: TextStyle(
-                              fontSize: 13, fontWeight: FontWeight.bold),
+                            fontSize: 13,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                       ),
               ],

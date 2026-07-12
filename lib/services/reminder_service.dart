@@ -32,6 +32,58 @@ class ReminderService {
     return [];
   }
 
+  Future<ReminderModel?> addReminder(ReminderModel reminder) async {
+    try {
+      final response = await _apiService.client.post('/reminders', data: reminder.toJson());
+      if (response.statusCode == 201) {
+        final saved = ReminderModel.fromJson(response.data);
+        final box = _localStorageService.getBox(AppConstants.remindersBox);
+        await box.put(saved.id, saved.toJson());
+        return saved;
+      }
+    } catch (_) {
+      // Offline fallback: save locally and schedule sync
+      final box = _localStorageService.getBox(AppConstants.remindersBox);
+      await box.put(reminder.id, reminder.toJson());
+
+      final syncBox = _localStorageService.getBox(AppConstants.pendingSyncBox);
+      await syncBox.put('reminder_${reminder.id}', {
+        'action': 'add_reminder',
+        'data': reminder.toJson(),
+      });
+      return reminder;
+    }
+    return null;
+  }
+
+  Future<ReminderModel?> updateReminder(ReminderModel reminder) async {
+    try {
+      final response = await _apiService.client.put(
+        '/reminders/${reminder.id}',
+        data: reminder.toJson(),
+      );
+      if (response.statusCode == 200) {
+        final updated = ReminderModel.fromJson(response.data);
+        final box = _localStorageService.getBox(AppConstants.remindersBox);
+        await box.put(updated.id, updated.toJson());
+        return updated;
+      }
+    } catch (_) {
+      // Offline fallback: update locally and queue sync
+      final box = _localStorageService.getBox(AppConstants.remindersBox);
+      await box.put(reminder.id, reminder.toJson());
+
+      final syncBox = _localStorageService.getBox(AppConstants.pendingSyncBox);
+      await syncBox.put('update_reminder_${reminder.id}', {
+        'action': 'update_reminder',
+        'data': reminder.toJson(),
+      });
+      return reminder;
+    }
+    return null;
+  }
+
+
   Future<ReminderModel?> snoozeReminder(String reminderId, int remainingCount) async {
     try {
       final response = await _apiService.client.post('/reminders/$reminderId/snooze', data: {

@@ -73,6 +73,25 @@ class SyncService {
           if (response.statusCode == 200) {
             await syncBox.delete(key);
           }
+        } else if (action == 'update_reminder') {
+          final String? id = data['id'] as String?;
+          if (id != null) {
+            final response = await _apiService.client.put(
+              '/reminders/$id',
+              data: data,
+            );
+            if (response.statusCode == 200) {
+              await syncBox.delete(key);
+            }
+          }
+        } else if (action == 'add_reminder') {
+          final response = await _apiService.client.post(
+            '/reminders',
+            data: data,
+          );
+          if (response.statusCode == 201) {
+            await syncBox.delete(key);
+          }
         }
       } catch (_) {
         // Stop sync iteration if request fails due to lack of connection

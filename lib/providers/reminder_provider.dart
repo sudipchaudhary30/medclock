@@ -30,6 +30,27 @@ class ReminderNotifier extends StateNotifier<List<ReminderModel>> {
     }
     return false;
   }
+
+  Future<bool> addReminder(ReminderModel reminder) async {
+    final saved = await _reminderService.addReminder(reminder);
+    if (saved != null) {
+      state = [...state, saved];
+      return true;
+    }
+    return false;
+  }
+
+  Future<bool> updateReminder(ReminderModel reminder) async {
+    final updated = await _reminderService.updateReminder(reminder);
+    if (updated != null) {
+      state = [
+        for (final r in state)
+          if (r.id == updated.id) updated else r,
+      ];
+      return true;
+    }
+    return false;
+  }
 }
 
 final reminderProvider = StateNotifierProvider<ReminderNotifier, List<ReminderModel>>((ref) {

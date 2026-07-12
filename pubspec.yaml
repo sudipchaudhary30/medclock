@@ -52,6 +52,9 @@ dependencies:
   
   # Connectivity
   connectivity_plus: ^6.0.3
+
+  # Maps
+  google_maps_flutter: ^2.2.5
   
   # UUID
   uuid: ^4.3.3

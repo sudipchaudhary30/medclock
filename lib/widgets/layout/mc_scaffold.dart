@@ -12,6 +12,7 @@ class McScaffold extends StatelessWidget {
   final void Function(int)? onTabTap;
   final bool isCaregiver;
   final Widget? fab;
+  final Color? backgroundColor;
 
   const McScaffold({
     super.key,
@@ -23,6 +24,7 @@ class McScaffold extends StatelessWidget {
     this.onTabTap,
     this.isCaregiver = false,
     this.fab,
+    this.backgroundColor,
   });
 
   @override
@@ -41,6 +43,7 @@ class McScaffold extends StatelessWidget {
     }
 
     return Scaffold(
+      backgroundColor: backgroundColor ?? const Color(0xFFF4F7FC),
       appBar: McAppBar(
         title: title,
         actions: actions,

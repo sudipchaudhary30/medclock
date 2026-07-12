@@ -52,6 +52,13 @@ class _DoseConfirmScreenState extends ConsumerState<DoseConfirmScreen> {
 
     setState(() => _isLoading = true);
 
+    // Parse the reminder's scheduled time into a proper DateTime for today
+    final timeParts = reminder.scheduledTime.split(':');
+    final remHour = int.tryParse(timeParts.first) ?? 8;
+    final remMinute = timeParts.length > 1 ? int.tryParse(timeParts[1]) ?? 0 : 0;
+    final now = DateTime.now();
+    final scheduledAt = DateTime(now.year, now.month, now.day, remHour, remMinute);
+
     final log = DoseLogModel(
       id: const Uuid().v4(),
       userId: user?.id ?? '',
@@ -59,7 +66,7 @@ class _DoseConfirmScreenState extends ConsumerState<DoseConfirmScreen> {
       reminderId: reminder.id,
       status: DoseStatus.taken,
       confirmedAt: DateTime.now(),
-      scheduledAt: DateTime.now(), // Simplified
+      scheduledAt: scheduledAt,
       photoUrl: _capturedPhotoPath,
       confirmedBy: user?.id,
     );

@@ -8,6 +8,7 @@ import '../../providers/dose_log_provider.dart';
 import '../../providers/medication_provider.dart';
 import '../../providers/reminder_provider.dart';
 import '../../widgets/media/mc_pill_image.dart';
+import '../../widgets/cards/mc_reminder_card.dart';
 import '../../config/app_theme.dart';
 
 const Color _homePageBg = Color(0xFFF4F7FC);
@@ -30,38 +31,88 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     final doseLogs = ref.watch(doseLogProvider);
     final streakCount = _calculateStreak(doseLogs);
     final adherenceRate = _calculateAdherenceRate(doseLogs);
-    final todayWeekday = _weekdayAbbrev(DateTime.now());
+    final now = DateTime.now();
+    final todayWeekday = _weekdayAbbrev(now);
+    final todayWeekdayFull = _weekdayFullName(now);
+
+    final todayStart = DateTime(now.year, now.month, now.day);
+    final todayEnd = todayStart.add(const Duration(days: 1));
+
+    // Debug: log what we're working with
+    debugPrint('[HomeScreen] today weekday: $todayWeekday / $todayWeekdayFull');
+    debugPrint('[HomeScreen] reminders count: ${reminders.length}');
+    debugPrint('[HomeScreen] doseLogs count: ${doseLogs.length}');
+    for (final r in reminders) {
+      debugPrint(
+        '[HomeScreen] reminder id=${r.id} days=${r.days} time=${r.scheduledTime}',
+      );
+    }
 
     final todayScheduleItems = <Map<String, dynamic>>[];
-    for (final med in medications) {
-      final medReminders =
-          reminders
-              .where(
-                (reminder) =>
-                    reminder.medicationId == med.id &&
-                    reminder.days.contains(todayWeekday),
-              )
-              .toList()
-            ..sort((a, b) => a.scheduledTime.compareTo(b.scheduledTime));
+    final todayReminders = reminders.where((r) {
+      return medications.any((m) => m.id == r.medicationId);
+    }).toList()
+      ..sort((a, b) => a.scheduledTime.compareTo(b.scheduledTime));
 
-      for (final reminder in medReminders) {
-        final isTaken = doseLogs.any(
-          (log) => log.reminderId == reminder.id && log.isTaken,
-        );
+    for (final reminder in todayReminders) {
+      final med = medications.firstWhere(
+        (m) => m.id == reminder.medicationId,
+      );
 
-        todayScheduleItems.add({
-          'reminder': reminder,
-          'medication': med,
-          'time': _formatReminderTime(reminder.scheduledTime),
-          'scheduleLabel': _scheduleLabel(reminder.scheduledTime),
-          'status': isTaken ? 'TAKEN' : 'UPCOMING',
-          'statusColor': isTaken
-              ? const Color(0xFFDBF0F8)
-              : const Color(0xFFE7F3FB),
-          'statusTextColor': const Color(0xFF0D6A95),
-          'trailingIcon': isTaken ? Icons.check_rounded : Icons.add_rounded,
-        });
+      // Only consider dose logs scheduled for today
+      final isTaken = doseLogs.any(
+        (log) =>
+            log.reminderId == reminder.id &&
+            log.isTaken &&
+            log.scheduledAt.isAfter(todayStart) &&
+            log.scheduledAt.isBefore(todayEnd),
+      );
+
+      // Determine if the reminder time has already passed today
+      final parts = reminder.scheduledTime.split(':');
+      final remHour = int.tryParse(parts.first) ?? 8;
+      final remMinute = parts.length > 1 ? int.tryParse(parts[1]) ?? 0 : 0;
+      final reminderDateTime = DateTime(
+        now.year,
+        now.month,
+        now.day,
+        remHour,
+        remMinute,
+      );
+      final isPast = now.isAfter(reminderDateTime);
+
+      final String status;
+      final Color statusColor;
+      final Color statusTextColor;
+      final IconData trailingIcon;
+
+      if (isTaken) {
+        status = 'TAKEN';
+        statusColor = const Color(0xFFDBF0F8);
+        statusTextColor = const Color(0xFF0D6A95);
+        trailingIcon = Icons.check_rounded;
+      } else if (isPast) {
+        status = 'MISSED';
+        statusColor = const Color(0xFFFFF0F0);
+        statusTextColor = const Color(0xFFD0363A);
+        trailingIcon = Icons.close_rounded;
+      } else {
+        status = 'UPCOMING';
+        statusColor = const Color(0xFFE7F3FB);
+        statusTextColor = const Color(0xFF0D6A95);
+        trailingIcon = Icons.add_rounded;
       }
+
+      todayScheduleItems.add({
+        'reminder': reminder,
+        'medication': med,
+        'time': _formatReminderTime(reminder.scheduledTime),
+        'scheduleLabel': _scheduleLabel(reminder.scheduledTime),
+        'status': status,
+        'statusColor': statusColor,
+        'statusTextColor': statusTextColor,
+        'trailingIcon': trailingIcon,
+      });
     }
 
     final visibleScheduleItems = todayScheduleItems.take(2).toList();
@@ -173,32 +224,21 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                           final reminder = item['reminder'];
                           final med = item['medication'] as MedicationModel;
                           final status = item['status'] as String;
-                          final statusColor = item['statusColor'] as Color;
-                          final statusTextColor =
-                              item['statusTextColor'] as Color;
-                          final trailingIcon = item['trailingIcon'] as IconData;
 
-                          return _ReminderCard(
-                            medicationName: med.name,
-                            dosageLine:
-                                '${med.dosage} • ${item['scheduleLabel'] as String}',
-                            time: item['time'] as String,
+                          return McReminderCard(
+                            medication: med,
+                            scheduledTime: reminder.scheduledTime,
                             status: status,
-                            statusColor: statusColor,
-                            statusTextColor: statusTextColor,
-                            pillPhotoUrl: med.pillPhotoUrl,
-                            trailingIcon: trailingIcon,
-                            onTap: () =>
-                                Navigator.of(
-                                  context,
-                                  rootNavigator: true,
-                                ).pushNamed(
-                                  AppRoutes.doseConfirm,
-                                  arguments: {
-                                    'reminder': reminder,
-                                    'medication': med,
-                                  },
-                                ),
+                            onTap: () => Navigator.of(
+                              context,
+                              rootNavigator: true,
+                            ).pushNamed(
+                              AppRoutes.doseConfirm,
+                              arguments: {
+                                'reminder': reminder,
+                                'medication': med,
+                              },
+                            ),
                           );
                         }).toList(),
                       ),
@@ -384,152 +424,7 @@ class _HeroCard extends StatelessWidget {
   }
 }
 
-class _ReminderCard extends StatelessWidget {
-  final String medicationName;
-  final String dosageLine;
-  final String time;
-  final String status;
-  final Color statusColor;
-  final Color statusTextColor;
-  final String? pillPhotoUrl;
-  final IconData trailingIcon;
-  final VoidCallback onTap;
 
-  const _ReminderCard({
-    required this.medicationName,
-    required this.dosageLine,
-    required this.time,
-    required this.status,
-    required this.statusColor,
-    required this.statusTextColor,
-    required this.pillPhotoUrl,
-    required this.trailingIcon,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 14),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: const Color(0xFFE8EEF2), width: 1),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.04),
-            blurRadius: 12,
-            offset: const Offset(0, 3),
-          ),
-        ],
-      ),
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(20),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Container(
-                width: 4,
-                height: 92,
-                decoration: BoxDecoration(
-                  color: const Color(0xFF0E6B94),
-                  borderRadius: BorderRadius.circular(999),
-                ),
-              ),
-              const SizedBox(width: 14),
-              McPillImage(imageUrl: pillPhotoUrl, size: 52),
-              const SizedBox(width: 14),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      medicationName,
-                      style: const TextStyle(
-                        color: Color(0xFF0D1E30),
-                        fontSize: 16,
-                        fontWeight: FontWeight.w800,
-                      ),
-                    ),
-                    const SizedBox(height: 6),
-                    Text(
-                      dosageLine,
-                      style: const TextStyle(
-                        color: Color(0xFF225F83),
-                        fontSize: 13,
-                        fontWeight: FontWeight.w600,
-                        height: 1.4,
-                      ),
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    const SizedBox(height: 10),
-                    Row(
-                      children: [
-                        const Icon(
-                          Icons.access_time_rounded,
-                          size: 14,
-                          color: Color(0xFF6F7D8E),
-                        ),
-                        const SizedBox(width: 8),
-                        Text(
-                          time,
-                          style: const TextStyle(
-                            color: Color(0xFF6F7D8E),
-                            fontSize: 12,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(width: 10),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 14,
-                      vertical: 8,
-                    ),
-                    decoration: BoxDecoration(
-                      color: statusColor,
-                      borderRadius: BorderRadius.circular(999),
-                    ),
-                    child: Text(
-                      status,
-                      style: TextStyle(
-                        color: statusTextColor,
-                        fontSize: 12,
-                        fontWeight: FontWeight.w800,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                  Container(
-                    width: 38,
-                    height: 38,
-                    decoration: const BoxDecoration(
-                      color: Color(0xFF0E6B94),
-                      shape: BoxShape.circle,
-                    ),
-                    child: Icon(trailingIcon, color: Colors.white, size: 18),
-                  ),
-                ],
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
 
 class _SupplyCard extends ConsumerWidget {
   final MedicationModel medication;
@@ -831,13 +726,31 @@ String _formatReminderTime(String scheduledTime) {
 }
 
 String _weekdayAbbrev(DateTime date) {
-  return DateFormat('E').format(date);
+  const abbreviations = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+  return abbreviations[date.weekday - 1];
+}
+
+String _weekdayFullName(DateTime date) {
+  const fullNames = [
+    'Monday',
+    'Tuesday',
+    'Wednesday',
+    'Thursday',
+    'Friday',
+    'Saturday',
+    'Sunday',
+  ];
+  return fullNames[date.weekday - 1];
 }
 
 String _scheduleLabel(String scheduledTime) {
   final hour = int.tryParse(scheduledTime.split(':').first) ?? 8;
-  if (hour < 12) return 'Before Breakfast';
-  if (hour < 15) return 'After Breakfast';
-  if (hour < 18) return 'Before Lunch';
+  if (hour < 10) return 'Before Breakfast';
+  if (hour < 12) return 'After Breakfast';
+  if (hour < 14) return 'Before Lunch';
+  if (hour < 17) return 'After Lunch';
+  if (hour < 20) return 'Before Dinner';
   return 'After Dinner';
 }
+
+

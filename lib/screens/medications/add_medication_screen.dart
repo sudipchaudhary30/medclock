@@ -2,14 +2,11 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:uuid/uuid.dart';
-import '../../config/app_theme.dart';
 import '../../models/medication_model.dart';
+import '../../models/reminder_model.dart' hide TimeOfDay;
 import '../../providers/auth_provider.dart';
 import '../../providers/medication_provider.dart';
-import '../../widgets/layout/mc_scaffold.dart';
-import '../../widgets/inputs/mc_text_field.dart';
-import '../../widgets/inputs/mc_dropdown.dart';
-import '../../widgets/buttons/mc_primary_button.dart';
+import '../../providers/reminder_provider.dart';
 import '../../widgets/common/mc_toast.dart';
 import '../../services/camera_service.dart';
 
@@ -30,7 +27,7 @@ class _AddMedicationScreenState extends ConsumerState<AddMedicationScreen> {
   String? _pillPhotoPath;
   bool _isLoading = false;
   TimeOfDay _selectedTime = TimeOfDay(hour: 8, minute: 0);
-  Set<int> _selectedDays = {}; // 0=Sunday, 1=Monday, ..., 6=Saturday
+  final Set<int> _selectedDays = {}; // 0=Sunday, 1=Monday, ..., 6=Saturday
 
   final CameraService _cameraService = CameraService();
   MedicationModel? _editingMedication;
@@ -43,11 +40,157 @@ class _AddMedicationScreenState extends ConsumerState<AddMedicationScreen> {
     super.dispose();
   }
 
-  void _capturePhoto() async {
-    final path = await _cameraService.capturePhoto();
-    if (path != null) {
-      setState(() => _pillPhotoPath = path);
-    }
+  /// Shows a bottom sheet letting the user pick Camera or Gallery.
+  void _showPhotoOptions() {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (ctx) => SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                'Add Photo',
+                style: TextStyle(
+                  color: Color(0xFF0D1E30),
+                  fontSize: 16,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+              const SizedBox(height: 16),
+              ListTile(
+                contentPadding: EdgeInsets.zero,
+                leading: Container(
+                  width: 44,
+                  height: 44,
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFEAF4FB),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: const Icon(
+                    Icons.camera_alt_rounded,
+                    color: Color(0xFF0E6B94),
+                  ),
+                ),
+                title: const Text(
+                  'Take a Photo',
+                  style: TextStyle(
+                    fontWeight: FontWeight.w600,
+                    color: Color(0xFF0D1E30),
+                  ),
+                ),
+                subtitle: const Text(
+                  'Use your camera',
+                  style: TextStyle(color: Color(0xFF6F7D8E), fontSize: 12),
+                ),
+                onTap: () async {
+                  Navigator.of(ctx).pop();
+                  try {
+                    final path = await _cameraService.capturePhoto();
+                    if (path != null && mounted) {
+                      setState(() => _pillPhotoPath = path);
+                      if (mounted) {
+                        McToast.showSuccess(
+                          context,
+                          'Photo captured successfully',
+                        );
+                      }
+                    }
+                  } catch (e) {
+                    if (mounted) {
+                      McToast.showError(context, 'Failed to capture photo');
+                    }
+                  }
+                },
+              ),
+              const Divider(height: 1),
+              ListTile(
+                contentPadding: EdgeInsets.zero,
+                leading: Container(
+                  width: 44,
+                  height: 44,
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFEAF4FB),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: const Icon(
+                    Icons.photo_library_rounded,
+                    color: Color(0xFF0E6B94),
+                  ),
+                ),
+                title: const Text(
+                  'Choose from Gallery',
+                  style: TextStyle(
+                    fontWeight: FontWeight.w600,
+                    color: Color(0xFF0D1E30),
+                  ),
+                ),
+                subtitle: const Text(
+                  'Pick an existing photo',
+                  style: TextStyle(color: Color(0xFF6F7D8E), fontSize: 12),
+                ),
+                onTap: () async {
+                  Navigator.of(ctx).pop();
+                  try {
+                    final path = await _cameraService.pickFromGallery();
+                    if (path != null && mounted) {
+                      setState(() => _pillPhotoPath = path);
+                      if (mounted) {
+                        McToast.showSuccess(
+                          context,
+                          'Photo added successfully',
+                        );
+                      }
+                    } else if (mounted) {
+                      McToast.showWarning(context, 'No photo was selected');
+                    }
+                  } catch (e) {
+                    if (mounted) {
+                      McToast.showError(context, 'Failed to pick photo');
+                    }
+                  }
+                },
+              ),
+              if (_pillPhotoPath != null) ...[
+                const Divider(height: 1),
+                ListTile(
+                  contentPadding: EdgeInsets.zero,
+                  leading: Container(
+                    width: 44,
+                    height: 44,
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFFFF1F1),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: const Icon(
+                      Icons.delete_outline_rounded,
+                      color: Color(0xFFD92D20),
+                    ),
+                  ),
+                  title: const Text(
+                    'Remove Photo',
+                    style: TextStyle(
+                      fontWeight: FontWeight.w600,
+                      color: Color(0xFFD92D20),
+                    ),
+                  ),
+                  onTap: () {
+                    Navigator.of(ctx).pop();
+                    setState(() => _pillPhotoPath = null);
+                  },
+                ),
+              ],
+            ],
+          ),
+        ),
+      ),
+    );
   }
 
   void _selectTime(BuildContext context) async {
@@ -93,13 +236,22 @@ class _AddMedicationScreenState extends ConsumerState<AddMedicationScreen> {
     setState(() => _isLoading = true);
     final user = ref.read(authProvider);
 
+    // Convert int day indices (0=Sun..6=Sat) to 3-letter strings
+    const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+    final selectedDayStrings = _selectedDays.map((i) => dayNames[i]).toList();
+
+    // Build "HH:mm" scheduled time string
+    final scheduledTime =
+        '${_selectedTime.hour.toString().padLeft(2, '0')}:${_selectedTime.minute.toString().padLeft(2, '0')}';
+
     MedicationModel medication;
     if (_isEditing && _editingMedication != null) {
       medication = _editingMedication!.copyWith(
         name: _nameController.text.trim(),
-        dosage: _selectedTime.format(context),
+        dosage:
+            '${_nameController.text.trim()} ${_selectedTime.format(context)}',
         form: _selectedForm,
-        instructions: _selectedDays.toString(),
+        instructions: selectedDayStrings.join(', '),
         totalSupply: int.tryParse(_supplyController.text) ?? 30,
         currentSupply: int.tryParse(_supplyController.text) ?? 30,
         pillPhotoUrl: _pillPhotoPath,
@@ -109,9 +261,9 @@ class _AddMedicationScreenState extends ConsumerState<AddMedicationScreen> {
         id: const Uuid().v4(),
         userId: user?.id ?? '',
         name: _nameController.text.trim(),
-        dosage: _selectedTime.format(context),
+        dosage: '${int.tryParse(_supplyController.text) ?? 30}mg',
         form: _selectedForm,
-        instructions: _selectedDays.toString(),
+        instructions: selectedDayStrings.join(', '),
         totalSupply: int.tryParse(_supplyController.text) ?? 30,
         currentSupply: int.tryParse(_supplyController.text) ?? 30,
         refillThreshold: 7,
@@ -119,11 +271,47 @@ class _AddMedicationScreenState extends ConsumerState<AddMedicationScreen> {
       );
     }
 
-    final success = _isEditing
-        ? await ref
-              .read(medicationProvider.notifier)
-              .updateMedication(medication)
-        : await ref.read(medicationProvider.notifier).addMedication(medication);
+    MedicationModel? addedMedication;
+    var success = false;
+
+    if (_isEditing) {
+      success = await ref
+          .read(medicationProvider.notifier)
+          .updateMedication(medication);
+
+      // Also update the linked reminder's scheduledTime and days so it
+      // propagates to alarms, upcoming/missed schedule, and supply status.
+      if (success) {
+        final reminders = ref.read(reminderProvider);
+        final linked = reminders.where((r) => r.medicationId == medication.id);
+        for (final r in linked) {
+          final updatedReminder = r.copyWith(
+            scheduledTime: scheduledTime,
+            days: selectedDayStrings,
+          );
+          await ref
+              .read(reminderProvider.notifier)
+              .updateReminder(updatedReminder);
+        }
+      }
+    } else {
+      addedMedication = await ref
+          .read(medicationProvider.notifier)
+          .addMedication(medication);
+      success = addedMedication != null;
+    }
+
+    if (!_isEditing && addedMedication != null) {
+      final reminder = ReminderModel(
+        id: const Uuid().v4(),
+        userId: user?.id ?? '',
+        medicationId: addedMedication.id,
+        scheduledTime: scheduledTime,
+        days: selectedDayStrings,
+      );
+      await ref.read(reminderProvider.notifier).addReminder(reminder);
+    }
+
     setState(() => _isLoading = false);
 
     if (success && mounted) {
@@ -214,7 +402,7 @@ class _AddMedicationScreenState extends ConsumerState<AddMedicationScreen> {
                   child: Column(
                     children: [
                       GestureDetector(
-                        onTap: _capturePhoto,
+                        onTap: _showPhotoOptions,
                         child: Container(
                           width: 140,
                           height: 140,
@@ -263,7 +451,7 @@ class _AddMedicationScreenState extends ConsumerState<AddMedicationScreen> {
                                     ),
                                     SizedBox(height: 8),
                                     Text(
-                                      'TAKE A PHOTO',
+                                      'ADD PHOTO',
                                       style: TextStyle(
                                         color: Color(0xFF0E6B94),
                                         fontSize: 12,
@@ -277,7 +465,7 @@ class _AddMedicationScreenState extends ConsumerState<AddMedicationScreen> {
                       ),
                       const SizedBox(height: 12),
                       const Text(
-                        'Upload a photo to help us recognize\nthe pill shape and color.',
+                        'Tap to add a photo from camera or gallery.',
                         textAlign: TextAlign.center,
                         style: TextStyle(
                           color: Color(0xFF6F7D8E),

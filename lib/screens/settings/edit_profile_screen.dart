@@ -97,10 +97,15 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
     final authSvc = ref.read(authServiceProvider);
     try {
       final updatedUser = await authSvc.updateProfile(data);
+      if (!mounted) return;
       if (updatedUser != null) {
         ref.read(authProvider.notifier).updateUser(updatedUser);
-        McToast.showSuccess(context, 'Profile updated');
-        if (mounted) Navigator.of(context).pop();
+        if (mounted) {
+          McToast.showSuccess(context, 'Profile updated');
+        }
+        if (mounted) {
+          Navigator.of(context).pop();
+        }
       } else {
         // fallback to local update
         final current = ref.read(authProvider);
@@ -112,11 +117,17 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
           );
           ref.read(authProvider.notifier).updateUser(updated);
         }
-        McToast.showWarning(context, 'Profile saved locally (offline)');
-        if (mounted) Navigator.of(context).pop();
+        if (mounted) {
+          McToast.showWarning(context, 'Profile saved locally (offline)');
+        }
+        if (mounted) {
+          Navigator.of(context).pop();
+        }
       }
     } catch (e) {
-      McToast.showError(context, 'Failed to update profile');
+      if (mounted) {
+        McToast.showError(context, 'Failed to update profile');
+      }
     } finally {
       if (mounted) setState(() => _isSaving = false);
     }
@@ -188,7 +199,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
             ),
             const SizedBox(height: 12),
             DropdownButtonFormField<String>(
-              value: _gender,
+              initialValue: _gender,
               decoration: const InputDecoration(),
               items: const [
                 DropdownMenuItem(value: 'Male', child: Text('Male')),

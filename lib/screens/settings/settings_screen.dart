@@ -86,7 +86,10 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
             // Tab should land on the edit IconButton instead.
             GestureDetector(
               behavior: HitTestBehavior.opaque,
-              onTap: () => Navigator.of(context, rootNavigator: true).pushNamed(AppRoutes.profile),
+              onTap: () => Navigator.of(
+                context,
+                rootNavigator: true,
+              ).pushNamed(AppRoutes.profile),
               child: Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
@@ -130,8 +133,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                       ),
                     ),
                     Focus(
-                      onKey: (FocusNode node, RawKeyEvent event) {
-                        if (event is RawKeyDownEvent) {
+                      onKeyEvent: (FocusNode node, KeyEvent event) {
+                        if (event is KeyDownEvent) {
                           final key = event.logicalKey;
                           if (key == LogicalKeyboardKey.enter ||
                               key == LogicalKeyboardKey.space) {
@@ -227,8 +230,10 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
             ),
             const SizedBox(height: 8),
             GestureDetector(
-              onTap: () =>
-                  Navigator.of(context, rootNavigator: true).pushNamed(AppRoutes.familyDashboard),
+              onTap: () => Navigator.of(
+                context,
+                rootNavigator: true,
+              ).pushNamed(AppRoutes.familyDashboard),
               child: Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
@@ -279,8 +284,10 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                     ),
                     const SizedBox(height: 16),
                     GestureDetector(
-                      onTap: () => Navigator.of(context, rootNavigator: true)
-                          .pushNamed(AppRoutes.qrLink),
+                      onTap: () => Navigator.of(
+                        context,
+                        rootNavigator: true,
+                      ).pushNamed(AppRoutes.qrLink),
                       child: Container(
                         padding: const EdgeInsets.all(14),
                         decoration: BoxDecoration(
@@ -326,8 +333,10 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                     ),
                     const SizedBox(height: 12),
                     OutlinedButton.icon(
-                      onPressed: () =>
-                          Navigator.of(context, rootNavigator: true).pushNamed(AppRoutes.addMember),
+                      onPressed: () => Navigator.of(
+                        context,
+                        rootNavigator: true,
+                      ).pushNamed(AppRoutes.addMember),
                       icon: const Icon(Icons.add_rounded),
                       label: const Text('Add Family Member'),
                       style: OutlinedButton.styleFrom(

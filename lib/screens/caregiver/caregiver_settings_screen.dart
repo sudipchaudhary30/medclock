@@ -11,10 +11,11 @@ class CaregiverSettingsScreen extends ConsumerStatefulWidget {
       _CaregiverSettingsScreenState();
 }
 
-class _CaregiverSettingsScreenState extends ConsumerState<CaregiverSettingsScreen> {
+class _CaregiverSettingsScreenState
+    extends ConsumerState<CaregiverSettingsScreen> {
   bool _offlineMode = false;
   String _lastSynced = "2m ago";
-  String _quietHours = "10:00 PM - 07:00 AM";
+  final String _quietHours = "10:00 PM - 07:00 AM";
 
   Widget _buildSettingItem({
     required IconData icon,
@@ -37,11 +38,7 @@ class _CaregiverSettingsScreenState extends ConsumerState<CaregiverSettingsScree
                 color: const Color(0xFFE6F2F7),
                 borderRadius: BorderRadius.circular(12),
               ),
-              child: Icon(
-                icon,
-                color: const Color(0xFF0F6D95),
-                size: 20,
-              ),
+              child: Icon(icon, color: const Color(0xFF0F6D95), size: 20),
             ),
             const SizedBox(width: 14),
             // Title and Subtitle
@@ -96,8 +93,11 @@ class _CaregiverSettingsScreenState extends ConsumerState<CaregiverSettingsScree
             backgroundColor: const Color(0xFFF4F7FC),
             elevation: 0,
             leading: IconButton(
-              icon: const Icon(Icons.arrow_back_ios_new_rounded,
-                  color: Color(0xFF0F1E24), size: 20),
+              icon: const Icon(
+                Icons.arrow_back_ios_new_rounded,
+                color: Color(0xFF0F1E24),
+                size: 20,
+              ),
               onPressed: () => Navigator.of(context).pop(),
             ),
             title: const Text(
@@ -111,7 +111,10 @@ class _CaregiverSettingsScreenState extends ConsumerState<CaregiverSettingsScree
             ),
             actions: [
               IconButton(
-                onPressed: () => Navigator.of(context, rootNavigator: true).pushNamed(AppRoutes.profile),
+                onPressed: () => Navigator.of(
+                  context,
+                  rootNavigator: true,
+                ).pushNamed(AppRoutes.profile),
                 icon: const Icon(
                   Icons.person_outline_rounded,
                   color: Color(0xFF6A7D90),
@@ -157,11 +160,18 @@ class _CaregiverSettingsScreenState extends ConsumerState<CaregiverSettingsScree
                           icon: Icons.notifications_none_rounded,
                           title: 'Notifications',
                           onTap: () {
-                            Navigator.of(context, rootNavigator: true)
-                                .pushNamed(AppRoutes.notificationSettings);
+                            Navigator.of(
+                              context,
+                              rootNavigator: true,
+                            ).pushNamed(AppRoutes.notificationSettings);
                           },
                         ),
-                        const Divider(height: 1, indent: 70, endIndent: 16, color: Color(0xFFF1F3F5)),
+                        const Divider(
+                          height: 1,
+                          indent: 70,
+                          endIndent: 16,
+                          color: Color(0xFFF1F3F5),
+                        ),
                         _buildSettingItem(
                           icon: Icons.nights_stay_outlined,
                           title: 'Quiet Hours',
@@ -170,13 +180,20 @@ class _CaregiverSettingsScreenState extends ConsumerState<CaregiverSettingsScree
                             // Can show dialog or quiet hours picker
                           },
                         ),
-                        const Divider(height: 1, indent: 70, endIndent: 16, color: Color(0xFFF1F3F5)),
+                        const Divider(
+                          height: 1,
+                          indent: 70,
+                          endIndent: 16,
+                          color: Color(0xFFF1F3F5),
+                        ),
                         _buildSettingItem(
                           icon: Icons.accessibility_new_rounded,
                           title: 'Accessibility',
                           onTap: () {
-                            Navigator.of(context, rootNavigator: true)
-                                .pushNamed(AppRoutes.accessibilitySettings);
+                            Navigator.of(
+                              context,
+                              rootNavigator: true,
+                            ).pushNamed(AppRoutes.accessibilitySettings);
                           },
                         ),
                       ],
@@ -221,7 +238,12 @@ class _CaregiverSettingsScreenState extends ConsumerState<CaregiverSettingsScree
                             });
                           },
                         ),
-                        const Divider(height: 1, indent: 70, endIndent: 16, color: Color(0xFFF1F3F5)),
+                        const Divider(
+                          height: 1,
+                          indent: 70,
+                          endIndent: 16,
+                          color: Color(0xFFF1F3F5),
+                        ),
                         _buildSettingItem(
                           icon: Icons.cloud_queue_rounded,
                           title: 'Offline Mode',
@@ -236,13 +258,20 @@ class _CaregiverSettingsScreenState extends ConsumerState<CaregiverSettingsScree
                             },
                           ),
                         ),
-                        const Divider(height: 1, indent: 70, endIndent: 16, color: Color(0xFFF1F3F5)),
+                        const Divider(
+                          height: 1,
+                          indent: 70,
+                          endIndent: 16,
+                          color: Color(0xFFF1F3F5),
+                        ),
                         _buildSettingItem(
                           icon: Icons.calendar_today_outlined,
                           title: 'Adaptive Reminder',
                           onTap: () {
-                            Navigator.of(context, rootNavigator: true)
-                                .pushNamed(AppRoutes.adaptiveReminder);
+                            Navigator.of(
+                              context,
+                              rootNavigator: true,
+                            ).pushNamed(AppRoutes.adaptiveReminder);
                           },
                         ),
                       ],
@@ -269,7 +298,10 @@ class _CaregiverSettingsScreenState extends ConsumerState<CaregiverSettingsScree
                         ),
                       ),
                       style: OutlinedButton.styleFrom(
-                        side: const BorderSide(color: Color(0xFFFFD1D1), width: 1.2),
+                        side: const BorderSide(
+                          color: Color(0xFFFFD1D1),
+                          width: 1.2,
+                        ),
                         backgroundColor: const Color(0xFFFFF5F5),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(26),
@@ -278,8 +310,10 @@ class _CaregiverSettingsScreenState extends ConsumerState<CaregiverSettingsScree
                       onPressed: () async {
                         await ref.read(authProvider.notifier).logout();
                         if (context.mounted) {
-                          Navigator.of(context, rootNavigator: true)
-                              .pushNamedAndRemoveUntil(
+                          Navigator.of(
+                            context,
+                            rootNavigator: true,
+                          ).pushNamedAndRemoveUntil(
                             AppRoutes.login,
                             (route) => false,
                           );

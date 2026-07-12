@@ -21,13 +21,13 @@ class MedicationNotifier extends StateNotifier<List<MedicationModel>> {
     state = await _medicationService.getMedications();
   }
 
-  Future<bool> addMedication(MedicationModel medication) async {
+  Future<MedicationModel?> addMedication(MedicationModel medication) async {
     final added = await _medicationService.addMedication(medication);
     if (added != null) {
       state = [...state, added];
-      return true;
+      return added;
     }
-    return false;
+    return null;
   }
 
   Future<bool> updateMedication(MedicationModel medication) async {

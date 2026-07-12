@@ -25,8 +25,31 @@ class _DoseHistoryScreenState extends ConsumerState<DoseHistoryScreen> {
     return List.generate(6, (index) => monday.add(Duration(days: index)));
   }
 
-  void _showLogReasonDialog(BuildContext context, WidgetRef ref, String medId,
-      DateTime scheduledTime, String medName) {
+  String _weekdayAbbrev(DateTime date) {
+    return DateFormat('E').format(date);
+  }
+
+  String _weekdayFullName(DateTime date) {
+    return DateFormat('EEEE').format(date);
+  }
+
+  bool _dayMatches(dynamic days, String abbrev, String fullName) {
+    if (days is Iterable) {
+      return days.contains(abbrev) || days.contains(fullName);
+    }
+    if (days is String) {
+      return days == abbrev || days == fullName;
+    }
+    return false;
+  }
+
+  void _showLogReasonDialog(
+    BuildContext context,
+    WidgetRef ref,
+    String medId,
+    DateTime scheduledTime,
+    String medName,
+  ) {
     final textController = TextEditingController();
     final user = ref.read(authProvider);
     final bool isMock = medId.startsWith('mock-');
@@ -49,9 +72,17 @@ class _DoseHistoryScreenState extends ConsumerState<DoseHistoryScreen> {
               controller: textController,
               decoration: InputDecoration(
                 hintText: 'e.g. Forgot, fell asleep, side effects...',
-                hintStyle: const TextStyle(fontSize: 13, color: Color(0xFF9AA7B3)),
-                contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                hintStyle: const TextStyle(
+                  fontSize: 13,
+                  color: Color(0xFF9AA7B3),
+                ),
+                contentPadding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 8,
+                ),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
               ),
             ),
           ],
@@ -87,18 +118,22 @@ class _DoseHistoryScreenState extends ConsumerState<DoseHistoryScreen> {
                 confirmedAt: DateTime.now(),
               );
 
-              final success =
-                  await ref.read(doseLogProvider.notifier).logDose(newLog);
+              final success = await ref
+                  .read(doseLogProvider.notifier)
+                  .logDose(newLog);
               if (context.mounted) {
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
-                    content: Text(success
-                        ? 'Dose logged as missed with reason!'
-                        : 'Failed to log missed dose.'),
+                    content: Text(
+                      success
+                          ? 'Dose logged as missed with reason!'
+                          : 'Failed to log missed dose.',
+                    ),
                     backgroundColor: const Color(0xFF0F6D95),
                     behavior: SnackBarBehavior.floating,
                     shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8)),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
                   ),
                 );
               }
@@ -115,8 +150,13 @@ class _DoseHistoryScreenState extends ConsumerState<DoseHistoryScreen> {
     );
   }
 
-  void _confirmDose(BuildContext context, WidgetRef ref, String medId,
-      DateTime scheduledTime, String medName) async {
+  void _confirmDose(
+    BuildContext context,
+    WidgetRef ref,
+    String medId,
+    DateTime scheduledTime,
+    String medName,
+  ) async {
     final user = ref.read(authProvider);
     final bool isMock = medId.startsWith('mock-');
 
@@ -144,9 +184,11 @@ class _DoseHistoryScreenState extends ConsumerState<DoseHistoryScreen> {
     if (context.mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(success
-              ? 'Dose confirmed successfully!'
-              : 'Failed to confirm dose. Please try again.'),
+          content: Text(
+            success
+                ? 'Dose confirmed successfully!'
+                : 'Failed to confirm dose. Please try again.',
+          ),
           backgroundColor: const Color(0xFF0F6D95),
           behavior: SnackBarBehavior.floating,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
@@ -165,32 +207,38 @@ class _DoseHistoryScreenState extends ConsumerState<DoseHistoryScreen> {
     final int totalLogs = logs.length;
     final int onTimeCount = logs.where((l) => l.isTaken).length;
     final int missedCount = logs.where((l) => l.isMissed).length;
-    final int adherenceRate = totalLogs == 0 ? 0 : ((onTimeCount / totalLogs) * 100).round();
+    final int adherenceRate = totalLogs == 0
+        ? 0
+        : ((onTimeCount / totalLogs) * 100).round();
 
     // Dynamically calculate trend progress (recent 7 days vs overall)
     double trend = 0;
     if (totalLogs > 0) {
       final now = DateTime.now();
       final sevenDaysAgo = now.subtract(const Duration(days: 7));
-      final recentLogs = logs.where((l) => l.scheduledAt.isAfter(sevenDaysAgo)).toList();
+      final recentLogs = logs
+          .where((l) => l.scheduledAt.isAfter(sevenDaysAgo))
+          .toList();
       if (recentLogs.isNotEmpty) {
         final recentOnTime = recentLogs.where((l) => l.isTaken).length;
         final recentRate = (recentOnTime / recentLogs.length) * 100;
         trend = recentRate - adherenceRate;
       }
     }
-    final String trendString = trend >= 0 ? '+${trend.round()}%' : '${trend.round()}%';
+    final String trendString = trend >= 0
+        ? '+${trend.round()}%'
+        : '${trend.round()}%';
 
     final weekDays = _buildWeekDays(_selectedDate);
     final monthLabel = DateFormat('MMMM yyyy').format(_selectedDate);
-    final String weekdayStr = DateFormat('E').format(_selectedDate); // e.g. "Wed"
+    final String weekdayStr = _weekdayAbbrev(_selectedDate); // e.g. "Wed"
 
     // Construct schedule items for the selected day from backend database
     final List<Map<String, dynamic>> scheduleItems = [];
 
     // Find reminders scheduled for the selected weekday
     final dayReminders = reminders.where((r) {
-      return r.days.contains(weekdayStr);
+      return _dayMatches(r.days, weekdayStr, _weekdayFullName(_selectedDate));
     }).toList();
 
     // Sort chronological
@@ -209,15 +257,18 @@ class _DoseHistoryScreenState extends ConsumerState<DoseHistoryScreen> {
 
       // Find dose logs matching this day/medication
       final dateLogs = logs
-          .where((l) =>
-              l.medicationId == reminder.medicationId &&
-              l.scheduledAt.year == _selectedDate.year &&
-              l.scheduledAt.month == _selectedDate.month &&
-              l.scheduledAt.day == _selectedDate.day)
+          .where(
+            (l) =>
+                l.medicationId == reminder.medicationId &&
+                l.scheduledAt.year == _selectedDate.year &&
+                l.scheduledAt.month == _selectedDate.month &&
+                l.scheduledAt.day == _selectedDate.day,
+          )
           .toList();
 
-      final DoseLogModel? matchingLog =
-          dateLogs.isNotEmpty ? dateLogs.first : null;
+      final DoseLogModel? matchingLog = dateLogs.isNotEmpty
+          ? dateLogs.first
+          : null;
 
       String statusStr = 'pending';
       String? noteText;
@@ -233,8 +284,13 @@ class _DoseHistoryScreenState extends ConsumerState<DoseHistoryScreen> {
       final parts = reminder.scheduledTime.split(':');
       final hour = parts.isNotEmpty ? int.tryParse(parts[0]) ?? 8 : 8;
       final minute = parts.length > 1 ? int.tryParse(parts[1]) ?? 0 : 0;
-      final scheduledDateTime = DateTime(_selectedDate.year,
-          _selectedDate.month, _selectedDate.day, hour, minute);
+      final scheduledDateTime = DateTime(
+        _selectedDate.year,
+        _selectedDate.month,
+        _selectedDate.day,
+        hour,
+        minute,
+      );
 
       final tempDate = DateTime(2000, 1, 1, hour, minute);
       final formattedTime = DateFormat('h:mm a').format(tempDate);
@@ -266,7 +322,10 @@ class _DoseHistoryScreenState extends ConsumerState<DoseHistoryScreen> {
         ),
         actions: [
           IconButton(
-            onPressed: () => Navigator.of(context, rootNavigator: true).pushNamed(AppRoutes.profile),
+            onPressed: () => Navigator.of(
+              context,
+              rootNavigator: true,
+            ).pushNamed(AppRoutes.profile),
             icon: const Icon(
               Icons.person_outline_rounded,
               color: Color(0xFF6A7D90),
@@ -275,7 +334,9 @@ class _DoseHistoryScreenState extends ConsumerState<DoseHistoryScreen> {
         ],
         shape: Border(
           bottom: BorderSide(
-              color: Colors.black.withValues(alpha: 0.05), width: 0.8),
+            color: Colors.black.withValues(alpha: 0.05),
+            width: 0.8,
+          ),
         ),
       ),
       body: SafeArea(
@@ -298,10 +359,7 @@ class _DoseHistoryScreenState extends ConsumerState<DoseHistoryScreen> {
               const SizedBox(height: 6),
               const Text(
                 'Tracking your progress toward clinical recovery.',
-                style: TextStyle(
-                  fontSize: 14,
-                  color: Color(0xFF536A73),
-                ),
+                style: TextStyle(fontSize: 14, color: Color(0xFF536A73)),
               ),
               const SizedBox(height: 20),
 
@@ -376,7 +434,8 @@ class _DoseHistoryScreenState extends ConsumerState<DoseHistoryScreen> {
                             strokeWidth: 6,
                             backgroundColor: const Color(0xFFE5EFF2),
                             valueColor: const AlwaysStoppedAnimation<Color>(
-                                Color(0xFF0F6D95)),
+                              Color(0xFF0F6D95),
+                            ),
                           ),
                           Container(
                             width: 38,
@@ -405,7 +464,9 @@ class _DoseHistoryScreenState extends ConsumerState<DoseHistoryScreen> {
                   Expanded(
                     child: Container(
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 16, vertical: 18),
+                        horizontal: 16,
+                        vertical: 18,
+                      ),
                       decoration: BoxDecoration(
                         color: Colors.white,
                         borderRadius: BorderRadius.circular(16),
@@ -445,7 +506,9 @@ class _DoseHistoryScreenState extends ConsumerState<DoseHistoryScreen> {
                   Expanded(
                     child: Container(
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 16, vertical: 18),
+                        horizontal: 16,
+                        vertical: 18,
+                      ),
                       decoration: BoxDecoration(
                         color: Colors.white,
                         borderRadius: BorderRadius.circular(16),
@@ -529,7 +592,8 @@ class _DoseHistoryScreenState extends ConsumerState<DoseHistoryScreen> {
               // Calendar Weekdays Slider
               Row(
                 children: weekDays.map((date) {
-                  final bool isSelected = date.day == _selectedDate.day &&
+                  final bool isSelected =
+                      date.day == _selectedDate.day &&
                       date.month == _selectedDate.month &&
                       date.year == _selectedDate.year;
 
@@ -634,26 +698,26 @@ class _DoseHistoryScreenState extends ConsumerState<DoseHistoryScreen> {
     final Color markerColor = isTaken
         ? const Color(0xFF0F6D95)
         : isMissed
-            ? const Color(0xFFFF6B6B)
-            : const Color(0xFF9AA7B3);
+        ? const Color(0xFFFF6B6B)
+        : const Color(0xFF9AA7B3);
 
     final Color badgeBgColor = isTaken
         ? const Color(0xFFE6F3F7)
         : isMissed
-            ? const Color(0xFFFDECEB)
-            : Colors.white.withValues(alpha: 0.15);
+        ? const Color(0xFFFDECEB)
+        : Colors.white.withValues(alpha: 0.15);
 
     final Color badgeTextColor = isTaken
         ? const Color(0xFF0F6D95)
         : isMissed
-            ? const Color(0xFFFF6B6B)
-            : Colors.white;
+        ? const Color(0xFFFF6B6B)
+        : Colors.white;
 
     final IconData markerIcon = isTaken
         ? Icons.check_circle_outline_rounded
         : isMissed
-            ? Icons.cancel_outlined
-            : Icons.access_time_rounded;
+        ? Icons.cancel_outlined
+        : Icons.access_time_rounded;
 
     return IntrinsicHeight(
       child: Row(
@@ -665,10 +729,7 @@ class _DoseHistoryScreenState extends ConsumerState<DoseHistoryScreen> {
             child: Stack(
               alignment: Alignment.topCenter,
               children: [
-                Container(
-                  width: 1.5,
-                  color: const Color(0xFFE5EFF2),
-                ),
+                Container(width: 1.5, color: const Color(0xFFE5EFF2)),
                 Positioned(
                   top: 4,
                   child: Container(
@@ -686,15 +747,11 @@ class _DoseHistoryScreenState extends ConsumerState<DoseHistoryScreen> {
                           color: isTaken
                               ? const Color(0xFFE6F3F7)
                               : isMissed
-                                  ? const Color(0xFFFDECEB)
-                                  : const Color(0xFFE5EFF2),
+                              ? const Color(0xFFFDECEB)
+                              : const Color(0xFFE5EFF2),
                           shape: BoxShape.circle,
                         ),
-                        child: Icon(
-                          markerIcon,
-                          size: 16,
-                          color: markerColor,
-                        ),
+                        child: Icon(markerIcon, size: 16, color: markerColor),
                       ),
                     ),
                   ),
@@ -742,14 +799,18 @@ class _DoseHistoryScreenState extends ConsumerState<DoseHistoryScreen> {
                             style: TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.bold,
-                              color: isPending ? Colors.white : const Color(0xFF0F1E24),
+                              color: isPending
+                                  ? Colors.white
+                                  : const Color(0xFF0F1E24),
                               fontFamily: 'serif',
                             ),
                           ),
                         ),
                         Container(
                           padding: const EdgeInsets.symmetric(
-                              horizontal: 10, vertical: 5),
+                            horizontal: 10,
+                            vertical: 5,
+                          ),
                           decoration: BoxDecoration(
                             color: badgeBgColor,
                             borderRadius: BorderRadius.circular(8),
@@ -831,7 +892,9 @@ class _DoseHistoryScreenState extends ConsumerState<DoseHistoryScreen> {
                                 backgroundColor: Colors.white,
                                 foregroundColor: const Color(0xFF075E84),
                                 shape: const StadiumBorder(),
-                                padding: const EdgeInsets.symmetric(vertical: 12),
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 12,
+                                ),
                                 elevation: 0,
                               ),
                               child: const Text(
@@ -848,7 +911,8 @@ class _DoseHistoryScreenState extends ConsumerState<DoseHistoryScreen> {
                             onTap: () {
                               ScaffoldMessenger.of(context).showSnackBar(
                                 const SnackBar(
-                                    content: Text('Additional options...')),
+                                  content: Text('Additional options...'),
+                                ),
                               );
                             },
                             child: Container(
@@ -903,7 +967,9 @@ class _DayChip extends StatelessWidget {
               padding: const EdgeInsets.symmetric(vertical: 10),
               width: double.infinity,
               decoration: BoxDecoration(
-                color: isSelected ? const Color(0xFF0F6D95) : Colors.transparent,
+                color: isSelected
+                    ? const Color(0xFF0F6D95)
+                    : Colors.transparent,
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Column(
@@ -912,7 +978,9 @@ class _DayChip extends StatelessWidget {
                   Text(
                     weekdayLabel,
                     style: TextStyle(
-                      color: isSelected ? Colors.white : const Color(0xFF536A73),
+                      color: isSelected
+                          ? Colors.white
+                          : const Color(0xFF536A73),
                       fontSize: 10,
                       fontWeight: FontWeight.bold,
                     ),
@@ -921,7 +989,9 @@ class _DayChip extends StatelessWidget {
                   Text(
                     dayLabel,
                     style: TextStyle(
-                      color: isSelected ? Colors.white : const Color(0xFF0F1E24),
+                      color: isSelected
+                          ? Colors.white
+                          : const Color(0xFF0F1E24),
                       fontSize: 14,
                       fontWeight: FontWeight.bold,
                     ),
@@ -934,7 +1004,9 @@ class _DayChip extends StatelessWidget {
               width: 4,
               height: 4,
               decoration: BoxDecoration(
-                color: isSelected ? const Color(0xFF0F6D95) : Colors.transparent,
+                color: isSelected
+                    ? const Color(0xFF0F6D95)
+                    : Colors.transparent,
                 shape: BoxShape.circle,
               ),
             ),

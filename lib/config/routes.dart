@@ -141,7 +141,14 @@ class AppRoutes {
       // Utility and settings screens shared across roles
       refill: (_) => const RefillScreen(),
       refillSettings: (_) => const RefillSettingsScreen(),
-      deliveryTracking: (_) => const DeliveryTrackingScreen(),
+      deliveryTracking: (context) {
+        final args =
+            ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
+        return DeliveryTrackingScreen(
+          medicationName: args?['medicationName'] as String?,
+          medicationId: args?['medicationId'] as String?,
+        );
+      },
       pharmacyMap: (_) => const PharmacyMapScreen(),
       reports: (_) => const ReportsScreen(),
       export: (_) => const ExportScreen(),
@@ -151,9 +158,9 @@ class AppRoutes {
       accessibilitySettings: (_) => const AccessibilitySettingsScreen(),
       profile: (_) => const ProfileScreen(),
       qrLink: (_) => const QrLinkScreen(),
-      alarm: (_) {
+      alarm: (context) {
         final args =
-            ModalRoute.of(_)?.settings.arguments as Map<String, dynamic>?;
+            ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
         return AlarmScreen(
           medicationName: args?['medicationName'] as String?,
           dosage: args?['dosage'] as String?,
