@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../config/routes.dart';
@@ -110,15 +112,29 @@ class _CaregiverSettingsScreenState
               ),
             ),
             actions: [
-              IconButton(
-                onPressed: () => Navigator.of(
-                  context,
-                  rootNavigator: true,
-                ).pushNamed(AppRoutes.profile),
-                icon: const Icon(
-                  Icons.person_outline_rounded,
-                  color: Color(0xFF6A7D90),
-                ),
+              Consumer(
+                builder: (context, ref, child) {
+                  final user = ref.watch(authProvider);
+                  final photoBase64 = user?.photoBase64;
+                  return IconButton(
+                    onPressed: () =>
+                        Navigator.of(context).pushNamed(AppRoutes.profile),
+                    icon: CircleAvatar(
+                      radius: 18,
+                      backgroundColor: const Color(0xFFE6F2F7),
+                      foregroundImage:
+                          photoBase64 != null && photoBase64.isNotEmpty
+                          ? MemoryImage(base64Decode(photoBase64))
+                          : null,
+                      child: photoBase64 == null || photoBase64.isEmpty
+                          ? const Icon(
+                              Icons.person_outline_rounded,
+                              color: Color(0xFF6A7D90),
+                            )
+                          : null,
+                    ),
+                  );
+                },
               ),
             ],
           ),

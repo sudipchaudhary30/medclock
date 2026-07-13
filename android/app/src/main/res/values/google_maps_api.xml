@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!--
+      Add your Google Maps Android API key here.
+      Replace the placeholder value with a valid API key from
+      https://console.cloud.google.com/apis/credentials
+    -->
+    <string name="google_maps_key">YOUR_API_KEY_HERE</string>
+</resources>

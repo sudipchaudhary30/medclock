@@ -70,4 +70,5 @@ class AppConstants {
   static const String doseLogsBox = 'dose_logs';
   static const String settingsBox = 'settings';
   static const String pendingSyncBox = 'pending_sync';
+  static const String syncCodeBox = 'sync_codes';
 }

@@ -14,7 +14,7 @@ router.get('/', auth, async (req, res) => {
 });
 
 router.post('/members', auth, async (req, res) => {
-  const { name, role, color } = req.body;
+  const { userId, name, role, color } = req.body;
   try {
     let group = await FamilyGroup.findOne({ createdBy: req.user.id });
     if (!group) {
@@ -25,7 +25,7 @@ router.post('/members', auth, async (req, res) => {
       });
     }
 
-    const member = { name, role, color };
+    const member = { userId, name, role, color };
     group.members.push(member);
     await group.save();
 

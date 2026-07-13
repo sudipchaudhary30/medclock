@@ -375,6 +375,7 @@ class _DeliveryTrackingScreenState
                           ),
                           ElevatedButton(
                             onPressed: () async {
+                              final messenger = ScaffoldMessenger.of(context);
                               Navigator.pop(dialogContext);
                               if (widget.medicationId != null) {
                                 final meds = ref.read(medicationProvider);
@@ -401,7 +402,7 @@ class _DeliveryTrackingScreenState
                                     .updateMedication(updatedMed);
                               }
                               if (!mounted) return;
-                              ScaffoldMessenger.of(context).showSnackBar(
+                              messenger.showSnackBar(
                                 SnackBar(
                                   content: Text(
                                     _selectedDeliveryMethod == 'home'

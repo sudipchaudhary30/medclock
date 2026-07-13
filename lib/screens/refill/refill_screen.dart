@@ -4,7 +4,6 @@ import '../../config/routes.dart';
 import '../delivery/delivery_tracking_screen.dart';
 import '../../models/medication_model.dart';
 import '../../providers/medication_provider.dart';
-import '../../providers/refill_provider.dart';
 
 class RefillScreen extends ConsumerWidget {
   const RefillScreen({super.key});
@@ -200,7 +199,7 @@ class RefillScreen extends ConsumerWidget {
                     Container(
                       padding: const EdgeInsets.all(10),
                       decoration: BoxDecoration(
-                        color: Colors.white.withValues(alpha: 0.15),
+                        color: Colors.white.withValues(alpha: 0.80),
                         shape: BoxShape.circle,
                       ),
                       child: const Icon(

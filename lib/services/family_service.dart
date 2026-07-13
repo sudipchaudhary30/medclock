@@ -16,13 +16,22 @@ class FamilyService {
     return null;
   }
 
-  Future<FamilyMemberModel?> addFamilyMember(String name, String role, String colorHex) async {
+  Future<FamilyMemberModel?> addFamilyMember(
+    String name,
+    String role,
+    String colorHex, {
+    String? userId,
+  }) async {
     try {
-      final response = await _apiService.client.post('/family/members', data: {
-        'name': name,
-        'role': role,
-        'color': colorHex,
-      });
+      final response = await _apiService.client.post(
+        '/family/members',
+        data: {
+          if (userId != null) 'userId': userId,
+          'name': name,
+          'role': role,
+          'color': colorHex,
+        },
+      );
       if (response.statusCode == 201) {
         return FamilyMemberModel.fromJson(response.data);
       }

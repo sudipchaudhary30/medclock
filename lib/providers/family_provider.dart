@@ -18,8 +18,18 @@ class FamilyNotifier extends StateNotifier<FamilyGroupModel?> {
     state = await _familyService.getFamilyGroup();
   }
 
-  Future<bool> addMember(String name, String role, String colorHex) async {
-    final member = await _familyService.addFamilyMember(name, role, colorHex);
+  Future<bool> addMember(
+    String name,
+    String role,
+    String colorHex, {
+    String? userId,
+  }) async {
+    final member = await _familyService.addFamilyMember(
+      name,
+      role,
+      colorHex,
+      userId: userId,
+    );
     if (member != null) {
       if (state != null) {
         state = FamilyGroupModel(
@@ -36,6 +46,8 @@ class FamilyNotifier extends StateNotifier<FamilyGroupModel?> {
   }
 }
 
-final familyProvider = StateNotifierProvider<FamilyNotifier, FamilyGroupModel?>((ref) {
-  return FamilyNotifier(ref.watch(familyServiceProvider));
-});
+final familyProvider = StateNotifierProvider<FamilyNotifier, FamilyGroupModel?>(
+  (ref) {
+    return FamilyNotifier(ref.watch(familyServiceProvider));
+  },
+);

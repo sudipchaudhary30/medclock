@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../config/routes.dart';
+import '../../providers/auth_provider.dart';
 import '../../providers/family_provider.dart';
 import '../../widgets/layout/mc_scaffold.dart';
 import '../../widgets/layout/mc_empty_state.dart';
@@ -18,6 +19,18 @@ class FamilyDashboardScreen extends ConsumerStatefulWidget {
 class _FamilyDashboardScreenState extends ConsumerState<FamilyDashboardScreen> {
   @override
   Widget build(BuildContext context) {
+    final user = ref.watch(authProvider);
+    if (user?.isCaregiver != true) {
+      return McScaffold(
+        title: 'Access Denied',
+        body: const Center(
+          child: Text(
+            'Family dashboard is available only for caregiver accounts.',
+          ),
+        ),
+      );
+    }
+
     final familyGroup = ref.watch(familyProvider);
 
     return McScaffold(

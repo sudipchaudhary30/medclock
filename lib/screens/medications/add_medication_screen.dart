@@ -236,92 +236,102 @@ class _AddMedicationScreenState extends ConsumerState<AddMedicationScreen> {
     setState(() => _isLoading = true);
     final user = ref.read(authProvider);
 
-    // Convert int day indices (0=Sun..6=Sat) to 3-letter strings
-    const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-    final selectedDayStrings = _selectedDays.map((i) => dayNames[i]).toList();
+    try {
+      // Convert int day indices (0=Sun..6=Sat) to 3-letter strings
+      const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+      final selectedDayStrings = _selectedDays.map((i) => dayNames[i]).toList();
 
-    // Build "HH:mm" scheduled time string
-    final scheduledTime =
-        '${_selectedTime.hour.toString().padLeft(2, '0')}:${_selectedTime.minute.toString().padLeft(2, '0')}';
+      // Build "HH:mm" scheduled time string
+      final scheduledTime =
+          '${_selectedTime.hour.toString().padLeft(2, '0')}:${_selectedTime.minute.toString().padLeft(2, '0')}';
 
-    MedicationModel medication;
-    if (_isEditing && _editingMedication != null) {
-      medication = _editingMedication!.copyWith(
-        name: _nameController.text.trim(),
-        dosage:
-            '${_nameController.text.trim()} ${_selectedTime.format(context)}',
-        form: _selectedForm,
-        instructions: selectedDayStrings.join(', '),
-        totalSupply: int.tryParse(_supplyController.text) ?? 30,
-        currentSupply: int.tryParse(_supplyController.text) ?? 30,
-        pillPhotoUrl: _pillPhotoPath,
-      );
-    } else {
-      medication = MedicationModel(
-        id: const Uuid().v4(),
-        userId: user?.id ?? '',
-        name: _nameController.text.trim(),
-        dosage: '${int.tryParse(_supplyController.text) ?? 30}mg',
-        form: _selectedForm,
-        instructions: selectedDayStrings.join(', '),
-        totalSupply: int.tryParse(_supplyController.text) ?? 30,
-        currentSupply: int.tryParse(_supplyController.text) ?? 30,
-        refillThreshold: 7,
-        pillPhotoUrl: _pillPhotoPath,
-      );
-    }
-
-    MedicationModel? addedMedication;
-    var success = false;
-
-    if (_isEditing) {
-      success = await ref
-          .read(medicationProvider.notifier)
-          .updateMedication(medication);
-
-      // Also update the linked reminder's scheduledTime and days so it
-      // propagates to alarms, upcoming/missed schedule, and supply status.
-      if (success) {
-        final reminders = ref.read(reminderProvider);
-        final linked = reminders.where((r) => r.medicationId == medication.id);
-        for (final r in linked) {
-          final updatedReminder = r.copyWith(
-            scheduledTime: scheduledTime,
-            days: selectedDayStrings,
-          );
-          await ref
-              .read(reminderProvider.notifier)
-              .updateReminder(updatedReminder);
-        }
+      MedicationModel medication;
+      if (_isEditing && _editingMedication != null) {
+        medication = _editingMedication!.copyWith(
+          name: _nameController.text.trim(),
+          dosage:
+              '${_nameController.text.trim()} ${_selectedTime.format(context)}',
+          form: _selectedForm,
+          instructions: selectedDayStrings.join(', '),
+          totalSupply: int.tryParse(_supplyController.text) ?? 30,
+          currentSupply: int.tryParse(_supplyController.text) ?? 30,
+          pillPhotoUrl: _pillPhotoPath,
+        );
+      } else {
+        medication = MedicationModel(
+          id: const Uuid().v4(),
+          userId: user?.id ?? '',
+          name: _nameController.text.trim(),
+          dosage: '${int.tryParse(_supplyController.text) ?? 30}mg',
+          form: _selectedForm,
+          instructions: selectedDayStrings.join(', '),
+          totalSupply: int.tryParse(_supplyController.text) ?? 30,
+          currentSupply: int.tryParse(_supplyController.text) ?? 30,
+          refillThreshold: 7,
+          pillPhotoUrl: _pillPhotoPath,
+        );
       }
-    } else {
-      addedMedication = await ref
-          .read(medicationProvider.notifier)
-          .addMedication(medication);
-      success = addedMedication != null;
-    }
 
-    if (!_isEditing && addedMedication != null) {
-      final reminder = ReminderModel(
-        id: const Uuid().v4(),
-        userId: user?.id ?? '',
-        medicationId: addedMedication.id,
-        scheduledTime: scheduledTime,
-        days: selectedDayStrings,
-      );
-      await ref.read(reminderProvider.notifier).addReminder(reminder);
-    }
+      MedicationModel? addedMedication;
+      var success = false;
 
-    setState(() => _isLoading = false);
+      if (_isEditing) {
+        success = await ref
+            .read(medicationProvider.notifier)
+            .updateMedication(medication);
 
-    if (success && mounted) {
-      McToast.showSuccess(
-        context,
-        _isEditing ? 'Medication updated' : 'Medication added successfully',
-      );
-      Navigator.of(context).pop();
-    } else if (mounted) {
-      McToast.showError(context, 'Failed to add medication');
+        // Also update the linked reminder's scheduledTime and days so it
+        // propagates to alarms, upcoming/missed schedule, and supply status.
+        if (success) {
+          final reminders = ref.read(reminderProvider);
+          final linked = reminders.where(
+            (r) => r.medicationId == medication.id,
+          );
+          for (final r in linked) {
+            final updatedReminder = r.copyWith(
+              scheduledTime: scheduledTime,
+              days: selectedDayStrings,
+            );
+            await ref
+                .read(reminderProvider.notifier)
+                .updateReminder(updatedReminder);
+          }
+        }
+      } else {
+        addedMedication = await ref
+            .read(medicationProvider.notifier)
+            .addMedication(medication);
+        success = addedMedication != null;
+      }
+
+      if (!_isEditing && addedMedication != null) {
+        final reminder = ReminderModel(
+          id: const Uuid().v4(),
+          userId: user?.id ?? '',
+          medicationId: addedMedication.id,
+          scheduledTime: scheduledTime,
+          days: selectedDayStrings,
+        );
+        await ref.read(reminderProvider.notifier).addReminder(reminder);
+      }
+
+      if (success && mounted) {
+        McToast.showSuccess(
+          context,
+          _isEditing ? 'Medication updated' : 'Medication added successfully',
+        );
+        Navigator.of(context).pop();
+      } else if (mounted) {
+        McToast.showError(context, 'Failed to add medication');
+      }
+    } catch (e) {
+      if (mounted) {
+        McToast.showError(context, 'Failed to add medication');
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
     }
   }
 
@@ -337,14 +347,55 @@ class _AddMedicationScreenState extends ConsumerState<AddMedicationScreen> {
         _supplyController.text = _editingMedication!.totalSupply.toString();
         _selectedForm = _editingMedication!.form;
         _pillPhotoPath = _editingMedication!.pillPhotoUrl;
-        // dosage stored as string time in model; attempt to parse
-        try {
-          final parts = _editingMedication!.dosage.split(':');
-          final hour = int.tryParse(parts[0]) ?? 8;
-          final minutePart = parts.length > 1 ? parts[1] : '00';
-          final minute = int.tryParse(minutePart.split(' ').first) ?? 0;
-          _selectedTime = TimeOfDay(hour: hour, minute: minute);
-        } catch (_) {}
+        _restoreReminderState();
+      }
+    }
+  }
+
+  void _restoreReminderState() {
+    final medication = _editingMedication;
+    if (medication == null) return;
+
+    final reminders = ref.read(reminderProvider);
+    ReminderModel? linkedReminder;
+    for (final reminder in reminders) {
+      if (reminder.medicationId == medication.id) {
+        linkedReminder = reminder;
+        break;
+      }
+    }
+
+    if (linkedReminder != null) {
+      final parts = linkedReminder.scheduledTime.split(':');
+      final hour = int.tryParse(parts[0]) ?? 8;
+      final minute = parts.length > 1 ? int.tryParse(parts[1]) ?? 0 : 0;
+      _selectedTime = TimeOfDay(hour: hour, minute: minute);
+      _selectedDays.clear();
+      for (final day in linkedReminder.days) {
+        final index = [
+          'Sun',
+          'Mon',
+          'Tue',
+          'Wed',
+          'Thu',
+          'Fri',
+          'Sat',
+        ].indexOf(day.trim());
+        if (index >= 0) {
+          _selectedDays.add(index);
+        }
+      }
+      return;
+    }
+
+    final instructions = medication.instructions ?? '';
+    final dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+    _selectedDays.clear();
+    for (final part in instructions.split(',')) {
+      final day = part.trim();
+      final index = dayNames.indexOf(day);
+      if (index >= 0) {
+        _selectedDays.add(index);
       }
     }
   }

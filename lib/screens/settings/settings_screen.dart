@@ -1,6 +1,8 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../config/app_theme.dart';
 import '../../config/routes.dart';
 import '../../config/app_constants.dart';
@@ -46,6 +48,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   }
 
   Future<void> _performSync() async {
+    final messenger = ScaffoldMessenger.of(context);
     final api = ref.read(apiServiceProvider);
     final local = ref.read(localStorageServiceProvider);
     final syncService = SyncService(api, local);
@@ -53,26 +56,21 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       await syncService.syncOfflineData();
       final now = DateTime.now().toIso8601String();
       await _saveSetting('lastSync', now);
+      if (!mounted) return;
       setState(() {
         _lastSynced = now;
       });
-      if (context.mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(const SnackBar(content: Text('Sync completed')));
-      }
+      messenger.showSnackBar(const SnackBar(content: Text('Sync completed')));
     } catch (e) {
-      if (context.mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(const SnackBar(content: Text('Sync failed')));
-      }
+      if (!mounted) return;
+      messenger.showSnackBar(const SnackBar(content: Text('Sync failed')));
     }
   }
 
   @override
   Widget build(BuildContext context) {
     final user = ref.watch(authProvider);
+    final photoBase64 = user?.photoBase64;
 
     return McScaffold(
       title: 'Settings',
@@ -104,14 +102,22 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                       backgroundColor: AppTheme.primaryColor.withValues(
                         alpha: 0.1,
                       ),
-                      child: Text(
-                        (user?.name ?? 'Animesh').substring(0, 1).toUpperCase(),
-                        style: TextStyle(
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold,
-                          color: AppTheme.primaryColor,
-                        ),
-                      ),
+                      foregroundImage:
+                          photoBase64 != null && photoBase64.isNotEmpty
+                          ? MemoryImage(base64Decode(photoBase64))
+                          : null,
+                      child: photoBase64 == null || photoBase64.isEmpty
+                          ? Text(
+                              (user?.name ?? 'Animesh')
+                                  .substring(0, 1)
+                                  .toUpperCase(),
+                              style: TextStyle(
+                                fontSize: 24,
+                                fontWeight: FontWeight.bold,
+                                color: AppTheme.primaryColor,
+                              ),
+                            )
+                          : null,
                     ),
                     const SizedBox(width: 16),
                     Expanded(
@@ -230,10 +236,11 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
             ),
             const SizedBox(height: 8),
             GestureDetector(
-              onTap: () => Navigator.of(
-                context,
-                rootNavigator: true,
-              ).pushNamed(AppRoutes.familyDashboard),
+              onTap: () => Navigator.of(context, rootNavigator: true).pushNamed(
+                user?.isCaregiver == true
+                    ? AppRoutes.familyDashboard
+                    : AppRoutes.qrLink,
+              ),
               child: Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
@@ -259,12 +266,18 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              const Text(
-                                'Niruta Prasad',
-                                style: TextStyle(fontWeight: FontWeight.bold),
+                              Text(
+                                user?.isCaregiver == true
+                                    ? 'Family Circle'
+                                    : 'Link your caregiver',
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                ),
                               ),
                               Text(
-                                'Primary Caregiver',
+                                user?.isCaregiver == true
+                                    ? 'Manage your care circle'
+                                    : 'Share a sync code to connect',
                                 style: TextStyle(
                                   fontSize: 12,
                                   color: Colors.grey.shade600,
@@ -274,11 +287,18 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                           ),
                         ),
                         TextButton(
-                          onPressed: () => Navigator.of(
-                            context,
-                            rootNavigator: true,
-                          ).pushNamed(AppRoutes.familyDashboard),
-                          child: const Text('Manage'),
+                          onPressed: () =>
+                              Navigator.of(
+                                context,
+                                rootNavigator: true,
+                              ).pushNamed(
+                                user?.isCaregiver == true
+                                    ? AppRoutes.familyDashboard
+                                    : AppRoutes.qrLink,
+                              ),
+                          child: Text(
+                            user?.isCaregiver == true ? 'Manage' : 'Link',
+                          ),
                         ),
                       ],
                     ),
@@ -307,14 +327,18 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
-                                    'Link Caregiver',
+                                    user?.isCaregiver == true
+                                        ? 'Share sync code with a patient'
+                                        : 'Generate sync code for family',
                                     style: TextStyle(
                                       fontWeight: FontWeight.bold,
                                       color: AppTheme.primaryDark,
                                     ),
                                   ),
                                   Text(
-                                    'Generate sync code for family',
+                                    user?.isCaregiver == true
+                                        ? 'Add a patient to your circle'
+                                        : 'Generate sync code for family',
                                     style: TextStyle(
                                       fontSize: 12,
                                       color: AppTheme.primaryColor,
@@ -333,12 +357,18 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                     ),
                     const SizedBox(height: 12),
                     OutlinedButton.icon(
-                      onPressed: () => Navigator.of(
-                        context,
-                        rootNavigator: true,
-                      ).pushNamed(AppRoutes.addMember),
+                      onPressed: () =>
+                          Navigator.of(context, rootNavigator: true).pushNamed(
+                            user?.isCaregiver == true
+                                ? AppRoutes.familyDashboard
+                                : AppRoutes.addMember,
+                          ),
                       icon: const Icon(Icons.add_rounded),
-                      label: const Text('Add Family Member'),
+                      label: Text(
+                        user?.isCaregiver == true
+                            ? 'View Members'
+                            : 'Show Sync Code',
+                      ),
                       style: OutlinedButton.styleFrom(
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),

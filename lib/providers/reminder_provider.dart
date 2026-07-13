@@ -1,7 +1,11 @@
+import 'dart:convert';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/reminder_model.dart';
 import '../services/reminder_service.dart';
+import '../services/notification_service.dart';
 import 'auth_provider.dart';
+import 'notification_provider.dart';
 
 final reminderServiceProvider = Provider<ReminderService>((ref) {
   return ReminderService(
@@ -12,8 +16,10 @@ final reminderServiceProvider = Provider<ReminderService>((ref) {
 
 class ReminderNotifier extends StateNotifier<List<ReminderModel>> {
   final ReminderService _reminderService;
+  final NotificationService _notificationService;
 
-  ReminderNotifier(this._reminderService) : super([]) {
+  ReminderNotifier(this._reminderService, this._notificationService)
+    : super([]) {
     loadReminders();
   }
 
@@ -23,7 +29,10 @@ class ReminderNotifier extends StateNotifier<List<ReminderModel>> {
 
   Future<bool> snoozeReminder(String id) async {
     final raw = state.firstWhere((r) => r.id == id);
-    final updated = await _reminderService.snoozeReminder(id, raw.maxSnoozeCount - raw.currentSnoozeCount);
+    final updated = await _reminderService.snoozeReminder(
+      id,
+      raw.maxSnoozeCount - raw.currentSnoozeCount,
+    );
     if (updated != null) {
       state = state.map((r) => r.id == id ? updated : r).toList();
       return true;
@@ -35,14 +44,52 @@ class ReminderNotifier extends StateNotifier<List<ReminderModel>> {
     final saved = await _reminderService.addReminder(reminder);
     if (saved != null) {
       state = [...state, saved];
+      try {
+        await _notificationService.scheduleWeeklyReminderNotifications(
+          reminderId: saved.id,
+          title: 'Time for your medication',
+          body: 'Take your medication at ${saved.scheduledTime}',
+          scheduledTime: saved.scheduledTime,
+          days: saved.days,
+          payload: jsonEncode({
+            'reminderId': saved.id,
+            'scheduledTime': saved.scheduledTime,
+          }),
+        );
+      } catch (_) {
+        // Ignore scheduling errors so medication save still succeeds.
+      }
       return true;
     }
     return false;
   }
 
   Future<bool> updateReminder(ReminderModel reminder) async {
+    final existing = state.firstWhere(
+      (r) => r.id == reminder.id,
+      orElse: () => reminder,
+    );
     final updated = await _reminderService.updateReminder(reminder);
     if (updated != null) {
+      try {
+        await _notificationService.cancelReminderNotifications(
+          existing.id,
+          existing.days,
+        );
+        await _notificationService.scheduleWeeklyReminderNotifications(
+          reminderId: updated.id,
+          title: 'Time for your medication',
+          body: 'Take your medication at ${updated.scheduledTime}',
+          scheduledTime: updated.scheduledTime,
+          days: updated.days,
+          payload: jsonEncode({
+            'reminderId': updated.id,
+            'scheduledTime': updated.scheduledTime,
+          }),
+        );
+      } catch (_) {
+        // Ignore scheduling errors so reminder update still succeeds.
+      }
       state = [
         for (final r in state)
           if (r.id == updated.id) updated else r,
@@ -53,6 +100,10 @@ class ReminderNotifier extends StateNotifier<List<ReminderModel>> {
   }
 }
 
-final reminderProvider = StateNotifierProvider<ReminderNotifier, List<ReminderModel>>((ref) {
-  return ReminderNotifier(ref.watch(reminderServiceProvider));
-});
+final reminderProvider =
+    StateNotifierProvider<ReminderNotifier, List<ReminderModel>>((ref) {
+      return ReminderNotifier(
+        ref.watch(reminderServiceProvider),
+        ref.watch(notificationServiceProvider),
+      );
+    });

@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../config/app_theme.dart';
@@ -38,7 +40,29 @@ class McAppBar extends ConsumerWidget implements PreferredSizeWidget {
               },
             )
           : null,
-      actions: actions,
+      actions: [
+        ...?actions,
+        Builder(
+          builder: (context) {
+            final user = ref.watch(authProvider);
+            final photoBase64 = user?.photoBase64;
+            return IconButton(
+              onPressed: () =>
+                  Navigator.of(context).pushNamed(AppRoutes.profile),
+              icon: CircleAvatar(
+                radius: 16,
+                backgroundColor: AppTheme.primaryColor.withValues(alpha: 0.1),
+                foregroundImage: photoBase64 != null && photoBase64.isNotEmpty
+                    ? MemoryImage(base64Decode(photoBase64))
+                    : null,
+                child: photoBase64 == null || photoBase64.isEmpty
+                    ? const Icon(Icons.person, size: 18)
+                    : null,
+              ),
+            );
+          },
+        ),
+      ],
     );
   }
 

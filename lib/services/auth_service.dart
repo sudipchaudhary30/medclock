@@ -154,18 +154,39 @@ class AuthService {
         data: data,
       );
       if (response.statusCode == 200) {
-        final userData = response.data['user'];
-        // keep existing token
+        final userData = Map<String, dynamic>.from(response.data['user']);
+        final existing = await getCurrentUser();
+        if ((userData['photoBase64'] == null ||
+                userData['photoBase64'] == '') &&
+            data['photoBase64'] != null) {
+          userData['photoBase64'] = data['photoBase64'];
+        }
+        if (existing != null &&
+            (userData['photoBase64'] == null ||
+                userData['photoBase64'] == '') &&
+            existing.photoBase64 != null) {
+          userData['photoBase64'] = existing.photoBase64;
+        }
         final token =
             await _secureStorage.read(key: AppConstants.tokenKey) ?? '';
-        await _persistSession(
-          token: token,
-          userData: Map<String, dynamic>.from(userData),
-        );
-        return UserModel.fromJson(Map<String, dynamic>.from(userData));
+        await _persistSession(token: token, userData: userData);
+        return UserModel.fromJson(userData);
       }
     } catch (_) {
       // ignore and fallback to local update
+    }
+
+    final cachedUser = await getCurrentUser();
+    if (cachedUser != null) {
+      final updatedUser = cachedUser.copyWith(
+        name: data['name'] as String?,
+        email: data['email'] as String?,
+        phone: data['phone'] as String?,
+        photoBase64: data['photoBase64'] as String?,
+      );
+      final token = await _secureStorage.read(key: AppConstants.tokenKey) ?? '';
+      await _persistSession(token: token, userData: updatedUser.toJson());
+      return updatedUser;
     }
     return null;
   }

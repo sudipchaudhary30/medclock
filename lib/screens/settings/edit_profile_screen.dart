@@ -1,5 +1,8 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:image_picker/image_picker.dart';
 import '../../config/app_theme.dart';
 import '../../providers/auth_provider.dart';
 import '../../widgets/layout/mc_scaffold.dart';
@@ -23,6 +26,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
   String _bloodType = 'B+';
   bool _isSaving = false;
   bool _hasChanged = false;
+  String? _photoBase64;
 
   final List<String> _bloodTypes = [
     'A+',
@@ -42,6 +46,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
     _nameController = TextEditingController(text: user?.name ?? '');
     _emailController = TextEditingController(text: user?.email ?? '');
     _phoneController = TextEditingController(text: user?.phone ?? '');
+    _photoBase64 = user?.photoBase64;
     // Track changes to enable/disable save button
     _nameController.addListener(_onChanged);
     _emailController.addListener(_onChanged);
@@ -63,7 +68,8 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
         (_emailController.text.trim() != (user?.email ?? '')) ||
         (_phoneController.text.trim() != (user?.phone ?? '')) ||
         (_gender != 'Male') ||
-        (_bloodType != 'B+');
+        (_bloodType != 'B+') ||
+        (_photoBase64 != user?.photoBase64);
     if (changed != _hasChanged) setState(() => _hasChanged = changed);
   }
 
@@ -79,6 +85,23 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
     if (picked != null) setState(() => _dob = picked);
   }
 
+  Future<void> _pickPhoto() async {
+    final picker = ImagePicker();
+    final XFile? image = await picker.pickImage(
+      source: ImageSource.gallery,
+      maxWidth: 1024,
+      maxHeight: 1024,
+      imageQuality: 85,
+    );
+    if (image == null) return;
+
+    final bytes = await image.readAsBytes();
+    setState(() {
+      _photoBase64 = base64Encode(bytes);
+    });
+    _onChanged();
+  }
+
   Future<void> _save() async {
     if (_nameController.text.trim().isEmpty) {
       McToast.showError(context, 'Full name is required');
@@ -91,6 +114,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
       'name': _nameController.text.trim(),
       'email': _emailController.text.trim(),
       'phone': _phoneController.text.trim(),
+      'photoBase64': _photoBase64,
     };
 
     // Attempt backend update
@@ -99,7 +123,13 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
       final updatedUser = await authSvc.updateProfile(data);
       if (!mounted) return;
       if (updatedUser != null) {
-        ref.read(authProvider.notifier).updateUser(updatedUser);
+        final mergedUser =
+            (updatedUser.photoBase64 == null ||
+                    updatedUser.photoBase64!.isEmpty) &&
+                _photoBase64 != null
+            ? updatedUser.copyWith(photoBase64: _photoBase64)
+            : updatedUser;
+        ref.read(authProvider.notifier).updateUser(mergedUser);
         if (mounted) {
           McToast.showSuccess(context, 'Profile updated');
         }
@@ -114,6 +144,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
             name: _nameController.text.trim(),
             email: _emailController.text.trim(),
             phone: _phoneController.text.trim(),
+            photoBase64: _photoBase64,
           );
           ref.read(authProvider.notifier).updateUser(updated);
         }
@@ -138,7 +169,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
     return McScaffold(
       title: 'Edit Profile',
       showBackButton: true,
-      body: Padding(
+      body: SingleChildScrollView(
         padding: const EdgeInsets.all(20.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -147,27 +178,40 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
             Center(
               child: Stack(
                 children: [
-                  const CircleAvatar(
+                  CircleAvatar(
                     radius: 48,
                     backgroundColor: AppTheme.primaryDark,
-                    child: Icon(
-                      Icons.person_rounded,
-                      size: 48,
-                      color: Colors.white,
-                    ),
+                    foregroundImage:
+                        _photoBase64 != null && _photoBase64!.isNotEmpty
+                        ? MemoryImage(base64Decode(_photoBase64!))
+                        : null,
+                    child: _photoBase64 == null || _photoBase64!.isEmpty
+                        ? const Icon(
+                            Icons.person_rounded,
+                            size: 48,
+                            color: Colors.white,
+                          )
+                        : null,
                   ),
                   Positioned(
                     right: 0,
                     bottom: 0,
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: AppTheme.primaryColor,
-                        shape: BoxShape.circle,
-                        border: Border.all(color: Colors.white, width: 2),
-                      ),
-                      child: const Padding(
-                        padding: EdgeInsets.all(6.0),
-                        child: Icon(Icons.edit, size: 16, color: Colors.white),
+                    child: GestureDetector(
+                      onTap: _pickPhoto,
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: AppTheme.primaryColor,
+                          shape: BoxShape.circle,
+                          border: Border.all(color: Colors.white, width: 2),
+                        ),
+                        child: const Padding(
+                          padding: EdgeInsets.all(6.0),
+                          child: Icon(
+                            Icons.edit,
+                            size: 16,
+                            color: Colors.white,
+                          ),
+                        ),
                       ),
                     ),
                   ),
@@ -177,7 +221,6 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
             const SizedBox(height: 16),
             Text('Patient ID: MC-8829-NP', style: AppTheme.caption),
             const SizedBox(height: 20),
-
             Text(
               'Personal Information',
               style: AppTheme.bodyLarge.copyWith(fontWeight: FontWeight.bold),
@@ -243,12 +286,13 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
               controller: _phoneController,
               keyboardType: TextInputType.phone,
             ),
-            const Spacer(),
+            const SizedBox(height: 20),
             McPrimaryButton(
               label: 'Save Changes',
               isLoading: _isSaving,
               onTap: _hasChanged && !_isSaving ? _save : null,
             ),
+            const SizedBox(height: 16),
           ],
         ),
       ),

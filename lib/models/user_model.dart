@@ -5,6 +5,7 @@ class UserModel {
   final String email;
   final String name;
   final String? phone;
+  final String? photoBase64;
   final UserRole role;
   final List<String> linkedUserIds;
   final String? familyGroupId;
@@ -18,6 +19,7 @@ class UserModel {
     required this.email,
     required this.name,
     this.phone,
+    this.photoBase64,
     required this.role,
     this.linkedUserIds = const [],
     this.familyGroupId,
@@ -25,9 +27,9 @@ class UserModel {
     UserSettings? settings,
     DateTime? createdAt,
     DateTime? updatedAt,
-  })  : settings = settings ?? UserSettings(),
-        createdAt = createdAt ?? DateTime.now(),
-        updatedAt = updatedAt ?? DateTime.now();
+  }) : settings = settings ?? UserSettings(),
+       createdAt = createdAt ?? DateTime.now(),
+       updatedAt = updatedAt ?? DateTime.now();
 
   factory UserModel.fromJson(Map<String, dynamic> json) {
     return UserModel(
@@ -35,6 +37,7 @@ class UserModel {
       email: json['email'] ?? '',
       name: json['name'] ?? '',
       phone: json['phone'],
+      photoBase64: json['photoBase64'],
       role: json['role'] == 'caregiver' ? UserRole.caregiver : UserRole.patient,
       linkedUserIds: List<String>.from(json['linkedUsers'] ?? []),
       familyGroupId: json['familyGroupId'],
@@ -61,6 +64,7 @@ class UserModel {
       'linkedUsers': linkedUserIds,
       'familyGroupId': familyGroupId,
       'fcmTokens': fcmTokens,
+      'photoBase64': photoBase64,
       'settings': settings.toJson(),
       'createdAt': createdAt.toIso8601String(),
       'updatedAt': updatedAt.toIso8601String(),
@@ -72,6 +76,7 @@ class UserModel {
     String? email,
     String? name,
     String? phone,
+    String? photoBase64,
     UserRole? role,
     List<String>? linkedUserIds,
     String? familyGroupId,
@@ -83,6 +88,7 @@ class UserModel {
       email: email ?? this.email,
       name: name ?? this.name,
       phone: phone ?? this.phone,
+      photoBase64: photoBase64 ?? this.photoBase64,
       role: role ?? this.role,
       linkedUserIds: linkedUserIds ?? this.linkedUserIds,
       familyGroupId: familyGroupId ?? this.familyGroupId,

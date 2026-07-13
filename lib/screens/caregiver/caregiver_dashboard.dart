@@ -1,7 +1,16 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:medclock/models/dose_log_model.dart';
+import '../../config/app_theme.dart';
 import '../../config/routes.dart';
+import '../../models/family_member_model.dart';
+import '../../models/medication_model.dart';
+import '../../providers/auth_provider.dart';
+import '../../providers/dose_log_provider.dart';
 import '../../providers/family_provider.dart';
+import '../../providers/medication_provider.dart';
 
 class CaregiverDashboard extends ConsumerStatefulWidget {
   const CaregiverDashboard({super.key});
@@ -14,48 +23,116 @@ class _CaregiverDashboardState extends ConsumerState<CaregiverDashboard> {
   @override
   Widget build(BuildContext context) {
     final familyGroup = ref.watch(familyProvider);
-    final isConnected = familyGroup != null && familyGroup.members.isNotEmpty;
+    final doseLogs = ref.watch(doseLogProvider);
+    final medications = ref.watch(medicationProvider);
+    final patients =
+        familyGroup?.members
+            .where((member) => member.role == 'patient')
+            .toList() ??
+        [];
+    final isConnected = patients.isNotEmpty;
 
-    // Build patient cards
-    final List<Map<String, dynamic>> patients = [
-      {
-        'name': 'Animesh Sharma',
-        'adherence': 88,
-        'statusText': 'All doses taken',
-        'statusColor': const Color(0xFF00C48C),
-        'statusIcon': Icons.check_circle_outline_rounded,
-        'avatar': 'https://images.unsplash.com/photo-1500648767791-00dcc994a43E?auto=format&fit=crop&w=120&q=80',
-      },
-      {
-        'name': 'Nirajan Gurung',
-        'adherence': 64,
-        'statusText': 'Dose missed at 08:00 AM',
-        'statusColor': const Color(0xFFFF6B6B),
-        'statusIcon': Icons.error_outline_rounded,
-        'avatar': 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=120&q=80',
-      },
-    ];
+    List<Map<String, dynamic>> buildPatientCards() {
+      return patients.map((member) {
+        final patientLogs = doseLogs
+            .where(
+              (log) =>
+                  log.familyMemberId == member.id ||
+                  log.familyMemberId == member.userId,
+            )
+            .toList();
 
-    // Alert log entries
-    final List<Map<String, dynamic>> alertLog = [
-      {
-        'time': '08:15 AM',
-        'dotColor': const Color(0xFF00C48C),
-        'text': 'Animesh confirmed Atorvastatin',
-        'highlight': 'Animesh',
-      },
-      {
-        'time': '08:02 AM',
-        'dotColor': const Color(0xFFFF6B6B),
-        'text': 'Nirajan missed Lisinopril',
-        'highlight': 'Nirajan',
-      },
-    ];
+        patientLogs.sort((a, b) => b.scheduledAt.compareTo(a.scheduledAt));
+        final total = patientLogs.length;
+        final takenCount = patientLogs.where((log) => log.isTaken).length;
+        final missedCount = patientLogs.where((log) => log.isMissed).length;
+        final bool hasHistory = total > 0;
+        final int adherence = hasHistory
+            ? ((takenCount / total) * 100).round()
+            : 0;
+
+        final Map<String, Object> latestStatus = hasHistory
+            ? _buildLatestStatus(patientLogs.first, missedCount)
+            : {
+                'text': 'No reported doses',
+                'color': AppTheme.textSecondary,
+                'icon': Icons.info_outline_rounded,
+              };
+
+        return {
+          'name': member.name,
+          'initials': member.initials,
+          'avatarColor': member.color,
+          'adherence': adherence,
+          'statusText': latestStatus['text'] as String,
+          'statusColor': latestStatus['color'] as Color,
+          'statusIcon': latestStatus['icon'] as IconData,
+          'recentLogs': patientLogs,
+        };
+      }).toList();
+    }
+
+    final List<Map<String, dynamic>> patientCards = buildPatientCards();
+
+    final List<Map<String, dynamic>> alertLog;
+    if (doseLogs.isEmpty) {
+      alertLog = [
+        {
+          'time': '--',
+          'dotColor': const Color(0xFF6A7D90),
+          'text': 'No recent patient events available yet.',
+          'highlight': 'patient',
+        },
+      ];
+    } else {
+      final recentDoseLogs = doseLogs
+          .where((log) => log.familyMemberId != null)
+          .toList();
+      recentDoseLogs.sort((a, b) => b.scheduledAt.compareTo(a.scheduledAt));
+      alertLog = recentDoseLogs.take(3).map((log) {
+        final patient = patients.firstWhere(
+          (member) =>
+              member.id == log.familyMemberId ||
+              member.userId == log.familyMemberId,
+          orElse: () => FamilyMemberModel(
+            id: log.familyMemberId ?? '',
+            userId: '',
+            name: 'Patient',
+            colorHex: '#2D7DD2',
+          ),
+        );
+        final medication = medications.firstWhere(
+          (med) => med.id == log.medicationId,
+          orElse: () => MedicationModel(
+            id: log.medicationId,
+            userId: '',
+            name: 'Medication',
+            dosage: '',
+            form: 'tablet',
+            instructions: '',
+          ),
+        );
+        final eventText = log.isTaken
+            ? 'confirmed ${medication.name}'
+            : log.isMissed
+            ? 'missed ${medication.name}'
+            : 'skipped ${medication.name}';
+        final formattedTime = TimeOfDay.fromDateTime(
+          log.scheduledAt,
+        ).format(context);
+        return {
+          'time': formattedTime,
+          'dotColor': log.isTaken ? AppTheme.successColor : AppTheme.errorColor,
+          'text': '${patient.name} $eventText',
+          'highlight': patient.name,
+        };
+      }).toList();
+    }
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF4F7FC),
+      backgroundColor: AppTheme.scaffoldBg,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: AppTheme.cardBg,
         elevation: 0,
         centerTitle: false,
         automaticallyImplyLeading: false,
@@ -68,44 +145,63 @@ class _CaregiverDashboardState extends ConsumerState<CaregiverDashboard> {
               Container(
                 width: 32,
                 height: 32,
-                decoration: const BoxDecoration(
-                  color: Color(0xFF0F6D95),
+                decoration: BoxDecoration(
+                  color: AppTheme.primaryColor,
                   shape: BoxShape.circle,
                 ),
-                child: const Icon(Icons.access_time_rounded,
-                    color: Colors.white, size: 18),
+                child: const Icon(
+                  Icons.access_time_rounded,
+                  color: Colors.white,
+                  size: 18,
+                ),
               ),
               const SizedBox(width: 8),
-              const Text(
+              Text(
                 'MedClock',
-                style: TextStyle(
-                  color: Color(0xFF0F6D95),
+                style: AppTheme.heading3.copyWith(
                   fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  fontFamily: 'serif',
+                  fontWeight: FontWeight.w700,
                 ),
               ),
             ],
           ),
         ),
         actions: [
-          IconButton(
-            onPressed: () => Navigator.of(context, rootNavigator: true).pushNamed(AppRoutes.profile),
-            icon: const Icon(
-              Icons.person_outline_rounded,
-              color: Color(0xFF6A7D90),
-            ),
+          Consumer(
+            builder: (context, ref, child) {
+              final user = ref.watch(authProvider);
+              final photoBase64 = user?.photoBase64;
+              return IconButton(
+                onPressed: () =>
+                    Navigator.of(context).pushNamed(AppRoutes.profile),
+                icon: CircleAvatar(
+                  radius: 18,
+                  backgroundColor: AppTheme.primaryLight,
+                  foregroundImage: photoBase64 != null && photoBase64.isNotEmpty
+                      ? MemoryImage(base64Decode(photoBase64))
+                      : null,
+                  child: photoBase64 == null || photoBase64.isEmpty
+                      ? const Icon(
+                          Icons.person_outline_rounded,
+                          color: AppTheme.primaryColor,
+                        )
+                      : null,
+                ),
+              );
+            },
           ),
         ],
         shape: Border(
-          bottom: BorderSide(color: Colors.black.withValues(alpha: 0.05), width: 0.8),
+          bottom: BorderSide(
+            color: Colors.black.withValues(alpha: 0.05),
+            width: 0.8,
+          ),
         ),
       ),
       body: SafeArea(
         top: false,
         child: CustomScrollView(
           slivers: [
-
             if (!isConnected)
               // Empty state when no patients are linked yet
               SliverFillRemaining(
@@ -119,34 +215,32 @@ class _CaregiverDashboardState extends ConsumerState<CaregiverDashboard> {
                         Container(
                           width: 80,
                           height: 80,
-                          decoration: const BoxDecoration(
-                            color: Color(0xFFE6F2F7),
+                          decoration: BoxDecoration(
+                            color: AppTheme.primaryLight,
                             shape: BoxShape.circle,
                           ),
                           child: const Icon(
                             Icons.qr_code_scanner_rounded,
-                            color: Color(0xFF0F6D95),
+                            color: AppTheme.primaryColor,
                             size: 40,
                           ),
                         ),
                         const SizedBox(height: 24),
-                        const Text(
+                        Text(
                           'No Patients Linked',
-                          style: TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                            color: Color(0xFF0F1E24),
-                            fontFamily: 'serif',
+                          textAlign: TextAlign.center,
+                          style: AppTheme.heading3.copyWith(
+                            fontWeight: FontWeight.w700,
+                            color: AppTheme.textPrimary,
                           ),
                         ),
                         const SizedBox(height: 12),
-                        const Text(
+                        Text(
                           'Tap the scanner button below to scan a patient\'s invitation QR code and begin monitoring compliance.',
                           textAlign: TextAlign.center,
-                          style: TextStyle(
-                            fontSize: 14,
-                            color: Color(0xFF536A73),
-                            height: 1.5,
+                          style: AppTheme.bodyMedium.copyWith(
+                            color: AppTheme.textSecondary,
+                            height: 1.6,
                           ),
                         ),
                       ],
@@ -158,7 +252,10 @@ class _CaregiverDashboardState extends ConsumerState<CaregiverDashboard> {
               // Redesigned Connected Dashboard View
               SliverToBoxAdapter(
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 20,
+                    vertical: 8,
+                  ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -170,22 +267,18 @@ class _CaregiverDashboardState extends ConsumerState<CaregiverDashboard> {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                const Text(
+                                Text(
                                   'Caregiver Dashboard',
-                                  style: TextStyle(
-                                    fontSize: 24,
-                                    fontWeight: FontWeight.bold,
-                                    color: Color(0xFF0F1E24),
-                                    fontFamily: 'serif',
+                                  style: AppTheme.heading2.copyWith(
+                                    fontWeight: FontWeight.w700,
                                   ),
                                 ),
                                 const SizedBox(height: 4),
                                 Text(
                                   'Monitoring ${patients.length} active patients',
-                                  style: const TextStyle(
-                                    fontSize: 13,
-                                    color: Color(0xFF9AA7B3),
-                                    fontWeight: FontWeight.w500,
+                                  style: AppTheme.caption.copyWith(
+                                    color: AppTheme.textSecondary,
+                                    fontWeight: FontWeight.w600,
                                   ),
                                 ),
                               ],
@@ -193,9 +286,12 @@ class _CaregiverDashboardState extends ConsumerState<CaregiverDashboard> {
                           ),
                           // LIVE badge
                           Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 10,
+                              vertical: 5,
+                            ),
                             decoration: BoxDecoration(
-                              color: const Color(0xFFD6F6EC),
+                              color: AppTheme.primaryLight,
                               borderRadius: BorderRadius.circular(20),
                             ),
                             child: Row(
@@ -204,18 +300,17 @@ class _CaregiverDashboardState extends ConsumerState<CaregiverDashboard> {
                                 Container(
                                   width: 8,
                                   height: 8,
-                                  decoration: const BoxDecoration(
-                                    color: Color(0xFF00C48C),
+                                  decoration: BoxDecoration(
+                                    color: AppTheme.successColor,
                                     shape: BoxShape.circle,
                                   ),
                                 ),
                                 const SizedBox(width: 6),
-                                const Text(
+                                Text(
                                   'LIVE',
-                                  style: TextStyle(
-                                    fontSize: 10,
+                                  style: AppTheme.caption.copyWith(
                                     fontWeight: FontWeight.w800,
-                                    color: Color(0xFF00C48C),
+                                    color: AppTheme.successColor,
                                     letterSpacing: 0.8,
                                   ),
                                 ),
@@ -227,25 +322,22 @@ class _CaregiverDashboardState extends ConsumerState<CaregiverDashboard> {
                       const SizedBox(height: 24),
 
                       // Patient Cards
-                      ...patients.map((patient) {
+                      ...patientCards.map((patient) {
                         final int adherence = patient['adherence'] as int;
-                        final Color statusColor = patient['statusColor'] as Color;
-                        final Color ringColor = adherence >= 80 ? const Color(0xFF00C48C) : const Color(0xFFFF6B6B);
+                        final Color statusColor =
+                            patient['statusColor'] as Color;
+                        final Color ringColor = adherence >= 80
+                            ? AppTheme.successColor
+                            : AppTheme.errorColor;
 
                         return Padding(
                           padding: const EdgeInsets.only(bottom: 16),
                           child: Container(
-                            padding: const EdgeInsets.all(16),
+                            padding: const EdgeInsets.all(18),
                             decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(20),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.black.withValues(alpha: 0.03),
-                                  blurRadius: 10,
-                                  offset: const Offset(0, 4),
-                                ),
-                              ],
+                              color: AppTheme.cardBg,
+                              borderRadius: BorderRadius.circular(24),
+                              boxShadow: AppTheme.cardShadow,
                             ),
                             child: Row(
                               children: [
@@ -259,15 +351,20 @@ class _CaregiverDashboardState extends ConsumerState<CaregiverDashboard> {
                                   ),
                                 ),
                                 const SizedBox(width: 14),
-                                // Rounded Image Avatar
+                                // Rounded Avatar
                                 Container(
                                   width: 48,
                                   height: 48,
                                   decoration: BoxDecoration(
                                     shape: BoxShape.circle,
-                                    image: DecorationImage(
-                                      image: NetworkImage(patient['avatar'] as String),
-                                      fit: BoxFit.cover,
+                                    color: patient['avatarColor'] as Color,
+                                  ),
+                                  alignment: Alignment.center,
+                                  child: Text(
+                                    patient['initials'] as String,
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.bold,
                                     ),
                                   ),
                                 ),
@@ -275,14 +372,13 @@ class _CaregiverDashboardState extends ConsumerState<CaregiverDashboard> {
                                 // Name & compliance status
                                 Expanded(
                                   child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
                                       Text(
                                         patient['name'] as String,
-                                        style: const TextStyle(
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.bold,
-                                          color: Color(0xFF0F1E24),
+                                        style: AppTheme.heading3.copyWith(
+                                          fontWeight: FontWeight.w700,
                                         ),
                                       ),
                                       const SizedBox(height: 4),
@@ -296,10 +392,9 @@ class _CaregiverDashboardState extends ConsumerState<CaregiverDashboard> {
                                           const SizedBox(width: 4),
                                           Text(
                                             patient['statusText'] as String,
-                                            style: TextStyle(
-                                              fontSize: 12,
+                                            style: AppTheme.bodySmall.copyWith(
                                               color: statusColor,
-                                              fontWeight: FontWeight.w600,
+                                              fontWeight: FontWeight.w700,
                                             ),
                                           ),
                                         ],
@@ -309,10 +404,11 @@ class _CaregiverDashboardState extends ConsumerState<CaregiverDashboard> {
                                 ),
                                 // Custom Adherence circular progress ring
                                 Container(
-                                  width: 40,
-                                  height: 40,
+                                  width: 42,
+                                  height: 42,
                                   decoration: BoxDecoration(
                                     shape: BoxShape.circle,
+                                    color: ringColor.withValues(alpha: 0.1),
                                     border: Border.all(
                                       color: ringColor,
                                       width: 2,
@@ -322,8 +418,8 @@ class _CaregiverDashboardState extends ConsumerState<CaregiverDashboard> {
                                   child: Text(
                                     '$adherence%',
                                     style: TextStyle(
-                                      fontSize: 11,
-                                      fontWeight: FontWeight.bold,
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w700,
                                       color: ringColor,
                                     ),
                                   ),
@@ -333,16 +429,13 @@ class _CaregiverDashboardState extends ConsumerState<CaregiverDashboard> {
                           ),
                         );
                       }),
-                      const SizedBox(height: 20),
+                      const SizedBox(height: 24),
 
                       // Alert Log section header
-                      const Text(
+                      Text(
                         'Alert Log',
-                        style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                          color: Color(0xFF0F1E24),
-                          fontFamily: 'serif',
+                        style: AppTheme.heading3.copyWith(
+                          fontWeight: FontWeight.w700,
                         ),
                       ),
                       const SizedBox(height: 20),
@@ -373,7 +466,7 @@ class _CaregiverDashboardState extends ConsumerState<CaregiverDashboard> {
                                   Container(
                                     width: 1.5,
                                     height: 48,
-                                    color: const Color(0xFFE5EFF2),
+                                    color: AppTheme.dividerColor,
                                   ),
                                 ],
                               ),
@@ -386,42 +479,52 @@ class _CaregiverDashboardState extends ConsumerState<CaregiverDashboard> {
                                   children: [
                                     Text(
                                       alert['time'] as String,
-                                      style: const TextStyle(
-                                        fontSize: 11,
+                                      style: AppTheme.caption.copyWith(
                                         fontWeight: FontWeight.w700,
-                                        color: Color(0xFF9AA7B3),
+                                        color: AppTheme.textSecondary,
                                       ),
                                     ),
                                     const SizedBox(height: 6),
                                     Container(
                                       width: double.infinity,
-                                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 14,
+                                        vertical: 12,
+                                      ),
                                       decoration: BoxDecoration(
-                                        color: const Color(0xFFEEF4FF),
-                                        borderRadius: BorderRadius.circular(12),
+                                        color: AppTheme.primaryLight,
+                                        borderRadius: BorderRadius.circular(16),
                                       ),
                                       child: RichText(
                                         text: TextSpan(
-                                          style: const TextStyle(
-                                            fontSize: 13,
-                                            color: Color(0xFF0F1E24),
+                                          style: AppTheme.bodySmall.copyWith(
+                                            color: AppTheme.textPrimary,
                                             height: 1.3,
                                           ),
                                           children: highlightStart >= 0
                                               ? [
                                                   if (highlightStart > 0)
                                                     TextSpan(
-                                                      text: fullText.substring(0, highlightStart),
+                                                      text: fullText.substring(
+                                                        0,
+                                                        highlightStart,
+                                                      ),
                                                     ),
                                                   TextSpan(
                                                     text: highlight,
-                                                    style: const TextStyle(
-                                                      fontWeight: FontWeight.bold,
-                                                      color: Color(0xFF0F1E24),
-                                                    ),
+                                                    style: AppTheme.bodySmall
+                                                        .copyWith(
+                                                          fontWeight:
+                                                              FontWeight.w700,
+                                                          color: AppTheme
+                                                              .textPrimary,
+                                                        ),
                                                   ),
                                                   TextSpan(
-                                                    text: fullText.substring(highlightStart + highlight.length),
+                                                    text: fullText.substring(
+                                                      highlightStart +
+                                                          highlight.length,
+                                                    ),
                                                   ),
                                                 ]
                                               : [TextSpan(text: fullText)],
@@ -447,44 +550,45 @@ class _CaregiverDashboardState extends ConsumerState<CaregiverDashboard> {
       // Scanner floating action button styled like the mockup (blue scanner circle)
       floatingActionButton: Padding(
         padding: const EdgeInsets.only(bottom: 8, right: 4),
-        child: SizedBox(
-          width: 60,
-          height: 60,
-          child: Container(
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              gradient: const LinearGradient(
-                colors: [
-                  Color(0xFF26B0E8),
-                  Color(0xFF0F6D95),
-                ],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
-              boxShadow: [
-                BoxShadow(
-                  color: const Color(0xFF0F6D95).withValues(alpha: 0.3),
-                  blurRadius: 12,
-                  offset: const Offset(0, 6),
-                ),
-              ],
-            ),
-            child: FloatingActionButton(
-              onPressed: () => Navigator.of(context, rootNavigator: true)
-                  .pushNamed(AppRoutes.qrScanner),
-              backgroundColor: Colors.transparent,
-              elevation: 0,
-              highlightElevation: 0,
-              shape: const CircleBorder(),
-              child: const Icon(
-                Icons.qr_code_scanner_rounded,
-                color: Colors.white,
-                size: 28,
-              ),
-            ),
+        child: FloatingActionButton(
+          onPressed: () => Navigator.of(context).pushNamed(AppRoutes.qrScanner),
+          backgroundColor: AppTheme.primaryColor,
+          elevation: 10,
+          highlightElevation: 6,
+          shape: const CircleBorder(),
+          child: const Icon(
+            Icons.qr_code_scanner_rounded,
+            color: Colors.white,
+            size: 28,
           ),
         ),
       ),
     );
+  }
+
+  Map<String, Object> _buildLatestStatus(DoseLogModel log, int missedCount) {
+    if (log.isTaken) {
+      return {
+        'text': missedCount == 0 ? 'All doses taken' : 'Last dose taken',
+        'color': AppTheme.successColor,
+        'icon': Icons.check_circle_outline_rounded,
+      };
+    }
+
+    if (log.isMissed) {
+      return {
+        'text': missedCount == 1
+            ? '1 dose missed'
+            : '$missedCount doses missed',
+        'color': AppTheme.errorColor,
+        'icon': Icons.error_outline_rounded,
+      };
+    }
+
+    return {
+      'text': 'Last dose skipped',
+      'color': AppTheme.warningColor,
+      'icon': Icons.info_outline_rounded,
+    };
   }
 }

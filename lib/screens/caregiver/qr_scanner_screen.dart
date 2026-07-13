@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../providers/auth_provider.dart';
 import '../../providers/family_provider.dart';
 import '../../providers/sync_code_provider.dart';
 import '../../widgets/common/mc_toast.dart';
@@ -20,6 +21,7 @@ class _QrScannerScreenState extends ConsumerState<QrScannerScreen>
   bool _isScanned = false;
   bool _isLinking = false;
   String _linkedPatientName = "Animesh Sharma";
+  String? _linkedPatientId;
 
   @override
   void initState() {
@@ -50,6 +52,7 @@ class _QrScannerScreenState extends ConsumerState<QrScannerScreen>
       final codeInfo = ref.read(syncCodeProvider);
       setState(() {
         _linkedPatientName = codeInfo?.patientName ?? "Animesh Sharma";
+        _linkedPatientId = codeInfo?.patientId;
         _isScanned = true;
       });
       _scannerController.stop();
@@ -63,14 +66,15 @@ class _QrScannerScreenState extends ConsumerState<QrScannerScreen>
       _isLinking = true;
     });
 
-    // Add member to family group provider so they show on dashboard
-    await ref.read(familyProvider.notifier).addMember(
+    await ref
+        .read(familyProvider.notifier)
+        .addMember(
           _linkedPatientName,
-          "Patient",
-          "#0F6D95",
+          'patient',
+          '#0F6D95',
+          userId: _linkedPatientId,
         );
 
-    // Clear the active code once successfully linked
     ref.read(syncCodeProvider.notifier).clearCode();
 
     if (mounted) {
@@ -80,6 +84,23 @@ class _QrScannerScreenState extends ConsumerState<QrScannerScreen>
 
   @override
   Widget build(BuildContext context) {
+    final user = ref.watch(authProvider);
+    if (user?.isCaregiver != true) {
+      return Scaffold(
+        appBar: AppBar(
+          backgroundColor: const Color(0xFF0F1E24),
+          title: const Text('Access Denied'),
+        ),
+        body: const Center(
+          child: Text(
+            'Caregiver only screen. Please log in with a caregiver account.',
+            style: TextStyle(color: Colors.white),
+            textAlign: TextAlign.center,
+          ),
+        ),
+      );
+    }
+
     return Scaffold(
       backgroundColor: const Color(0xFF0F1E24),
       body: Stack(
@@ -94,19 +115,28 @@ class _QrScannerScreenState extends ConsumerState<QrScannerScreen>
               ),
               onDetect: (capture) {
                 if (_isScanned) return;
-                
+
                 final List<Barcode> barcodes = capture.barcodes;
                 if (barcodes.isNotEmpty) {
                   final String? rawValue = barcodes.first.rawValue;
-                  if (rawValue != null && rawValue.startsWith('medclock://invite/caregiver?')) {
-                    // Extract data from the URL
+                  if (rawValue != null &&
+                      rawValue.startsWith('medclock://invite/caregiver?')) {
                     try {
                       final uri = Uri.parse(rawValue);
+                      final code = uri.queryParameters['code'];
                       final patientId = uri.queryParameters['patientId'];
-                      
-                      if (patientId != null) {
+                      final patientName = uri.queryParameters['patientName'];
+
+                      if (code != null &&
+                          ref
+                              .read(syncCodeProvider.notifier)
+                              .validateCode(code)) {
                         setState(() {
-                          _linkedPatientName = "Patient ($patientId)"; 
+                          _linkedPatientName = patientName != null
+                              ? Uri.decodeComponent(patientName)
+                              : ref.read(syncCodeProvider)?.patientName ??
+                                    'Linked Patient';
+                          _linkedPatientId = patientId;
                           _isScanned = true;
                         });
                         _scannerController.stop();
@@ -136,8 +166,11 @@ class _QrScannerScreenState extends ConsumerState<QrScannerScreen>
               child: Row(
                 children: [
                   IconButton(
-                    icon: const Icon(Icons.arrow_back_ios_new_rounded,
-                        color: Colors.white, size: 20),
+                    icon: const Icon(
+                      Icons.arrow_back_ios_new_rounded,
+                      color: Colors.white,
+                      size: 20,
+                    ),
                     onPressed: () => Navigator.of(context).pop(),
                   ),
                   const SizedBox(width: 8),
@@ -153,8 +186,11 @@ class _QrScannerScreenState extends ConsumerState<QrScannerScreen>
                             color: Colors.blueAccent,
                             shape: BoxShape.circle,
                           ),
-                          child: const Icon(Icons.access_time_rounded,
-                              color: Colors.white, size: 18),
+                          child: const Icon(
+                            Icons.access_time_rounded,
+                            color: Colors.white,
+                            size: 18,
+                          ),
                         ),
                         const SizedBox(width: 8),
                         const Text(
@@ -208,8 +244,14 @@ class _QrScannerScreenState extends ConsumerState<QrScannerScreen>
                             height: 30,
                             decoration: const BoxDecoration(
                               border: Border(
-                                top: BorderSide(color: Color(0xFF26B0E8), width: 4),
-                                left: BorderSide(color: Color(0xFF26B0E8), width: 4),
+                                top: BorderSide(
+                                  color: Color(0xFF26B0E8),
+                                  width: 4,
+                                ),
+                                left: BorderSide(
+                                  color: Color(0xFF26B0E8),
+                                  width: 4,
+                                ),
                               ),
                             ),
                           ),
@@ -222,8 +264,14 @@ class _QrScannerScreenState extends ConsumerState<QrScannerScreen>
                             height: 30,
                             decoration: const BoxDecoration(
                               border: Border(
-                                top: BorderSide(color: Color(0xFF26B0E8), width: 4),
-                                right: BorderSide(color: Color(0xFF26B0E8), width: 4),
+                                top: BorderSide(
+                                  color: Color(0xFF26B0E8),
+                                  width: 4,
+                                ),
+                                right: BorderSide(
+                                  color: Color(0xFF26B0E8),
+                                  width: 4,
+                                ),
                               ),
                             ),
                           ),
@@ -236,8 +284,14 @@ class _QrScannerScreenState extends ConsumerState<QrScannerScreen>
                             height: 30,
                             decoration: const BoxDecoration(
                               border: Border(
-                                bottom: BorderSide(color: Color(0xFF26B0E8), width: 4),
-                                left: BorderSide(color: Color(0xFF26B0E8), width: 4),
+                                bottom: BorderSide(
+                                  color: Color(0xFF26B0E8),
+                                  width: 4,
+                                ),
+                                left: BorderSide(
+                                  color: Color(0xFF26B0E8),
+                                  width: 4,
+                                ),
                               ),
                             ),
                           ),
@@ -250,8 +304,14 @@ class _QrScannerScreenState extends ConsumerState<QrScannerScreen>
                             height: 30,
                             decoration: const BoxDecoration(
                               border: Border(
-                                bottom: BorderSide(color: Color(0xFF26B0E8), width: 4),
-                                right: BorderSide(color: Color(0xFF26B0E8), width: 4),
+                                bottom: BorderSide(
+                                  color: Color(0xFF26B0E8),
+                                  width: 4,
+                                ),
+                                right: BorderSide(
+                                  color: Color(0xFF26B0E8),
+                                  width: 4,
+                                ),
                               ),
                             ),
                           ),
@@ -310,7 +370,10 @@ class _QrScannerScreenState extends ConsumerState<QrScannerScreen>
                     topRight: Radius.circular(24),
                   ),
                 ),
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 24,
+                  vertical: 20,
+                ),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -326,10 +389,7 @@ class _QrScannerScreenState extends ConsumerState<QrScannerScreen>
                     const SizedBox(height: 4),
                     const Text(
                       'Enter the 6-digit code generated by the patient',
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: Color(0xFF9AA7B3),
-                      ),
+                      style: TextStyle(fontSize: 12, color: Color(0xFF9AA7B3)),
                     ),
                     const SizedBox(height: 16),
                     Row(
@@ -348,7 +408,10 @@ class _QrScannerScreenState extends ConsumerState<QrScannerScreen>
                                 hintText: 'Enter 6-digit code',
                                 counterText: '',
                                 border: InputBorder.none,
-                                contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                                contentPadding: EdgeInsets.symmetric(
+                                  horizontal: 16,
+                                  vertical: 12,
+                                ),
                               ),
                               style: const TextStyle(
                                 fontSize: 16,
@@ -369,7 +432,9 @@ class _QrScannerScreenState extends ConsumerState<QrScannerScreen>
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(12),
                               ),
-                              padding: const EdgeInsets.symmetric(horizontal: 24),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 24,
+                              ),
                             ),
                             child: const Text(
                               'Link',
@@ -403,7 +468,10 @@ class _QrScannerScreenState extends ConsumerState<QrScannerScreen>
                     topRight: Radius.circular(28),
                   ),
                 ),
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 24,
+                  vertical: 20,
+                ),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
@@ -450,7 +518,10 @@ class _QrScannerScreenState extends ConsumerState<QrScannerScreen>
                       decoration: BoxDecoration(
                         color: Colors.white,
                         borderRadius: BorderRadius.circular(16),
-                        border: Border.all(color: Colors.grey.shade200, width: 1),
+                        border: Border.all(
+                          color: Colors.grey.shade200,
+                          width: 1,
+                        ),
                         boxShadow: [
                           BoxShadow(
                             color: Colors.black.withValues(alpha: 0.03),
@@ -527,16 +598,15 @@ class _QrScannerScreenState extends ConsumerState<QrScannerScreen>
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(26),
                           gradient: const LinearGradient(
-                            colors: [
-                              Color(0xFF26B0E8),
-                              Color(0xFF0F6D95),
-                            ],
+                            colors: [Color(0xFF26B0E8), Color(0xFF0F6D95)],
                             begin: Alignment.topCenter,
                             end: Alignment.bottomCenter,
                           ),
                           boxShadow: [
                             BoxShadow(
-                              color: const Color(0xFF0F6D95).withValues(alpha: 0.3),
+                              color: const Color(
+                                0xFF0F6D95,
+                              ).withValues(alpha: 0.3),
                               blurRadius: 12,
                               offset: const Offset(0, 6),
                             ),

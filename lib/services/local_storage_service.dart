@@ -12,17 +12,22 @@ class LocalStorageService {
 
   Future<void> init() async {
     await Hive.initFlutter();
-    
+
     // Open necessary boxes
     await Hive.openBox(AppConstants.medicationsBox);
     await Hive.openBox(AppConstants.remindersBox);
     await Hive.openBox(AppConstants.doseLogsBox);
     await Hive.openBox(AppConstants.settingsBox);
     await Hive.openBox(AppConstants.pendingSyncBox);
+    await Hive.openBox(AppConstants.syncCodeBox);
   }
 
   Box getBox(String name) {
     return Hive.box(name);
+  }
+
+  Future<void> clearSyncCodes() async {
+    await Hive.box(AppConstants.syncCodeBox).clear();
   }
 
   Future<void> clearAll() async {
