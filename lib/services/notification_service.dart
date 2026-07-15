@@ -28,6 +28,9 @@ class NotificationService {
 
     if (Platform.isAndroid) {
       await Permission.notification.request();
+      if (await Permission.scheduleExactAlarm.isDenied) {
+        await Permission.scheduleExactAlarm.request();
+      }
     }
 
     const androidSettings = AndroidInitializationSettings(
@@ -43,12 +46,16 @@ class NotificationService {
       initSettings,
       onDidReceiveNotificationResponse: (details) {
         if (details.payload != null && details.payload!.isNotEmpty) {
-          _handleNotificationTap(details.payload!);
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            _handleNotificationTap(details.payload!);
+          });
         }
       },
       onDidReceiveBackgroundNotificationResponse: (details) {
         if (details.payload != null && details.payload!.isNotEmpty) {
-          _handleNotificationTap(details.payload!);
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            _handleNotificationTap(details.payload!);
+          });
         }
       },
     );
@@ -82,7 +89,12 @@ class NotificationService {
       args = {'medicationName': payload};
     }
 
-    appNavigatorKey.currentState?.pushNamed(AppRoutes.alarm, arguments: args);
+    final navigator = appNavigatorKey.currentState;
+    if (navigator != null && navigator.canPop()) {
+      navigator.pushNamed(AppRoutes.alarm, arguments: args);
+    } else {
+      navigator?.pushNamed(AppRoutes.alarm, arguments: args);
+    }
   }
 
   int _notificationIdForReminderDay(String reminderId, int weekday) {
@@ -123,19 +135,50 @@ class NotificationService {
     required String scheduledTime,
     required List<String> days,
     String? payload,
+    // Medication details for the alarm screen
+    String? medicationName,
+    String? dosage,
+    String? form,
+    String? pillPhotoUrl,
+    String? instruction,
   }) async {
     await _ensureInitialized();
 
     final parts = scheduledTime.split(':');
     final hour = int.tryParse(parts[0]) ?? 8;
     final minute = parts.length > 1 ? int.tryParse(parts[1]) ?? 0 : 0;
+    // Build a rich payload containing all medication details the AlarmScreen needs.
+    final alarmPayload =
+        payload ??
+        jsonEncode({
+          'reminderId': reminderId,
+          'scheduledTime': scheduledTime,
+          if (medicationName != null) 'medicationName': medicationName,
+          if (dosage != null) 'dosage': dosage,
+          if (form != null) 'form': form,
+          if (pillPhotoUrl != null) 'pillPhotoUrl': pillPhotoUrl,
+          if (instruction != null) 'instruction': instruction,
+        });
+
     const androidDetails = AndroidNotificationDetails(
-      'medclock_reminders',
-      'Medication Reminders',
+      'medclock_alarms',
+      'Medication Alarms',
+      channelDescription: 'Full-screen alarm for medication reminders',
       importance: Importance.max,
-      priority: Priority.high,
+      priority: Priority.max,
+      fullScreenIntent: true,
+      category: AndroidNotificationCategory.alarm,
+      visibility: NotificationVisibility.public,
+      playSound: true,
+      enableVibration: true,
+      ongoing: true,
+      autoCancel: false,
     );
-    const iosDetails = DarwinNotificationDetails();
+    const iosDetails = DarwinNotificationDetails(
+      presentAlert: true,
+      presentBadge: true,
+      presentSound: true,
+    );
     const notificationDetails = NotificationDetails(
       android: androidDetails,
       iOS: iosDetails,
@@ -157,18 +200,28 @@ class NotificationService {
 
       final scheduleDate = _nextInstanceOfWeekdayAndTime(weekday, hour, minute);
       final notificationId = _notificationIdForReminderDay(reminderId, weekday);
-      await _localNotifications.zonedSchedule(
-        notificationId,
-        title,
-        body,
-        scheduleDate,
-        notificationDetails,
-        payload: payload,
-        androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
-        uiLocalNotificationDateInterpretation:
-            UILocalNotificationDateInterpretation.absoluteTime,
-        matchDateTimeComponents: DateTimeComponents.dayOfWeekAndTime,
-      );
+      try {
+        await _localNotifications.zonedSchedule(
+          notificationId,
+          title,
+          body,
+          scheduleDate,
+          notificationDetails,
+          payload: alarmPayload,
+          androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+          uiLocalNotificationDateInterpretation:
+              UILocalNotificationDateInterpretation.absoluteTime,
+          matchDateTimeComponents: DateTimeComponents.dayOfWeekAndTime,
+        );
+      } catch (e) {
+        debugPrint('Exact alarm scheduling failed for $reminderId: $e');
+        await showLocalNotification(
+          id: notificationId,
+          title: title,
+          body: body,
+          payload: alarmPayload,
+        );
+      }
     }
   }
 

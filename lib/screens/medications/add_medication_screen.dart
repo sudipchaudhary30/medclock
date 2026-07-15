@@ -294,7 +294,14 @@ class _AddMedicationScreenState extends ConsumerState<AddMedicationScreen> {
             );
             await ref
                 .read(reminderProvider.notifier)
-                .updateReminder(updatedReminder);
+                .updateReminder(
+                  updatedReminder,
+                  medicationName: medication.name,
+                  dosage: medication.dosage,
+                  form: medication.form,
+                  pillPhotoUrl: medication.pillPhotoUrl,
+                  instruction: selectedDayStrings.join(', '),
+                );
           }
         }
       } else {
@@ -312,7 +319,14 @@ class _AddMedicationScreenState extends ConsumerState<AddMedicationScreen> {
           scheduledTime: scheduledTime,
           days: selectedDayStrings,
         );
-        await ref.read(reminderProvider.notifier).addReminder(reminder);
+        await ref.read(reminderProvider.notifier).addReminder(
+          reminder,
+          medicationName: addedMedication.name,
+          dosage: addedMedication.dosage,
+          form: addedMedication.form,
+          pillPhotoUrl: addedMedication.pillPhotoUrl,
+          instruction: selectedDayStrings.join(', '),
+        );
       }
 
       if (success && mounted) {
@@ -403,7 +417,7 @@ class _AddMedicationScreenState extends ConsumerState<AddMedicationScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF4F7FC),
+      backgroundColor: const Color(0xFFEFF4FF),
       resizeToAvoidBottomInset: true,
       appBar: AppBar(
         backgroundColor: const Color(0xFF0B3D66),

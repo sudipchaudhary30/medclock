@@ -309,7 +309,7 @@ class _DoseHistoryScreenState extends ConsumerState<DoseHistoryScreen> {
     }
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF4F7FC),
+      backgroundColor: const Color(0xFFEFF4FF),
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
@@ -736,7 +736,7 @@ class _DoseHistoryScreenState extends ConsumerState<DoseHistoryScreen> {
                     width: 28,
                     height: 28,
                     decoration: const BoxDecoration(
-                      color: Color(0xFFF4F7FC),
+                      color: Color(0xFFEFF4FF),
                       shape: BoxShape.circle,
                     ),
                     child: Center(

@@ -397,7 +397,7 @@ class _QrScannerScreenState extends ConsumerState<QrScannerScreen>
                         Expanded(
                           child: Container(
                             decoration: BoxDecoration(
-                              color: const Color(0xFFF4F7FC),
+                              color: const Color(0xFFEFF4FF),
                               borderRadius: BorderRadius.circular(12),
                             ),
                             child: TextField(

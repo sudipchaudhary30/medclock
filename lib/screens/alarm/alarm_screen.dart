@@ -64,7 +64,7 @@ class AlarmScreen extends StatelessWidget {
                 width: 180,
                 height: 180,
                 decoration: BoxDecoration(
-                  color: const Color(0xFFF4F7FC),
+                  color: const Color(0xFFEFF4FF),
                   borderRadius: BorderRadius.circular(24),
                   boxShadow: [
                     BoxShadow(
@@ -115,7 +115,7 @@ class AlarmScreen extends StatelessWidget {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  medicationName ?? 'Medication Name',
+                                  medicationName ?? 'Paracetamol',
                                   style: const TextStyle(
                                     color: Color(0xFF0D1E30),
                                     fontSize: 18,
@@ -124,7 +124,7 @@ class AlarmScreen extends StatelessWidget {
                                 ),
                                 const SizedBox(height: 6),
                                 Text(
-                                  '${dosage ?? '20 mg'} • ${form ?? 'Tablet'}',
+                                  '${dosage ?? '500 mg'} • ${form ?? 'Tablet'}',
                                   style: const TextStyle(
                                     color: Color(0xFF5C7283),
                                     fontSize: 13,
@@ -162,7 +162,7 @@ class AlarmScreen extends StatelessWidget {
                           vertical: 14,
                         ),
                         decoration: BoxDecoration(
-                          color: const Color(0xFFF4F7FC),
+                          color: const Color(0xFFEFF4FF),
                           borderRadius: BorderRadius.circular(16),
                         ),
                         child: Row(

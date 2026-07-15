@@ -137,7 +137,7 @@ class _QrLinkScreenState extends ConsumerState<QrLinkScreen> {
     }
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF4F7FC),
+      backgroundColor: const Color(0xFFEFF4FF),
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,

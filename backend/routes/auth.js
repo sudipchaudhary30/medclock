@@ -12,14 +12,33 @@ router.put('/profile', auth, async (req, res) => {
     const user = await User.findById(req.user.id);
     if (!user) return res.status(404).json({ msg: 'User not found' });
 
-    const { name, email, phone } = req.body;
+    const { name, email, phone, photoBase64, settings } = req.body;
     if (name) user.name = name;
     if (email) user.email = email;
     if (phone) user.phone = phone;
+    if (photoBase64) user.photoBase64 = photoBase64;
+    if (settings && typeof settings === 'object') {
+      user.settings = {
+        ...(user.settings.toObject ? user.settings.toObject() : user.settings),
+        ...settings,
+      };
+    }
 
     await user.save();
 
-    res.json({ user: { id: user.id, name: user.name, email: user.email, role: user.role, phone: user.phone, settings: user.settings } });
+    res.json({
+      user: {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        phone: user.phone,
+        photoBase64: user.photoBase64,
+        linkedUsers: user.linkedUsers,
+        familyGroupId: user.familyGroupId,
+        settings: user.settings,
+      }
+    });
   } catch (err) {
     res.status(500).send('Server error');
   }
@@ -40,7 +59,20 @@ router.post('/register', async (req, res) => {
     const payload = { user: { id: user.id } };
     jwt.sign(payload, process.env.JWT_SECRET || 'secret', { expiresIn: 360000 }, (err, token) => {
       if (err) throw err;
-      res.status(201).json({ token, user: { id: user.id, name, email, role, phone } });
+      res.status(201).json({
+        token,
+        user: {
+          id: user.id,
+          name,
+          email,
+          role,
+          phone,
+          photoBase64: user.photoBase64,
+          linkedUsers: user.linkedUsers,
+          familyGroupId: user.familyGroupId,
+          settings: user.settings,
+        }
+      });
     });
   } catch (err) {
     res.status(500).send('Server error');
@@ -60,7 +92,20 @@ router.post('/login', async (req, res) => {
     const payload = { user: { id: user.id } };
     jwt.sign(payload, process.env.JWT_SECRET || 'secret', { expiresIn: 360000 }, (err, token) => {
       if (err) throw err;
-      res.json({ token, user: { id: user.id, name: user.name, email: user.email, role: user.role } });
+      res.json({
+        token,
+        user: {
+          id: user.id,
+          name: user.name,
+          email: user.email,
+          role: user.role,
+          phone: user.phone,
+          photoBase64: user.photoBase64,
+          linkedUsers: user.linkedUsers,
+          familyGroupId: user.familyGroupId,
+          settings: user.settings,
+        }
+      });
     });
   } catch (err) {
     res.status(500).send('Server error');

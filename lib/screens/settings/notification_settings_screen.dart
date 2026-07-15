@@ -46,11 +46,7 @@ class _NotificationSettingsScreenState
               color: iconBgColor,
               shape: BoxShape.circle,
             ),
-            child: Icon(
-              icon,
-              color: iconColor,
-              size: 20,
-            ),
+            child: Icon(icon, color: iconColor, size: 20),
           ),
           const SizedBox(width: 14),
           // Text Content
@@ -91,7 +87,7 @@ class _NotificationSettingsScreenState
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF4F7FC),
+      backgroundColor: const Color(0xFFEFF4FF),
       body: CustomScrollView(
         slivers: [
           // Custom Header matching the screenshot
@@ -99,11 +95,14 @@ class _NotificationSettingsScreenState
             floating: false,
             pinned: true,
             automaticallyImplyLeading: false,
-            backgroundColor: const Color(0xFFF4F7FC),
+            backgroundColor: const Color(0xFFEFF4FF),
             elevation: 0,
             leading: IconButton(
-              icon: const Icon(Icons.arrow_back_ios_new_rounded,
-                  color: Color(0xFF0F1E24), size: 20),
+              icon: const Icon(
+                Icons.arrow_back_ios_new_rounded,
+                color: Color(0xFF0F1E24),
+                size: 20,
+              ),
               onPressed: () => Navigator.of(context).pop(),
             ),
             title: const Text(
@@ -124,7 +123,10 @@ class _NotificationSettingsScreenState
                     height: 36,
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      border: Border.all(color: const Color(0xFFCBDCDD), width: 1.5),
+                      border: Border.all(
+                        color: const Color(0xFFCBDCDD),
+                        width: 1.5,
+                      ),
                       image: const DecorationImage(
                         image: NetworkImage(
                           'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?auto=format&fit=crop&w=120&q=80',
@@ -228,21 +230,35 @@ class _NotificationSettingsScreenState
                           iconColor: const Color(0xFF0F6D95),
                           iconBgColor: const Color(0xFFE5EFF2),
                           title: 'Dose Reminders',
-                          subtitle: "Receive alerts when it's time for your medication",
+                          subtitle:
+                              "Receive alerts when it's time for your medication",
                           value: _doseReminders,
-                          onChanged: (val) => setState(() => _doseReminders = val),
+                          onChanged: (val) =>
+                              setState(() => _doseReminders = val),
                         ),
-                        const Divider(height: 1, indent: 70, endIndent: 16, color: Color(0xFFF1F3F5)),
+                        const Divider(
+                          height: 1,
+                          indent: 70,
+                          endIndent: 16,
+                          color: Color(0xFFF1F3F5),
+                        ),
                         _buildToggleItem(
                           icon: Icons.warning_amber_rounded,
                           iconColor: const Color(0xFFD93838),
                           iconBgColor: const Color(0xFFFFF5F5),
                           title: 'Missed Dose Alerts',
-                          subtitle: 'Emergency notifications for skipped medications',
+                          subtitle:
+                              'Emergency notifications for skipped medications',
                           value: _missedDoseAlerts,
-                          onChanged: (val) => setState(() => _missedDoseAlerts = val),
+                          onChanged: (val) =>
+                              setState(() => _missedDoseAlerts = val),
                         ),
-                        const Divider(height: 1, indent: 70, endIndent: 16, color: Color(0xFFF1F3F5)),
+                        const Divider(
+                          height: 1,
+                          indent: 70,
+                          endIndent: 16,
+                          color: Color(0xFFF1F3F5),
+                        ),
                         _buildToggleItem(
                           icon: Icons.archive_outlined,
                           iconColor: const Color(0xFF0F6D95),
@@ -250,7 +266,8 @@ class _NotificationSettingsScreenState
                           title: 'Refill Reminders',
                           subtitle: 'Get notified when stock is running low',
                           value: _refillReminders,
-                          onChanged: (val) => setState(() => _refillReminders = val),
+                          onChanged: (val) =>
+                              setState(() => _refillReminders = val),
                         ),
                       ],
                     ),
@@ -289,9 +306,15 @@ class _NotificationSettingsScreenState
                           title: 'Patient Activity',
                           subtitle: 'Real-time alerts on patient dose status',
                           value: _patientActivity,
-                          onChanged: (val) => setState(() => _patientActivity = val),
+                          onChanged: (val) =>
+                              setState(() => _patientActivity = val),
                         ),
-                        const Divider(height: 1, indent: 70, endIndent: 16, color: Color(0xFFF1F3F5)),
+                        const Divider(
+                          height: 1,
+                          indent: 70,
+                          endIndent: 16,
+                          color: Color(0xFFF1F3F5),
+                        ),
                         _buildToggleItem(
                           icon: Icons.bar_chart_rounded,
                           iconColor: const Color(0xFF0F6D95),
@@ -299,7 +322,8 @@ class _NotificationSettingsScreenState
                           title: 'Health Reports',
                           subtitle: 'Weekly insights and clinical summaries',
                           value: _healthReports,
-                          onChanged: (val) => setState(() => _healthReports = val),
+                          onChanged: (val) =>
+                              setState(() => _healthReports = val),
                         ),
                       ],
                     ),
@@ -338,9 +362,15 @@ class _NotificationSettingsScreenState
                           title: 'Security Alerts',
                           subtitle: 'Account login and privacy updates',
                           value: _securityAlerts,
-                          onChanged: (val) => setState(() => _securityAlerts = val),
+                          onChanged: (val) =>
+                              setState(() => _securityAlerts = val),
                         ),
-                        const Divider(height: 1, indent: 70, endIndent: 16, color: Color(0xFFF1F3F5)),
+                        const Divider(
+                          height: 1,
+                          indent: 70,
+                          endIndent: 16,
+                          color: Color(0xFFF1F3F5),
+                        ),
                         _buildToggleItem(
                           icon: Icons.system_update_alt_rounded,
                           iconColor: const Color(0xFF0F6D95),

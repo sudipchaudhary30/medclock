@@ -102,7 +102,7 @@ class RefillScreen extends ConsumerWidget {
     }).toList();
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF4F7FC),
+      backgroundColor: const Color(0xFFEFF4FF),
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,

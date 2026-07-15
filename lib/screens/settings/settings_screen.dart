@@ -287,15 +287,10 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                           ),
                         ),
                         TextButton(
-                          onPressed: () =>
-                              Navigator.of(
-                                context,
-                                rootNavigator: true,
-                              ).pushNamed(
-                                user?.isCaregiver == true
-                                    ? AppRoutes.familyDashboard
-                                    : AppRoutes.qrLink,
-                              ),
+                          onPressed: () => Navigator.of(
+                            context,
+                            rootNavigator: true,
+                          ).pushNamed(AppRoutes.alarm),
                           child: Text(
                             user?.isCaregiver == true ? 'Manage' : 'Link',
                           ),

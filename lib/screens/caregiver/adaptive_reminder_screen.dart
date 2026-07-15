@@ -1,57 +1,19 @@
 import 'package:flutter/material.dart';
 
+import '../../config/app_theme.dart';
+import '../../widgets/layout/caregiver_app_bar.dart';
+
 class AdaptiveReminderScreen extends StatelessWidget {
   const AdaptiveReminderScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF4F7FC),
+      backgroundColor: AppTheme.scaffoldBg,
       body: CustomScrollView(
         slivers: [
-          // Header matching mockup design
-          SliverAppBar(
-            floating: false,
-            pinned: true,
-            automaticallyImplyLeading: false,
-            backgroundColor: const Color(0xFFF4F7FC),
-            elevation: 0,
-            leading: IconButton(
-              icon: const Icon(Icons.arrow_back_ios_new_rounded,
-                  color: Color(0xFF0F1E24), size: 20),
-              onPressed: () => Navigator.of(context).pop(),
-            ),
-            title: const Text(
-              'Adaptive Reminder',
-              style: TextStyle(
-                fontSize: 22,
-                fontWeight: FontWeight.bold,
-                color: Color(0xFF0F1E24),
-                fontFamily: 'serif',
-              ),
-            ),
-            actions: [
-              Padding(
-                padding: const EdgeInsets.only(right: 16),
-                child: Center(
-                  child: Container(
-                    width: 36,
-                    height: 36,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      border: Border.all(color: const Color(0xFFCBDCDD), width: 1.5),
-                      image: const DecorationImage(
-                        image: NetworkImage(
-                          'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?auto=format&fit=crop&w=120&q=80',
-                        ),
-                        fit: BoxFit.cover,
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
+          // Header matching caregiver section styles
+          const CaregiverSliverAppBar(showBackButton: true),
 
           SliverFillRemaining(
             hasScrollBody: false,
@@ -135,15 +97,23 @@ class AdaptiveReminderScreen extends StatelessWidget {
                                   const SizedBox(height: 8),
                                   Container(
                                     width: double.infinity,
-                                    padding: const EdgeInsets.symmetric(vertical: 24),
+                                    padding: const EdgeInsets.symmetric(
+                                      vertical: 24,
+                                    ),
                                     decoration: BoxDecoration(
                                       color: Colors.white,
                                       borderRadius: BorderRadius.circular(16),
-                                      border: Border.all(color: Colors.grey.shade200),
+                                      border: Border.all(
+                                        color: Colors.grey.shade200,
+                                      ),
                                     ),
                                     child: const Column(
                                       children: [
-                                        Icon(Icons.access_time, color: Color(0xFF536A73), size: 24),
+                                        Icon(
+                                          Icons.access_time,
+                                          color: Color(0xFF536A73),
+                                          size: 24,
+                                        ),
                                         SizedBox(height: 8),
                                         Text(
                                           '8:00 AM',
@@ -190,14 +160,23 @@ class AdaptiveReminderScreen extends StatelessWidget {
                                     children: [
                                       Container(
                                         width: double.infinity,
-                                        padding: const EdgeInsets.symmetric(vertical: 24),
+                                        padding: const EdgeInsets.symmetric(
+                                          vertical: 24,
+                                        ),
                                         decoration: BoxDecoration(
                                           color: Colors.white,
-                                          borderRadius: BorderRadius.circular(16),
-                                          border: Border.all(color: const Color(0xFF0F6D95), width: 1.5),
+                                          borderRadius: BorderRadius.circular(
+                                            16,
+                                          ),
+                                          border: Border.all(
+                                            color: const Color(0xFF0F6D95),
+                                            width: 1.5,
+                                          ),
                                           boxShadow: [
                                             BoxShadow(
-                                              color: const Color(0xFF0F6D95).withValues(alpha: 0.05),
+                                              color: const Color(
+                                                0xFF0F6D95,
+                                              ).withValues(alpha: 0.05),
                                               blurRadius: 8,
                                               offset: const Offset(0, 4),
                                             ),
@@ -205,7 +184,11 @@ class AdaptiveReminderScreen extends StatelessWidget {
                                         ),
                                         child: const Column(
                                           children: [
-                                            Icon(Icons.wb_sunny_outlined, color: Color(0xFF0F6D95), size: 24),
+                                            Icon(
+                                              Icons.wb_sunny_outlined,
+                                              color: Color(0xFF0F6D95),
+                                              size: 24,
+                                            ),
                                             SizedBox(height: 8),
                                             Text(
                                               '10:30 AM',
@@ -222,10 +205,15 @@ class AdaptiveReminderScreen extends StatelessWidget {
                                       Positioned(
                                         top: -8,
                                         child: Container(
-                                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                                          padding: const EdgeInsets.symmetric(
+                                            horizontal: 8,
+                                            vertical: 3,
+                                          ),
                                           decoration: BoxDecoration(
                                             color: const Color(0xFF0F6D95),
-                                            borderRadius: BorderRadius.circular(8),
+                                            borderRadius: BorderRadius.circular(
+                                              8,
+                                            ),
                                           ),
                                           child: const Text(
                                             'OPTIMAL',
@@ -256,7 +244,11 @@ class AdaptiveReminderScreen extends StatelessWidget {
                           child: const Row(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Icon(Icons.info_outline_rounded, color: Color(0xFF0F6D95), size: 20),
+                              Icon(
+                                Icons.info_outline_rounded,
+                                color: Color(0xFF0F6D95),
+                                size: 20,
+                              ),
                               SizedBox(width: 12),
                               Expanded(
                                 child: Column(
@@ -299,16 +291,15 @@ class AdaptiveReminderScreen extends StatelessWidget {
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(26),
                         gradient: const LinearGradient(
-                          colors: [
-                            Color(0xFF26B0E8),
-                            Color(0xFF0F6D95),
-                          ],
+                          colors: [Color(0xFF26B0E8), Color(0xFF0F6D95)],
                           begin: Alignment.topCenter,
                           end: Alignment.bottomCenter,
                         ),
                         boxShadow: [
                           BoxShadow(
-                            color: const Color(0xFF0F6D95).withValues(alpha: 0.3),
+                            color: const Color(
+                              0xFF0F6D95,
+                            ).withValues(alpha: 0.3),
                             blurRadius: 12,
                             offset: const Offset(0, 6),
                           ),
@@ -335,7 +326,11 @@ class AdaptiveReminderScreen extends StatelessWidget {
                               ),
                             ),
                             SizedBox(width: 6),
-                            Icon(Icons.check_circle_outline_rounded, color: Colors.white, size: 18),
+                            Icon(
+                              Icons.check_circle_outline_rounded,
+                              color: Colors.white,
+                              size: 18,
+                            ),
                           ],
                         ),
                       ),
@@ -348,7 +343,10 @@ class AdaptiveReminderScreen extends StatelessWidget {
                     child: OutlinedButton(
                       onPressed: () => Navigator.of(context).pop(),
                       style: OutlinedButton.styleFrom(
-                        side: BorderSide(color: Colors.grey.shade300, width: 1.2),
+                        side: BorderSide(
+                          color: Colors.grey.shade300,
+                          width: 1.2,
+                        ),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(26),
                         ),

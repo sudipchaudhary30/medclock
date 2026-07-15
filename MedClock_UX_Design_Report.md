@@ -445,45 +445,87 @@ Sprint retrospectives were conducted at the end of each sprint to identify proce
 
 ## 8. UX Laws and Design Principles
 
+This section provides an outline-style evaluation of how established UX laws and design principles influenced the MedClock interface. The aim is to show that the design decisions were not purely aesthetic, but were grounded in human perception, cognitive efficiency, and accessibility for older adults and caregivers.
+
 ### Law 1: Fitts's Law
-**Definition:** The time to acquire a target is a function of the distance to and size of the target.  
-**Application:** Primary action buttons (e.g., "Confirm Dose", "Request Refill") are rendered as full-width stadium-shaped buttons with 52px height, positioned at thumb-reachable zones at the bottom of the screen. The bottom navigation bar uses large 24px icons with generous touch targets (48px minimum). This is critical for the elderly patient demographic with reduced motor precision.
+**Definition:** The time required to reach a target increases as the target becomes smaller and farther away.  
+**Application in the proposed product:** Large touch targets were prioritised for medication actions, especially in the home dashboard and dose confirmation flow. Primary buttons such as “Confirm Taken” and “Add Medication” use generous sizing, high contrast, and thumb-friendly placement to reduce error for older adult users.
+**Supporting screenshots:** Screen file: `lib/screens/dose_logging/dose_confirm_screen.dart` — highlight the large confirm button and pill photo section. Screen file: `lib/screens/home/home_screen.dart` — highlight the floating action button and the prominent “View Schedule” CTA.
 
 ### Law 2: Hick's Law
-**Definition:** The time it takes to make a decision increases with the number and complexity of choices.  
-**Application:** The caregiver linking flow offers exactly two options: Scan QR or Enter Code. The dose confirmation presents exactly two choices: "Take" or "Miss." The onboarding flow presents one decision per screen (Next or Skip). By minimising choices at each decision point, cognitive load is reduced for users with lower digital literacy.
+**Definition:** Decision time increases as the number of options increases.  
+**Application in the proposed product:** The interface reduces cognitive burden by limiting each screen to a small number of choices. For example, the caregiver linking flow offers clear choices between scanning a QR code or entering a code, and the dose confirmation screen presents a single visible action path.
+**Supporting screenshots:** Screen file: `lib/screens/caregiver/qr_scanner_screen.dart` — highlight the two clear actions for linking. Screen file: `lib/screens/onboarding/onboarding_screen.dart` — highlight the simple “Next/Skip” progression.
 
 ### Law 3: Jakob's Law
-**Definition:** Users spend most of their time on *other* sites/apps. They prefer your product to work the same way as others they already know.  
-**Application:** The bottom tab navigation follows the pattern established by WhatsApp, Instagram, and other widely-used apps. The login screen uses the conventional email-on-top, password-below, submit-button-at-bottom layout. Settings screens use the iOS/Android-native ListTile pattern with chevron indicators for drill-down items.
+**Definition:** Users prefer interfaces that follow patterns they already know from other familiar products.  
+**Application in the proposed product:** MedClock adopts familiar mobile conventions, including bottom navigation, standard settings lists, profile actions, and conventional sign-in layout. This makes the app easier to learn for first-time users and reduces the need for training.
+**Supporting screenshots:** Screen file: `lib/screens/settings/settings_screen.dart` — highlight the familiar list-based settings structure. Screen file: `lib/screens/auth/login_screen.dart` — highlight the conventional email/password entry pattern.
 
 ### Law 4: Miller's Law
-**Definition:** The average person can only keep 7 (±2) items in their working memory.  
-**Application:** The patient dashboard displays a maximum of 2 upcoming reminders and 2 medication cards, with explicit "View All" links for complete lists. The bottom navigation uses exactly 4 tabs per role. The notification settings are grouped into 3 categories (Medication Alerts, Caregiver Updates, System) rather than presented as a flat list.
+**Definition:** People can hold only a limited number of items in working memory at one time.  
+**Application in the proposed product:** The dashboard avoids overwhelming users with too much information at once. The home screen presents a concise summary of today’s schedule, adherence status, and key actions rather than an overloaded interface.
+**Supporting screenshots:** Screen file: `lib/screens/home/home_screen.dart` — highlight the compact “Today” section and the summary hero card. Screen file: `lib/screens/settings/settings_screen.dart` — highlight the grouped notification and care circle cards.
 
-### Law 5: The Serial Position Effect
-**Definition:** Users best remember the first and last items in a series.  
-**Application:** The adherence streak (a positive motivational metric) is placed first on the patient dashboard. The "Sign Out" button (a critical but infrequent action) is placed last on the settings screen. In the dose history timeline, the most recent dose is shown at the top (recency) while the overall adherence percentage is shown in a prominent card at the top (primacy).
+### Law 5: Serial Position Effect
+**Definition:** People remember the first and last items in a sequence more easily than the middle ones.  
+**Application in the proposed product:** The most important information is positioned at the top and bottom of key screens. On the home screen, the adherence streak and summary metrics are placed prominently near the top, while repeated/critical actions appear in predictable locations.
+**Supporting screenshots:** Screen file: `lib/screens/home/home_screen.dart` — highlight the hero card at the top and the “View Schedule” action near the lower part of the section. Screen file: `lib/screens/settings/settings_screen.dart` — highlight the profile header and the final action areas.
 
-### Law 6: The Von Restorff Effect (Isolation Effect)
-**Definition:** When multiple similar objects are present, the one that differs most is most likely to be remembered.  
-**Application:** Missed doses are highlighted in red (#FF4757) against a predominantly teal/green interface, making them visually distinctive. The "Low Stock" refill badge uses a red background while "In Stock" uses a subtle green, ensuring urgent items are immediately noticeable. The floating action button on the patient dashboard uses the primary colour against the light scaffold background.
+### Law 6: Von Restorff Effect (Isolation Effect)
+**Definition:** Items that stand out visually are more likely to be noticed and remembered.  
+**Application in the proposed product:** Important states such as missed doses, urgent refills, and low stock are emphasised using strong colour contrast and distinct visual treatment. This ensures critical health information is not missed.
+**Supporting screenshots:** Screen file: `lib/screens/home/home_screen.dart` — highlight any medication card showing a clear status badge. Screen file: `lib/screens/refill/refill_screen.dart` — highlight the urgency indicators and refill warnings.
 
-### Law 7: The Aesthetic-Usability Effect
-**Definition:** Users often perceive aesthetically pleasing design as more usable.  
-**Application:** The entire application employs a "soft clinical" visual language: rounded card corners (16–24px radii), subtle shadows (4% opacity), consistent spacing, and a harmonious clinical teal colour palette. User testing confirmed that participants rated the prototype as both "beautiful" and "easy to use," validating this effect. The serif headings add a premium clinical feel that distinguishes MedClock from playful competitor apps.
+### Law 7: Aesthetic-Usability Effect
+**Definition:** Users often perceive attractive interfaces as easier and more trustworthy to use.  
+**Application in the proposed product:** MedClock uses a soft clinical aesthetic with rounded cards, calm colours, spacious layout, and a consistent visual language. This aligns with healthcare expectations and helps users feel more confident using the system.
+**Supporting screenshots:** Screen file: `lib/screens/home/home_screen.dart` — highlight the clean card-based hero layout. Screen file: `lib/screens/onboarding/onboarding_screen.dart` — highlight the polished visual card design and spacing.
 
 ### Law 8: Tesler's Law (Law of Conservation of Complexity)
-**Definition:** Every application has an inherent amount of irreducible complexity. The question is who deals with it—the user or the developer.  
-**Application:** The dual-shell navigation architecture (`AppShell` and `CaregiverAppShell`) absorbs significant complexity on the development side—managing independent navigator stacks, preserving scroll states, and routing role-specific screens—so that users experience a simple, consistent 4-tab interface regardless of their role. The QR scanner abstracts camera permissions, URL parsing, and patient ID extraction behind a single "point and scan" interaction.
+**Definition:** Some complexity is unavoidable; it should be handled by the system rather than the user.  
+**Application in the proposed product:** The app absorbs complexity through role-based navigation, automated reminders, and streamlined caregiver linking. Users are not forced to understand every technical detail behind the experience; the app manages the workflow behind the scenes.
+**Supporting screenshots:** Screen file: `lib/screens/main/app_shell.dart` — highlight the role-based tab navigation structure. Screen file: `lib/screens/caregiver/caregiver_dashboard.dart` — highlight the simplified dashboard experience for monitoring patients.
 
-### Law 9: The Doherty Threshold
-**Definition:** Productivity soars when a computer and its users interact at a pace (<400ms) that ensures neither has to wait on the other.  
-**Application:** All screen transition animations are set to 300–600ms (within perceptual thresholds). Loading spinners appear immediately during API calls to prevent perceived lag. The splash screen animation completes in under 2 seconds. Onboarding slide transitions use 400ms duration with easeOut curves, providing responsive feedback without feeling rushed.
+### Law 9: Doherty Threshold
+**Definition:** Users are more productive when response times are quick and feedback is immediate.  
+**Application in the proposed product:** The design uses short transitions, immediate confirmation feedback, and simple interactions to maintain fluidity. Feedback is delivered quickly so the user feels the app is responsive and dependable.
+**Supporting screenshots:** Screen file: `lib/screens/dose_logging/dose_confirm_screen.dart` — highlight the confirmation action and success feedback area. Screen file: `lib/screens/onboarding/onboarding_screen.dart` — highlight the animated slide transition and button response area.
 
-### Law 10: The Peak-End Rule
-**Definition:** People judge an experience largely based on how they felt at its peak and at its end.  
-**Application:** The dose confirmation flow ends with a satisfying green checkmark toast notification and haptic feedback, creating a positive "peak" moment. The onboarding flow ends with a welcoming "Get Started" CTA that transitions smoothly into the registration screen. The sign-out process provides a clean exit to the welcome screen rather than an abrupt app closure.
+### Law 10: Peak-End Rule
+**Definition:** People judge an experience based strongly on the emotional peak and the ending.  
+**Application in the proposed product:** The app creates satisfying end moments through successful dose confirmation, reassurance during onboarding, and calm, complete transitions between tasks. This encourages continued use and builds trust in the system.
+**Supporting screenshots:** Screen file: `lib/screens/dose_logging/dose_confirm_screen.dart` — highlight the completion state after confirmation. Screen file: `lib/screens/onboarding/onboarding_screen.dart` — highlight the final welcome/entry point.
+
+### Law 11: Gestalt Law of Proximity
+**Definition:** Objects placed close together are perceived as belonging to the same group.  
+**Application in the proposed product:** Related content is grouped visually so users can quickly understand what belongs together, such as medication details, status information, and actions. This is used heavily in card-based layouts and settings sections.
+**Supporting screenshots:** Screen file: `lib/screens/home/home_screen.dart` — highlight the grouped “Today” schedule cards. Screen file: `lib/screens/settings/settings_screen.dart` — highlight the grouped notification controls.
+
+### Law 12: Gestalt Law of Similarity
+**Definition:** Similar-looking elements are perceived as part of a common pattern or category.  
+**Application in the proposed product:** Repeated card styling, icon treatment, and label conventions make it easy for users to recognise related actions. Consistent forms improve recognition and reduce confusion.
+**Supporting screenshots:** Screen file: `lib/screens/home/home_screen.dart` — highlight the repeated reminder card styling. Screen file: `lib/screens/medications/medication_list_screen.dart` — highlight the consistent medication item format.
+
+### Law 13: Law of Prägnanz (Good Figure)
+**Definition:** People tend to perceive complex visual information in the simplest, most stable form.  
+**Application in the proposed product:** Visual clutter is reduced through clean spacing, focused hierarchy, and restraint in decorative elements. The interface presents only the most relevant information to help users understand the task quickly.
+**Supporting screenshots:** Screen file: `lib/screens/home/home_screen.dart` — highlight the uncluttered hero and schedule layout. Screen file: `lib/screens/onboarding/onboarding_screen.dart` — highlight the simplicity of each onboarding slide.
+
+### Law 14: Progressive Disclosure
+**Definition:** Information should be revealed gradually rather than all at once.  
+**Application in the proposed product:** The onboarding flow introduces features step by step, while the home dashboard shows the most relevant information first and offers deeper options only when needed. This reduces cognitive overload and supports users with lower digital confidence.
+**Supporting screenshots:** Screen file: `lib/screens/onboarding/onboarding_screen.dart` — highlight the step-by-step educational flow. Screen file: `lib/screens/settings/settings_screen.dart` — highlight how advanced settings are organised into manageable sections.
+
+### Law 15: Recognition Rather Than Recall
+**Definition:** Users perform better when they can recognise options rather than remember them from memory.  
+**Application in the proposed product:** Visual cues, labels, icons, and preserved context reduce the burden on memory. For example, medication cards and reminder statuses make the current state obvious instead of forcing the user to remember what happened earlier.
+**Supporting screenshots:** Screen file: `lib/screens/home/home_screen.dart` — highlight the visible status indicators for each reminder. Screen file: `lib/screens/dose_logging/dose_history_screen.dart` — highlight the timeline that helps users recognise recent actions.
+
+### Law 16: Visibility of System Status
+**Definition:** Users should always be able to see the current state of the system.  
+**Application in the proposed product:** The interface communicates status clearly through adherence percentages, reminder states, refill urgency, and caregiver alerts. These indicators keep users informed without needing to ask or search.
+**Supporting screenshots:** Screen file: `lib/screens/caregiver/caregiver_dashboard.dart` — highlight the patient status cards and activity summary. Screen file: `lib/screens/home/home_screen.dart` — highlight the adherence and reminder status display.
 
 ---
 

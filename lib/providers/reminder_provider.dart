@@ -1,4 +1,3 @@
-import 'dart:convert';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/reminder_model.dart';
@@ -40,7 +39,14 @@ class ReminderNotifier extends StateNotifier<List<ReminderModel>> {
     return false;
   }
 
-  Future<bool> addReminder(ReminderModel reminder) async {
+  Future<bool> addReminder(
+    ReminderModel reminder, {
+    String? medicationName,
+    String? dosage,
+    String? form,
+    String? pillPhotoUrl,
+    String? instruction,
+  }) async {
     final saved = await _reminderService.addReminder(reminder);
     if (saved != null) {
       state = [...state, saved];
@@ -48,13 +54,15 @@ class ReminderNotifier extends StateNotifier<List<ReminderModel>> {
         await _notificationService.scheduleWeeklyReminderNotifications(
           reminderId: saved.id,
           title: 'Time for your medication',
-          body: 'Take your medication at ${saved.scheduledTime}',
+          body:
+              'Take ${medicationName ?? 'your medication'} at ${saved.scheduledTime}',
           scheduledTime: saved.scheduledTime,
           days: saved.days,
-          payload: jsonEncode({
-            'reminderId': saved.id,
-            'scheduledTime': saved.scheduledTime,
-          }),
+          medicationName: medicationName,
+          dosage: dosage,
+          form: form,
+          pillPhotoUrl: pillPhotoUrl,
+          instruction: instruction,
         );
       } catch (_) {
         // Ignore scheduling errors so medication save still succeeds.
@@ -64,7 +72,14 @@ class ReminderNotifier extends StateNotifier<List<ReminderModel>> {
     return false;
   }
 
-  Future<bool> updateReminder(ReminderModel reminder) async {
+  Future<bool> updateReminder(
+    ReminderModel reminder, {
+    String? medicationName,
+    String? dosage,
+    String? form,
+    String? pillPhotoUrl,
+    String? instruction,
+  }) async {
     final existing = state.firstWhere(
       (r) => r.id == reminder.id,
       orElse: () => reminder,
@@ -79,13 +94,15 @@ class ReminderNotifier extends StateNotifier<List<ReminderModel>> {
         await _notificationService.scheduleWeeklyReminderNotifications(
           reminderId: updated.id,
           title: 'Time for your medication',
-          body: 'Take your medication at ${updated.scheduledTime}',
+          body:
+              'Take ${medicationName ?? 'your medication'} at ${updated.scheduledTime}',
           scheduledTime: updated.scheduledTime,
           days: updated.days,
-          payload: jsonEncode({
-            'reminderId': updated.id,
-            'scheduledTime': updated.scheduledTime,
-          }),
+          medicationName: medicationName,
+          dosage: dosage,
+          form: form,
+          pillPhotoUrl: pillPhotoUrl,
+          instruction: instruction,
         );
       } catch (_) {
         // Ignore scheduling errors so reminder update still succeeds.

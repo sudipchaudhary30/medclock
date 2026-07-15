@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:medclock/config/app_theme.dart';
 
 class McBottomNav extends StatelessWidget {
   final int selectedIndex;
@@ -12,26 +13,14 @@ class McBottomNav extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const activeColor = Color(0xFF0F6D95);
-    const inactiveColor = Color(0xFF9AA7B3);
+    const activeColor = AppTheme.primaryDark;
+    const inactiveColor = AppTheme.textPrimary;
 
     final List<Map<String, dynamic>> items = [
-      {
-        'icon': Icons.home_outlined,
-        'label': 'Home',
-      },
-      {
-        'icon': Icons.history_rounded,
-        'label': 'History',
-      },
-      {
-        'icon': Icons.medical_services_outlined,
-        'label': 'Refill',
-      },
-      {
-        'icon': Icons.settings_outlined,
-        'label': 'Settings',
-      },
+      {'icon': Icons.home_outlined, 'label': 'Home'},
+      {'icon': Icons.history_rounded, 'label': 'History'},
+      {'icon': Icons.medical_services_outlined, 'label': 'Refill'},
+      {'icon': Icons.settings_outlined, 'label': 'Settings'},
     ];
 
     return Container(
@@ -58,11 +47,7 @@ class McBottomNav extends StatelessWidget {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Icon(
-                      item['icon'] as IconData,
-                      color: color,
-                      size: 24,
-                    ),
+                    Icon(item['icon'] as IconData, color: color, size: 24),
                     const SizedBox(height: 2),
                     Text(
                       item['label'] as String,
@@ -70,8 +55,9 @@ class McBottomNav extends StatelessWidget {
                         color: color,
                         fontSize: 12,
                         fontFamily: 'serif',
-                        fontWeight:
-                            isSelected ? FontWeight.bold : FontWeight.w500,
+                        fontWeight: isSelected
+                            ? FontWeight.bold
+                            : FontWeight.w500,
                       ),
                     ),
                     const SizedBox(height: 2),

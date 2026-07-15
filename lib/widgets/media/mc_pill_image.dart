@@ -33,10 +33,14 @@ class McPillImage extends StatelessWidget {
 
   Widget _buildImage() {
     if (imageUrl == null || imageUrl!.isEmpty) {
-      return const Icon(
-        Icons.medication_rounded,
-        color: AppTheme.textHint,
-        size: 30,
+      return Image.asset(
+        'assets/images/images.jpg',
+        fit: BoxFit.cover,
+        errorBuilder: (context, error, stackTrace) => const Icon(
+          Icons.local_pharmacy_rounded,
+          color: AppTheme.primaryColor,
+          size: 36,
+        ),
       );
     }
     if (imageUrl!.startsWith('http')) {

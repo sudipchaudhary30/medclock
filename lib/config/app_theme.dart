@@ -6,7 +6,7 @@ class AppTheme {
   static const Color primaryColor = Color(0xFF006684); // Deep Clinical Teal
   static const Color primaryLight = Color(0xFFE6F3F7); // Soft Accent Light Teal
   static const Color primaryDark = Color(0xFF004457);
-  
+
   static const Color secondaryColor = Color(0xFF45CB85);
   static const Color secondaryLight = Color(0xFF6EDBA3);
   static const Color secondaryDark = Color(0xFF2EA86A);
@@ -18,7 +18,7 @@ class AppTheme {
   static const Color infoColor = Color(0xFF006684);
 
   // Neutral Colors
-  static const Color scaffoldBg = Color(0xFFF4F7F6); // Soft clinical light bg
+  static const Color scaffoldBg = Color(0xFFEFF4FF); // Soft clinical light bg
   static const Color cardBg = Color(0xFFFFFFFF);
   static const Color textPrimary = Color(0xFF0F1E24); // Darker teal-tint text
   static const Color textSecondary = Color(0xFF536A73); // Soft grey-blue text
@@ -190,7 +190,10 @@ class AppTheme {
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
         fillColor: Colors.white,
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 16,
+          vertical: 16,
+        ),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
           borderSide: const BorderSide(color: dividerColor),
@@ -224,9 +227,7 @@ class AppTheme {
       ),
       snackBarTheme: SnackBarThemeData(
         behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       ),
     );
   }
@@ -260,13 +261,19 @@ class AppTheme {
         elevation: 0,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(16),
-          side: BorderSide(color: Colors.white.withValues(alpha: 0.1), width: 1),
+          side: BorderSide(
+            color: Colors.white.withValues(alpha: 0.1),
+            width: 1,
+          ),
         ),
       ),
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
         fillColor: darkCardBg,
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 16,
+          vertical: 16,
+        ),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
           borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.1)),

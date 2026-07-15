@@ -11,7 +11,7 @@ import '../../widgets/media/mc_pill_image.dart';
 import '../../widgets/cards/mc_reminder_card.dart';
 import '../../config/app_theme.dart';
 
-const Color _homePageBg = Color(0xFFF4F7FC);
+const Color _homePageBg = Color(0xFFEFF4FF);
 const Color _homeHeroBlue = Color(0xFF24628C);
 const Color _homeHeroBlueDark = Color(0xFF1E567C);
 
@@ -51,13 +51,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     final todayScheduleItems = <Map<String, dynamic>>[];
     final todayReminders = reminders.where((r) {
       return medications.any((m) => m.id == r.medicationId);
-    }).toList()
-      ..sort((a, b) => a.scheduledTime.compareTo(b.scheduledTime));
+    }).toList()..sort((a, b) => a.scheduledTime.compareTo(b.scheduledTime));
 
     for (final reminder in todayReminders) {
-      final med = medications.firstWhere(
-        (m) => m.id == reminder.medicationId,
-      );
+      final med = medications.firstWhere((m) => m.id == reminder.medicationId);
 
       // Only consider dose logs scheduled for today
       final isTaken = doseLogs.any(
@@ -229,16 +226,17 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                             medication: med,
                             scheduledTime: reminder.scheduledTime,
                             status: status,
-                            onTap: () => Navigator.of(
-                              context,
-                              rootNavigator: true,
-                            ).pushNamed(
-                              AppRoutes.doseConfirm,
-                              arguments: {
-                                'reminder': reminder,
-                                'medication': med,
-                              },
-                            ),
+                            onTap: () =>
+                                Navigator.of(
+                                  context,
+                                  rootNavigator: true,
+                                ).pushNamed(
+                                  AppRoutes.doseConfirm,
+                                  arguments: {
+                                    'reminder': reminder,
+                                    'medication': med,
+                                  },
+                                ),
                           );
                         }).toList(),
                       ),
@@ -423,8 +421,6 @@ class _HeroCard extends StatelessWidget {
     );
   }
 }
-
-
 
 class _SupplyCard extends ConsumerWidget {
   final MedicationModel medication;
@@ -752,5 +748,3 @@ String _scheduleLabel(String scheduledTime) {
   if (hour < 20) return 'Before Dinner';
   return 'After Dinner';
 }
-
-

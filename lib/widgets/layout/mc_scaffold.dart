@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../config/app_theme.dart';
 import 'mc_app_bar.dart';
 import 'mc_bottom_nav.dart';
 import 'mc_caregiver_bottom_nav.dart';
@@ -36,14 +37,11 @@ class McScaffold extends StatelessWidget {
               selectedIndex: selectedIndex!,
               onTap: onTabTap!,
             )
-          : McBottomNav(
-              selectedIndex: selectedIndex!,
-              onTap: onTabTap!,
-            );
+          : McBottomNav(selectedIndex: selectedIndex!, onTap: onTabTap!);
     }
 
     return Scaffold(
-      backgroundColor: backgroundColor ?? const Color(0xFFF4F7FC),
+      backgroundColor: backgroundColor ?? AppTheme.scaffoldBg,
       appBar: McAppBar(
         title: title,
         actions: actions,

@@ -2,8 +2,10 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../config/app_theme.dart';
 import '../../config/routes.dart';
-import '../../providers/auth_provider.dart';
+import '../../providers/auth_provider.dart' as auth_provider;
+import '../../widgets/layout/caregiver_app_bar.dart';
 
 class CaregiverSettingsScreen extends ConsumerStatefulWidget {
   const CaregiverSettingsScreen({super.key});
@@ -84,60 +86,10 @@ class _CaregiverSettingsScreenState
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF4F7FC),
+      backgroundColor: AppTheme.scaffoldBg,
       body: CustomScrollView(
         slivers: [
-          // Custom premium transparent header matching the patient screens
-          SliverAppBar(
-            floating: false,
-            pinned: true,
-            automaticallyImplyLeading: false,
-            backgroundColor: const Color(0xFFF4F7FC),
-            elevation: 0,
-            leading: IconButton(
-              icon: const Icon(
-                Icons.arrow_back_ios_new_rounded,
-                color: Color(0xFF0F1E24),
-                size: 20,
-              ),
-              onPressed: () => Navigator.of(context).pop(),
-            ),
-            title: const Text(
-              'Settings',
-              style: TextStyle(
-                fontSize: 22,
-                fontWeight: FontWeight.bold,
-                color: Color(0xFF0F1E24),
-                fontFamily: 'serif',
-              ),
-            ),
-            actions: [
-              Consumer(
-                builder: (context, ref, child) {
-                  final user = ref.watch(authProvider);
-                  final photoBase64 = user?.photoBase64;
-                  return IconButton(
-                    onPressed: () =>
-                        Navigator.of(context).pushNamed(AppRoutes.profile),
-                    icon: CircleAvatar(
-                      radius: 18,
-                      backgroundColor: const Color(0xFFE6F2F7),
-                      foregroundImage:
-                          photoBase64 != null && photoBase64.isNotEmpty
-                          ? MemoryImage(base64Decode(photoBase64))
-                          : null,
-                      child: photoBase64 == null || photoBase64.isEmpty
-                          ? const Icon(
-                              Icons.person_outline_rounded,
-                              color: Color(0xFF6A7D90),
-                            )
-                          : null,
-                    ),
-                  );
-                },
-              ),
-            ],
-          ),
+          const CaregiverSliverAppBar(showBackButton: true),
 
           SliverToBoxAdapter(
             child: SingleChildScrollView(
@@ -145,6 +97,25 @@ class _CaregiverSettingsScreenState
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  const SizedBox(height: 8),
+                  const Text(
+                    'Settings',
+                    style: TextStyle(
+                      fontSize: 28,
+                      fontWeight: FontWeight.w700,
+                      color: Color(0xFF0F1E24),
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  const Text(
+                    'Customize caregiver alerts, sync, and privacy preferences.',
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: Color(0xFF536A73),
+                      height: 1.5,
+                    ),
+                  ),
+                  const SizedBox(height: 24),
                   // App Preferences Section Title
                   const Text(
                     'APP PREFERENCES',
@@ -324,7 +295,9 @@ class _CaregiverSettingsScreenState
                         ),
                       ),
                       onPressed: () async {
-                        await ref.read(authProvider.notifier).logout();
+                        await ref
+                            .read(auth_provider.authProvider.notifier)
+                            .logout();
                         if (context.mounted) {
                           Navigator.of(
                             context,
