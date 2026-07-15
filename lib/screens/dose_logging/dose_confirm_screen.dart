@@ -13,12 +13,12 @@ import '../../widgets/media/mc_pill_image.dart';
 import '../../widgets/common/mc_toast.dart';
 import '../../services/camera_service.dart';
 
-class DoseConfirmScreen extends ConsumerStatefulWidget {
-  const DoseConfirmScreen({super.key});
+// class DoseConfirmScreen extends ConsumerStatefulWidget {
+//   const DoseConfirmScreen({super.key});
 
-  @override
-  ConsumerState<DoseConfirmScreen> createState() => _DoseConfirmScreenState();
-}
+//   @override
+//   ConsumerState<DoseConfirmScreen> createState() => _DoseConfirmScreenState();
+// }
 
 class _DoseConfirmScreenState extends ConsumerState<DoseConfirmScreen> {
   String? _capturedPhotoPath;
