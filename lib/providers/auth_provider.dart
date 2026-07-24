@@ -5,20 +5,20 @@ import '../services/auth_service.dart';
 import '../services/local_storage_service.dart';
 
 // Services
-// final apiServiceProvider = Provider<ApiService>((ref) => ApiService());
-// final authServiceProvider = Provider<AuthService>(
-//   (ref) => AuthService(ref.watch(apiServiceProvider)),
-// );
-// final localStorageServiceProvider = Provider<LocalStorageService>(
-//   (ref) => LocalStorageService(),
-// );
+final apiServiceProvider = Provider<ApiService>((ref) => ApiService());
+final authServiceProvider = Provider<AuthService>(
+  (ref) => AuthService(ref.watch(apiServiceProvider)),
+);
+final localStorageServiceProvider = Provider<LocalStorageService>(
+  (ref) => LocalStorageService(),
+);
 
 // Auth State Notifier
-final authInitializedProvider = StateProvider<bool>((ref) => false);
+// final authInitializedProvider = StateProvider<bool>((ref) => false);
 
-class AuthNotifier extends StateNotifier<UserModel?> {
-  final AuthService _authService;
-  final Ref _ref;
+// class AuthNotifier extends StateNotifier<UserModel?> {
+//   final AuthService _authService;
+//   final Ref _ref;
 
   AuthNotifier(this._authService, this._ref) : super(null) {
     _init();
