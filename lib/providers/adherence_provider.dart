@@ -8,12 +8,6 @@ import 'dose_log_provider.dart';
 // Service provider
 // ---------------------------------------------------------------------------
 
-final adherenceServiceProvider = Provider<AdherenceService>((ref) {
-  return AdherenceService(
-    ref.watch(apiServiceProvider),
-    ref.watch(localStorageServiceProvider),
-  );
-});
 
 // ---------------------------------------------------------------------------
 // Per-user adherence (used by caregiver dashboard, keyed by patient userId)
