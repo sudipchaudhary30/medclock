@@ -14,11 +14,11 @@ final localStorageServiceProvider = Provider<LocalStorageService>(
 );
 
 // Auth State Notifier
-// final authInitializedProvider = StateProvider<bool>((ref) => false);
+final authInitializedProvider = StateProvider<bool>((ref) => false);
 
-// class AuthNotifier extends StateNotifier<UserModel?> {
-//   final AuthService _authService;
-//   final Ref _ref;
+class AuthNotifier extends StateNotifier<UserModel?> {
+  final AuthService _authService;
+  final Ref _ref;
 
   AuthNotifier(this._authService, this._ref) : super(null) {
     _init();
@@ -43,12 +43,7 @@ final localStorageServiceProvider = Provider<LocalStorageService>(
     return false;
   }
 
-  Future<bool> register({
-    required String email,
-    required String password,
-    required String name,
-    required UserRole role,
-    String? phone,
+  
   }) async {
     final user = await _authService.register(
       email: email,
