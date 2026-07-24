@@ -8,6 +8,12 @@ import 'dose_log_provider.dart';
 // Service provider
 // ---------------------------------------------------------------------------
 
+final adherenceServiceProvider = Provider<AdherenceService>((ref) {
+  return AdherenceService(
+    ref.watch(apiServiceProvider),
+    ref.watch(localStorageServiceProvider),
+  );
+});
 
 // ---------------------------------------------------------------------------
 // Per-user adherence (used by caregiver dashboard, keyed by patient userId)
@@ -15,8 +21,10 @@ import 'dose_log_provider.dart';
 
 /// [FutureProvider.family] — provide the userId (String) as the key.
 /// Automatically refreshes when dose logs change (via ref.watch).
-final userAdherenceProvider =
-    FutureProvider.family<AdherenceModel, String>((ref, userId) async {
+final userAdherenceProvider = FutureProvider.family<AdherenceModel, String>((
+  ref,
+  userId,
+) async {
   // Invalidate / refresh whenever dose logs are updated.
   ref.watch(doseLogProvider);
   final service = ref.watch(adherenceServiceProvider);
