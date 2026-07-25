@@ -18,10 +18,10 @@ class AddMedicationScreen extends ConsumerStatefulWidget {
       _AddMedicationScreenState();
 }
 
-// class _AddMedicationScreenState extends ConsumerState<AddMedicationScreen> {
-//   final _formKey = GlobalKey<FormState>();
-//   final _nameController = TextEditingController();
-//   final _supplyController = TextEditingController(text: '30');
+class _AddMedicationScreenState extends ConsumerState<AddMedicationScreen> {
+  final _formKey = GlobalKey<FormState>();
+  final _nameController = TextEditingController();
+  final _supplyController = TextEditingController(text: '30');
 
   String _selectedForm = 'tablet';
   String? _pillPhotoPath;
