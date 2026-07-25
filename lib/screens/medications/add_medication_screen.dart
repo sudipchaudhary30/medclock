@@ -13,10 +13,10 @@ import '../../services/camera_service.dart';
 class AddMedicationScreen extends ConsumerStatefulWidget {
   const AddMedicationScreen({super.key});
 
-//   @override
-//   ConsumerState<AddMedicationScreen> createState() =>
-//       _AddMedicationScreenState();
-// }
+  @override
+  ConsumerState<AddMedicationScreen> createState() =>
+      _AddMedicationScreenState();
+}
 
 class _AddMedicationScreenState extends ConsumerState<AddMedicationScreen> {
   final _formKey = GlobalKey<FormState>();
