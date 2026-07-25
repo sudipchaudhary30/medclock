@@ -37,7 +37,12 @@ class _DoseConfirmScreenState extends ConsumerState<DoseConfirmScreen> {
     });
   }
 
-
+  void _capturePhoto() async {
+    final path = await _cameraService.capturePhoto();
+    if (path != null) {
+      setState(() => _capturedPhotoPath = path);
+    }
+  }
 
   void _confirm() async {
     final args = ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
