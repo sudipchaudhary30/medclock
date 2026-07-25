@@ -292,8 +292,8 @@ class _DoseHistoryScreenState extends ConsumerState<DoseHistoryScreen> {
         minute,
       );
 
-      // final tempDate = DateTime(2000, 1, 1, hour, minute);
-      // final formattedTime = DateFormat('h:mm a').format(tempDate);
+      final tempDate = DateTime(2000, 1, 1, hour, minute);
+      final formattedTime = DateFormat('h:mm a').format(tempDate);
 
       scheduleItems.add({
         'id': reminder.id,
