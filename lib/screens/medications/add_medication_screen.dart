@@ -40,14 +40,14 @@ class _AddMedicationScreenState extends ConsumerState<AddMedicationScreen> {
     super.dispose();
   }
 
-  // /// Shows a bottom sheet letting the user pick Camera or Gallery.
-  // void _showPhotoOptions() {
-  //   showModalBottomSheet(
-  //     context: context,
-  //     backgroundColor: Colors.white,
-  //     shape: const RoundedRectangleBorder(
-  //       borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-  //     ),
+  /// Shows a bottom sheet letting the user pick Camera or Gallery.
+  void _showPhotoOptions() {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
       builder: (ctx) => SafeArea(
         child: Padding(
           padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
