@@ -211,20 +211,7 @@ class _DoseHistoryScreenState extends ConsumerState<DoseHistoryScreen> {
         ? 0
         : ((onTimeCount / totalLogs) * 100).round();
 
-    // Dynamically calculate trend progress (recent 7 days vs overall)
-    double trend = 0;
-    if (totalLogs > 0) {
-      final now = DateTime.now();
-      final sevenDaysAgo = now.subtract(const Duration(days: 7));
-      final recentLogs = logs
-          .where((l) => l.scheduledAt.isAfter(sevenDaysAgo))
-          .toList();
-      if (recentLogs.isNotEmpty) {
-        final recentOnTime = recentLogs.where((l) => l.isTaken).length;
-        final recentRate = (recentOnTime / recentLogs.length) * 100;
-        trend = recentRate - adherenceRate;
-      }
-    }
+    
     final String trendString = trend >= 0
         ? '+${trend.round()}%'
         : '${trend.round()}%';
