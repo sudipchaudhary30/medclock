@@ -28,13 +28,13 @@ class _CaregiverAppShellState extends State<CaregiverAppShell> {
     setState(() => _currentIndex = index);
   }
 
-  Widget _buildNavigator(int index, Widget child) {
-    return Navigator(
-      key: _navKeys[index],
-      onGenerateRoute: (settings) =>
-          MaterialPageRoute(builder: (_) => child, settings: settings),
-    );
-  }
+  // Widget _buildNavigator(int index, Widget child) {
+  //   return Navigator(
+  //     key: _navKeys[index],
+  //     onGenerateRoute: (settings) =>
+  //         MaterialPageRoute(builder: (_) => child, settings: settings),
+  //   );
+  // }
 
   @override
   Widget build(BuildContext context) {
