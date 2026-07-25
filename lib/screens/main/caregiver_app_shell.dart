@@ -8,9 +8,9 @@ import '../refill/refill_screen.dart';
 class CaregiverAppShell extends StatefulWidget {
   const CaregiverAppShell({super.key});
 
-//   @override
-//   State<CaregiverAppShell> createState() => _CaregiverAppShellState();
-// }
+  @override
+  State<CaregiverAppShell> createState() => _CaregiverAppShellState();
+}
 
 class _CaregiverAppShellState extends State<CaregiverAppShell> {
   int _currentIndex = 0;
