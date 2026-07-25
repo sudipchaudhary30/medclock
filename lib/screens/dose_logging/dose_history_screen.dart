@@ -255,16 +255,16 @@ class _DoseHistoryScreenState extends ConsumerState<DoseHistoryScreen> {
         ),
       );
 
-      // // Find dose logs matching this day/medication
-      // final dateLogs = logs
-      //     .where(
-      //       (l) =>
-      //           l.medicationId == reminder.medicationId &&
-      //           l.scheduledAt.year == _selectedDate.year &&
-      //           l.scheduledAt.month == _selectedDate.month &&
-      //           l.scheduledAt.day == _selectedDate.day,
-      //     )
-      //     .toList();
+      // Find dose logs matching this day/medication
+      final dateLogs = logs
+          .where(
+            (l) =>
+                l.medicationId == reminder.medicationId &&
+                l.scheduledAt.year == _selectedDate.year &&
+                l.scheduledAt.month == _selectedDate.month &&
+                l.scheduledAt.day == _selectedDate.day,
+          )
+          .toList();
 
       final DoseLogModel? matchingLog = dateLogs.isNotEmpty
           ? dateLogs.first
