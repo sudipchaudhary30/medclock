@@ -241,8 +241,8 @@ class _DoseHistoryScreenState extends ConsumerState<DoseHistoryScreen> {
       return _dayMatches(r.days, weekdayStr, _weekdayFullName(_selectedDate));
     }).toList();
 
-    // Sort chronological
-    dayReminders.sort((a, b) => a.scheduledTime.compareTo(b.scheduledTime));
+    // // Sort chronological
+    // dayReminders.sort((a, b) => a.scheduledTime.compareTo(b.scheduledTime));
 
     for (var reminder in dayReminders) {
       final med = medications.firstWhere(
