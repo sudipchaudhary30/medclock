@@ -308,18 +308,18 @@ class _DoseHistoryScreenState extends ConsumerState<DoseHistoryScreen> {
       });
     }
 
-    // return Scaffold(
-    //   backgroundColor: const Color(0xFFEFF4FF),
-    //   appBar: AppBar(
-    //     backgroundColor: Colors.white,
-    //     elevation: 0,
-    //     centerTitle: false,
-    //     automaticallyImplyLeading: false,
-    //     title: Image.asset(
-    //       'assets/medclocklogo.png',
-    //       height: 60,
-    //       fit: BoxFit.contain,
-    //     ),
+    return Scaffold(
+      backgroundColor: const Color(0xFFEFF4FF),
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+        elevation: 0,
+        centerTitle: false,
+        automaticallyImplyLeading: false,
+        title: Image.asset(
+          'assets/medclocklogo.png',
+          height: 60,
+          fit: BoxFit.contain,
+        ),
         actions: [
           IconButton(
             onPressed: () => Navigator.of(
