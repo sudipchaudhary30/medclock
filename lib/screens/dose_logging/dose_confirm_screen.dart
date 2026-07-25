@@ -44,13 +44,7 @@ class _DoseConfirmScreenState extends ConsumerState<DoseConfirmScreen> {
     }
   }
 
-  void _confirm() async {
-    final args = ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
-    final ReminderModel reminder = args['reminder'];
-    final MedicationModel medication = args['medication'];
-    final user = ref.read(authProvider);
 
-    setState(() => _isLoading = true);
 
     // Parse the reminder's scheduled time into a proper DateTime for today
     final timeParts = reminder.scheduledTime.split(':');
