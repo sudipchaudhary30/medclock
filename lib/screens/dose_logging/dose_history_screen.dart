@@ -266,9 +266,9 @@ class _DoseHistoryScreenState extends ConsumerState<DoseHistoryScreen> {
           )
           .toList();
 
-      // final DoseLogModel? matchingLog = dateLogs.isNotEmpty
-      //     ? dateLogs.first
-      //     : null;
+      final DoseLogModel? matchingLog = dateLogs.isNotEmpty
+          ? dateLogs.first
+          : null;
 
       String statusStr = 'pending';
       String? noteText;
