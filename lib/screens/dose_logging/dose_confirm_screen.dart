@@ -44,7 +44,13 @@ class _DoseConfirmScreenState extends ConsumerState<DoseConfirmScreen> {
     }
   }
 
+  void _confirm() async {
+    final args = ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
+    final ReminderModel reminder = args['reminder'];
+    final MedicationModel medication = args['medication'];
+    final user = ref.read(authProvider);
 
+    setState(() => _isLoading = true);
 
     // Parse the reminder's scheduled time into a proper DateTime for today
     final timeParts = reminder.scheduledTime.split(':');
@@ -53,18 +59,7 @@ class _DoseConfirmScreenState extends ConsumerState<DoseConfirmScreen> {
     final now = DateTime.now();
     final scheduledAt = DateTime(now.year, now.month, now.day, remHour, remMinute);
 
-    final log = DoseLogModel(
-      id: const Uuid().v4(),
-      userId: user?.id ?? '',
-      medicationId: medication.id,
-      reminderId: reminder.id,
-      status: DoseStatus.taken,
-      confirmedAt: DateTime.now(),
-      scheduledAt: scheduledAt,
-      photoUrl: _capturedPhotoPath,
-      confirmedBy: user?.id,
-    );
-
+   
     final success = await ref.read(doseLogProvider.notifier).logDose(log);
     setState(() => _isLoading = false);
 
