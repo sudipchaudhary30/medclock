@@ -203,7 +203,13 @@ class _DoseHistoryScreenState extends ConsumerState<DoseHistoryScreen> {
     final medications = ref.watch(medicationProvider);
     final reminders = ref.watch(reminderProvider);
 
-    
+    // Calculate dynamic stats from actual dose logs
+    final int totalLogs = logs.length;
+    final int onTimeCount = logs.where((l) => l.isTaken).length;
+    final int missedCount = logs.where((l) => l.isMissed).length;
+    final int adherenceRate = totalLogs == 0
+        ? 0
+        : ((onTimeCount / totalLogs) * 100).round();
 
     // Dynamically calculate trend progress (recent 7 days vs overall)
     double trend = 0;
