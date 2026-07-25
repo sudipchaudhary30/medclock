@@ -15,10 +15,10 @@ class CaregiverAppShell extends StatefulWidget {
 class _CaregiverAppShellState extends State<CaregiverAppShell> {
   int _currentIndex = 0;
 
-  // final List<GlobalKey<NavigatorState>> _navKeys = List.generate(
-  //   4,
-  //   (_) => GlobalKey<NavigatorState>(),
-  // );
+  final List<GlobalKey<NavigatorState>> _navKeys = List.generate(
+    4,
+    (_) => GlobalKey<NavigatorState>(),
+  );
 
   void _onTap(int index) {
     if (index == _currentIndex) {
