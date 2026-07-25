@@ -270,16 +270,16 @@ class _DoseHistoryScreenState extends ConsumerState<DoseHistoryScreen> {
           ? dateLogs.first
           : null;
 
-      // String statusStr = 'pending';
-      // String? noteText;
-      // if (matchingLog != null) {
-      //   statusStr = matchingLog.status.name;
-      //   if (matchingLog.isTaken) {
-      //     noteText = matchingLog.missedNote ?? 'TAKEN';
-      //   } else if (matchingLog.isMissed) {
-      //     noteText = matchingLog.missedNote;
-      //   }
-      // }
+      String statusStr = 'pending';
+      String? noteText;
+      if (matchingLog != null) {
+        statusStr = matchingLog.status.name;
+        if (matchingLog.isTaken) {
+          noteText = matchingLog.missedNote ?? 'TAKEN';
+        } else if (matchingLog.isMissed) {
+          noteText = matchingLog.missedNote;
+        }
+      }
 
       final parts = reminder.scheduledTime.split(':');
       final hour = parts.isNotEmpty ? int.tryParse(parts[0]) ?? 8 : 8;
