@@ -281,16 +281,16 @@ class _DoseHistoryScreenState extends ConsumerState<DoseHistoryScreen> {
         }
       }
 
-      final parts = reminder.scheduledTime.split(':');
-      final hour = parts.isNotEmpty ? int.tryParse(parts[0]) ?? 8 : 8;
-      final minute = parts.length > 1 ? int.tryParse(parts[1]) ?? 0 : 0;
-      final scheduledDateTime = DateTime(
-        _selectedDate.year,
-        _selectedDate.month,
-        _selectedDate.day,
-        hour,
-        minute,
-      );
+      // final parts = reminder.scheduledTime.split(':');
+      // final hour = parts.isNotEmpty ? int.tryParse(parts[0]) ?? 8 : 8;
+      // final minute = parts.length > 1 ? int.tryParse(parts[1]) ?? 0 : 0;
+      // final scheduledDateTime = DateTime(
+      //   _selectedDate.year,
+      //   _selectedDate.month,
+      //   _selectedDate.day,
+      //   hour,
+      //   minute,
+      // );
 
       final tempDate = DateTime(2000, 1, 1, hour, minute);
       final formattedTime = DateFormat('h:mm a').format(tempDate);
