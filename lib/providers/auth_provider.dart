@@ -43,7 +43,12 @@ class AuthNotifier extends StateNotifier<UserModel?> {
     return false;
   }
 
-  
+  Future<bool> register({
+    required String email,
+    required String password,
+    required String name,
+    required UserRole role,
+    String? phone,
   }) async {
     final user = await _authService.register(
       email: email,
