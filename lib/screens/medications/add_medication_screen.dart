@@ -216,15 +216,15 @@ class _AddMedicationScreenState extends ConsumerState<AddMedicationScreen> {
     }
   }
 
-  void _toggleDay(int day) {
-    setState(() {
-      if (_selectedDays.contains(day)) {
-        _selectedDays.remove(day);
-      } else {
-        _selectedDays.add(day);
-      }
-    });
-  }
+  // void _toggleDay(int day) {
+  //   setState(() {
+  //     if (_selectedDays.contains(day)) {
+  //       _selectedDays.remove(day);
+  //     } else {
+  //       _selectedDays.add(day);
+  //     }
+  //   });
+  // }
 
   void _submit() async {
     if (!_formKey.currentState!.validate()) return;
