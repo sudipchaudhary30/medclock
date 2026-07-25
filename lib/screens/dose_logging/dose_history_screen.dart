@@ -244,16 +244,16 @@ class _DoseHistoryScreenState extends ConsumerState<DoseHistoryScreen> {
     // Sort chronological
     dayReminders.sort((a, b) => a.scheduledTime.compareTo(b.scheduledTime));
 
-    for (var reminder in dayReminders) {
-      final med = medications.firstWhere(
-        (m) => m.id == reminder.medicationId,
-        orElse: () => MedicationModel(
-          id: reminder.medicationId,
-          userId: reminder.userId,
-          name: 'Medication',
-          dosage: 'N/A',
-        ),
-      );
+    // for (var reminder in dayReminders) {
+    //   final med = medications.firstWhere(
+    //     (m) => m.id == reminder.medicationId,
+    //     orElse: () => MedicationModel(
+    //       id: reminder.medicationId,
+    //       userId: reminder.userId,
+    //       name: 'Medication',
+    //       dosage: 'N/A',
+    //     ),
+    //   );
 
       // Find dose logs matching this day/medication
       final dateLogs = logs
