@@ -23,11 +23,11 @@ class _AddMedicationScreenState extends ConsumerState<AddMedicationScreen> {
   final _nameController = TextEditingController();
   final _supplyController = TextEditingController(text: '30');
 
-  // String _selectedForm = 'tablet';
-  // String? _pillPhotoPath;
-  // bool _isLoading = false;
-  // TimeOfDay _selectedTime = TimeOfDay(hour: 8, minute: 0);
-  // final Set<int> _selectedDays = {}; // 0=Sunday, 1=Monday, ..., 6=Saturday
+  String _selectedForm = 'tablet';
+  String? _pillPhotoPath;
+  bool _isLoading = false;
+  TimeOfDay _selectedTime = TimeOfDay(hour: 8, minute: 0);
+  final Set<int> _selectedDays = {}; // 0=Sunday, 1=Monday, ..., 6=Saturday
 
   final CameraService _cameraService = CameraService();
   MedicationModel? _editingMedication;
