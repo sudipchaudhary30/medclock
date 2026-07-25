@@ -53,13 +53,13 @@ class _MissedDoseScreenState extends ConsumerState<MissedDoseScreen> {
     final success = await ref.read(doseLogProvider.notifier).logDose(log);
     setState(() => _isLoading = false);
 
-    if (success && mounted) {
-      McToast.showSuccess(context, 'Dose marked as missed.');
-      Navigator.of(context).pop();
-    } else if (mounted) {
-      McToast.showError(context, 'Failed to update dose log.');
-    }
-  }
+  //   if (success && mounted) {
+  //     McToast.showSuccess(context, 'Dose marked as missed.');
+  //     Navigator.of(context).pop();
+  //   } else if (mounted) {
+  //     McToast.showError(context, 'Failed to update dose log.');
+  //   }
+  // }
 
   @override
   Widget build(BuildContext context) {
