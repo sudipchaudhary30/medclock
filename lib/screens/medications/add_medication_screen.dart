@@ -29,9 +29,9 @@ class _AddMedicationScreenState extends ConsumerState<AddMedicationScreen> {
   TimeOfDay _selectedTime = TimeOfDay(hour: 8, minute: 0);
   final Set<int> _selectedDays = {}; // 0=Sunday, 1=Monday, ..., 6=Saturday
 
-  final CameraService _cameraService = CameraService();
-  MedicationModel? _editingMedication;
-  bool _isEditing = false;
+  // final CameraService _cameraService = CameraService();
+  // MedicationModel? _editingMedication;
+  // bool _isEditing = false;
 
   @override
   void dispose() {
