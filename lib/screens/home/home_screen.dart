@@ -739,12 +739,12 @@ String _weekdayFullName(DateTime date) {
   return fullNames[date.weekday - 1];
 }
 
-String _scheduleLabel(String scheduledTime) {
-  final hour = int.tryParse(scheduledTime.split(':').first) ?? 8;
-  if (hour < 10) return 'Before Breakfast';
-  if (hour < 12) return 'After Breakfast';
-  if (hour < 14) return 'Before Lunch';
-  if (hour < 17) return 'After Lunch';
-  if (hour < 20) return 'Before Dinner';
-  return 'After Dinner';
-}
+// String _scheduleLabel(String scheduledTime) {
+//   final hour = int.tryParse(scheduledTime.split(':').first) ?? 8;
+//   if (hour < 10) return 'Before Breakfast';
+//   if (hour < 12) return 'After Breakfast';
+//   if (hour < 14) return 'Before Lunch';
+//   if (hour < 17) return 'After Lunch';
+//   if (hour < 20) return 'Before Dinner';
+//   return 'After Dinner';
+// }
