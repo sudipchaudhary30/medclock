@@ -4,25 +4,25 @@ import '../../config/app_theme.dart';
 import '../../widgets/layout/mc_scaffold.dart';
 import '../../widgets/media/mc_pill_image.dart';
 
-class AlarmScreen extends StatelessWidget {
-  final String? medicationName;
-  final String? dosage;
-  final String? form;
-  final String? pillPhotoUrl;
-  final String? scheduledTime;
-  final String? instruction;
-  final bool isDaily;
+// class AlarmScreen extends StatelessWidget {
+//   final String? medicationName;
+//   final String? dosage;
+//   final String? form;
+//   final String? pillPhotoUrl;
+//   final String? scheduledTime;
+//   final String? instruction;
+//   final bool isDaily;
 
-  const AlarmScreen({
-    super.key,
-    this.medicationName,
-    this.dosage,
-    this.form,
-    this.pillPhotoUrl,
-    this.scheduledTime,
-    this.instruction,
-    this.isDaily = true,
-  });
+//   const AlarmScreen({
+//     super.key,
+//     this.medicationName,
+//     this.dosage,
+//     this.form,
+//     this.pillPhotoUrl,
+//     this.scheduledTime,
+//     this.instruction,
+//     this.isDaily = true,
+//   });
 
   @override
   Widget build(BuildContext context) {
