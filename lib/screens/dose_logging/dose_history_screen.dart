@@ -171,14 +171,7 @@ class _DoseHistoryScreenState extends ConsumerState<DoseHistoryScreen> {
       return;
     }
 
-    final newLog = DoseLogModel(
-      id: UniqueKey().toString(),
-      userId: user?.id ?? 'user-id',
-      medicationId: medId,
-      status: DoseStatus.taken,
-      scheduledAt: scheduledTime,
-      confirmedAt: DateTime.now(),
-    );
+    
 
     final success = await ref.read(doseLogProvider.notifier).logDose(newLog);
     if (context.mounted) {
