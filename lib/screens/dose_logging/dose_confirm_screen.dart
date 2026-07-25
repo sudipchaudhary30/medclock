@@ -59,7 +59,18 @@ class _DoseConfirmScreenState extends ConsumerState<DoseConfirmScreen> {
     final now = DateTime.now();
     final scheduledAt = DateTime(now.year, now.month, now.day, remHour, remMinute);
 
-   
+    final log = DoseLogModel(
+      id: const Uuid().v4(),
+      userId: user?.id ?? '',
+      medicationId: medication.id,
+      reminderId: reminder.id,
+      status: DoseStatus.taken,
+      confirmedAt: DateTime.now(),
+      scheduledAt: scheduledAt,
+      photoUrl: _capturedPhotoPath,
+      confirmedBy: user?.id,
+    );
+
     final success = await ref.read(doseLogProvider.notifier).logDose(log);
     setState(() => _isLoading = false);
 
