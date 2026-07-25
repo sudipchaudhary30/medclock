@@ -233,8 +233,8 @@ class _DoseHistoryScreenState extends ConsumerState<DoseHistoryScreen> {
     final monthLabel = DateFormat('MMMM yyyy').format(_selectedDate);
     final String weekdayStr = _weekdayAbbrev(_selectedDate); // e.g. "Wed"
 
-    // Construct schedule items for the selected day from backend database
-    final List<Map<String, dynamic>> scheduleItems = [];
+    // // Construct schedule items for the selected day from backend database
+    // final List<Map<String, dynamic>> scheduleItems = [];
 
     // Find reminders scheduled for the selected weekday
     final dayReminders = reminders.where((r) {
