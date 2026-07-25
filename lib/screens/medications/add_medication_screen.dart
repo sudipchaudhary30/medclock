@@ -193,28 +193,28 @@ class _AddMedicationScreenState extends ConsumerState<AddMedicationScreen> {
     );
   }
 
-  void _selectTime(BuildContext context) async {
-    final TimeOfDay? picked = await showTimePicker(
-      context: context,
-      initialTime: _selectedTime,
-      builder: (context, child) {
-        return Theme(
-          data: Theme.of(context).copyWith(
-            timePickerTheme: TimePickerThemeData(
-              backgroundColor: Colors.white,
-              dialHandColor: const Color(0xFF0E6B94),
-              hourMinuteTextColor: const Color(0xFF0D1E30),
-              dialBackgroundColor: Colors.grey[100],
-            ),
-          ),
-          child: child!,
-        );
-      },
-    );
-    if (picked != null && picked != _selectedTime) {
-      setState(() => _selectedTime = picked);
-    }
-  }
+  // void _selectTime(BuildContext context) async {
+  //   final TimeOfDay? picked = await showTimePicker(
+  //     context: context,
+  //     initialTime: _selectedTime,
+  //     builder: (context, child) {
+  //       return Theme(
+  //         data: Theme.of(context).copyWith(
+  //           timePickerTheme: TimePickerThemeData(
+  //             backgroundColor: Colors.white,
+  //             dialHandColor: const Color(0xFF0E6B94),
+  //             hourMinuteTextColor: const Color(0xFF0D1E30),
+  //             dialBackgroundColor: Colors.grey[100],
+  //           ),
+  //         ),
+  //         child: child!,
+  //       );
+  //     },
+  //   );
+  //   if (picked != null && picked != _selectedTime) {
+  //     setState(() => _selectedTime = picked);
+  //   }
+  // }
 
   void _toggleDay(int day) {
     setState(() {
