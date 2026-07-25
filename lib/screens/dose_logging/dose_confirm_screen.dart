@@ -26,6 +26,16 @@ class _DoseConfirmScreenState extends ConsumerState<DoseConfirmScreen> {
 
   final CameraService _cameraService = CameraService();
 
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final args = ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
+      if (args['autoCamera'] == true) {
+        _capturePhoto();
+      }
+    });
+  }
 
   void _capturePhoto() async {
     final path = await _cameraService.capturePhoto();
