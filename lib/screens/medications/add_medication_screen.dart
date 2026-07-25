@@ -10,8 +10,8 @@ import '../../providers/reminder_provider.dart';
 import '../../widgets/common/mc_toast.dart';
 import '../../services/camera_service.dart';
 
-class AddMedicationScreen extends ConsumerStatefulWidget {
-  const AddMedicationScreen({super.key});
+// class AddMedicationScreen extends ConsumerStatefulWidget {
+//   const AddMedicationScreen({super.key});
 
   @override
   ConsumerState<AddMedicationScreen> createState() =>
