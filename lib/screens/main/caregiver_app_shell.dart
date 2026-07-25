@@ -20,13 +20,13 @@ class _CaregiverAppShellState extends State<CaregiverAppShell> {
     (_) => GlobalKey<NavigatorState>(),
   );
 
-  // void _onTap(int index) {
-  //   if (index == _currentIndex) {
-  //     _navKeys[index].currentState?.popUntil((r) => r.isFirst);
-  //     return;
-  //   }
-  //   setState(() => _currentIndex = index);
-  // }
+  void _onTap(int index) {
+    if (index == _currentIndex) {
+      _navKeys[index].currentState?.popUntil((r) => r.isFirst);
+      return;
+    }
+    setState(() => _currentIndex = index);
+  }
 
   Widget _buildNavigator(int index, Widget child) {
     return Navigator(
