@@ -10,7 +10,7 @@
   <img src="assets/images/app_preview.png" alt="MedClock App Screenshots" width="600" />
 </p>
 
-*Live Adherence Tracking, History Log & Urgent Refill Management*
+*Clinical Precision & Smart Refill Management*
 
 ---
 
