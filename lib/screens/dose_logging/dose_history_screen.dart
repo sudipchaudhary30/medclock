@@ -178,6 +178,7 @@ class _DoseHistoryScreenState extends ConsumerState<DoseHistoryScreen> {
       status: DoseStatus.taken,
       scheduledAt: scheduledTime,
       confirmedAt: DateTime.now(),
+      
     );
 
     final success = await ref.read(doseLogProvider.notifier).logDose(newLog);
